@@ -6,6 +6,7 @@ namespace irc {
 namespace scripting {
 int send(lua_State *);
 int stop(lua_State *);
+int version(lua_State *);
 }
 
 /// @brief User identification data sent to the IRC daemon
@@ -31,9 +32,6 @@ struct message_data {
 };
 
 struct socket_ssl {
-  boost::asio::streambuf reader_buffer;
-  boost::asio::streambuf writer_buffer;
-  
   boost::asio::ssl::context ssl_context{boost::asio::ssl::context::tlsv13};
   boost::asio::io_context context;
   const irc::user_data data;

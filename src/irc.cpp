@@ -1,7 +1,7 @@
 #include "../include/irc.hpp"
 using namespace chlorobot;
 
-constexpr static auto trigger_rate = std::chrono::milliseconds(1);
+constexpr static auto trigger_rate = std::chrono::milliseconds(50);
 constexpr static bool debug = true;
 
 int irc::scripting::stop(lua_State *L) {
@@ -56,6 +56,11 @@ int irc::scripting::send(lua_State *L) {
                             .trailing_param = trailing_param});
 
   return 0;
+}
+
+int irc::scripting::version(lua_State *L) {
+  lua_pushstring(L, chlorobot_VSTRING_FULL);
+  return 1;
 }
 
 irc::socket_ssl::socket_ssl(std::string &&host, std::string &&port,
@@ -188,6 +193,9 @@ irc::socket_ssl::socket_ssl(std::string &&host, std::string &&port,
   lua_pushcfunction(L, irc::scripting::send);
   lua_setfield(L, 1, "send");
 
+  lua_pushcfunction(L, irc::scripting::version);
+  lua_setfield(L, 1, "version");
+
   lua_pushlightuserdata(L, this);
   lua_setfield(L, 1, "context");
 
@@ -263,6 +271,7 @@ irc::socket_ssl::~socket_ssl() {
 }
 
 void irc::socket_ssl::send(irc::message_data &&data) {
+  boost::asio::streambuf writer_buffer;
   std::ostream writer_stream(&writer_buffer);
   writer_stream << data.serialize();
   if (debug) {
@@ -275,6 +284,7 @@ std::optional<irc::message_data> irc::socket_ssl::recv() {
   std::optional<irc::message_data> message = std::nullopt;
   boost::system::error_code error;
   std::size_t n = 0;
+  boost::asio::streambuf reader_buffer;
 
   // Setup an async timeout task
   boost::asio::async_read_until(
