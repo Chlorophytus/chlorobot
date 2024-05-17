@@ -14,6 +14,12 @@ function on_recv(packet, wall_clock)
         joined_at = wall_clock
         has_registered = true
     end
+    if packet.command == "PING" then
+        chlorobot:send({
+            command = "PONG",
+            trailing_parameter = packet.trailing_parameter
+        })
+    end
 end
 
 function on_tick(wall_clock)

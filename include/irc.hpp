@@ -22,7 +22,7 @@ struct user_data {
 struct message_data {
   std::optional<std::string> prefix = std::nullopt; // The first chunk
   std::variant<U16, std::string> command; // A command numeric or string
-  std::vector<std::string> params;        // Space-separated parameters
+  std::vector<std::string> params{};        // Space-separated parameters
   std::optional<std::string> trailing_param = std::nullopt; // The last chunk
 
   static message_data parse(const std::string &);

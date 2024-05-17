@@ -18,7 +18,7 @@ int irc::scripting::send(lua_State *L) {
 
   decltype(irc::message_data::prefix) prefix = std::nullopt;
   decltype(irc::message_data::command) command;
-  decltype(irc::message_data::params) params;
+  decltype(irc::message_data::params) params{};
   decltype(irc::message_data::trailing_param) trailing_param = std::nullopt;
 
   lua_getfield(L, 2, "prefix");
@@ -42,10 +42,12 @@ int irc::scripting::send(lua_State *L) {
   lua_pop(L, 1);
 
   lua_getfield(L, 2, "parameters");
-  lua_pushnil(L);
-  while (lua_next(L, -2)) {
-    params.emplace_back(lua_tostring(L, -1));
-    lua_pop(L, 1);
+  if (!lua_isnil(L, -1)) {
+    lua_pushnil(L);
+    while (lua_next(L, -2)) {
+      params.emplace_back(lua_tostring(L, -1));
+      lua_pop(L, 1);
+    }
   }
 
   S->send(irc::message_data{.prefix = prefix,
@@ -169,225 +171,224 @@ irc::socket_ssl::socket_ssl(std::string &&host, std::string &&port,
           send(irc::message_data{.command = "AUTHENTICATE",
                                  .params = {std::string{base64_out}}});
         }
-        }
       }
     }
+  }
 
-    std::cerr << "Starting Lua" << std::endl;
-    L = luaL_newstate();
-    luaL_openlibs(L);
+  std::cerr << "Starting Lua" << std::endl;
+  L = luaL_newstate();
+  luaL_openlibs(L);
 
-    lua_newtable(L);
+  lua_newtable(L);
 
-    lua_pushcfunction(L, irc::scripting::stop);
-    lua_setfield(L, 1, "stop");
+  lua_pushcfunction(L, irc::scripting::stop);
+  lua_setfield(L, 1, "stop");
 
-    lua_pushcfunction(L, irc::scripting::send);
-    lua_setfield(L, 1, "send");
+  lua_pushcfunction(L, irc::scripting::send);
+  lua_setfield(L, 1, "send");
 
-    lua_pushlightuserdata(L, this);
-    lua_setfield(L, 1, "context");
+  lua_pushlightuserdata(L, this);
+  lua_setfield(L, 1, "context");
 
-    lua_setglobal(L, "chlorobot");
+  lua_setglobal(L, "chlorobot");
 
-    luaL_dofile(L, "priv/init.lua");
+  luaL_dofile(L, "priv/init.lua");
 
-    const auto t0 = std::chrono::steady_clock::now();
+  const auto t0 = std::chrono::steady_clock::now();
 
-    while (running) {
-      const auto packet = recv();
-      const auto t1 = std::chrono::steady_clock::now();
-      if (packet) {
-        lua_getglobal(L, "on_recv");
-        lua_newtable(L);
+  while (running) {
+    const auto packet = recv();
+    const auto t1 = std::chrono::steady_clock::now();
+    if (packet) {
+      lua_getglobal(L, "on_recv");
+      lua_newtable(L);
 
-        lua_pushstring(L, "prefix");
-        if (packet->prefix) {
-          lua_pushstring(L, packet->prefix->c_str());
-        } else {
-          lua_pushnil(L);
-        }
-        lua_settable(L, -3);
-
-        lua_pushstring(L, "command");
-        if (packet->command.index() == 0) {
-          lua_pushinteger(
-              L, static_cast<lua_Integer>(std::get<U16>(packet->command)));
-        } else {
-          lua_pushstring(L, std::get<std::string>(packet->command).c_str());
-        }
-        lua_settable(L, -3);
-
-        lua_pushstring(L, "parameters");
-        lua_newtable(L);
-        U64 i = 1;
-        for (const auto param : packet->params) {
-          lua_pushnumber(L, i++);
-          lua_pushstring(L, param.c_str());
-          lua_settable(L, -3);
-        }
-        lua_settable(L, -3);
-
-        lua_pushstring(L, "trailing_parameter");
-        if (packet->trailing_param) {
-          lua_pushstring(L, packet->trailing_param->c_str());
-        } else {
-          lua_pushnil(L);
-        }
-        lua_settable(L, -3);
-        lua_pushinteger(
-            L, std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0)
-                   .count());
-        lua_pcall(L, 2, 0, 0);
+      lua_pushstring(L, "prefix");
+      if (packet->prefix) {
+        lua_pushstring(L, packet->prefix->c_str());
+      } else {
+        lua_pushnil(L);
       }
-      lua_getglobal(L, "on_tick");
+      lua_settable(L, -3);
+
+      lua_pushstring(L, "command");
+      if (packet->command.index() == 0) {
+        lua_pushinteger(
+            L, static_cast<lua_Integer>(std::get<U16>(packet->command)));
+      } else {
+        lua_pushstring(L, std::get<std::string>(packet->command).c_str());
+      }
+      lua_settable(L, -3);
+
+      lua_pushstring(L, "parameters");
+      lua_newtable(L);
+      U64 i = 1;
+      for (const auto param : packet->params) {
+        lua_pushnumber(L, i++);
+        lua_pushstring(L, param.c_str());
+        lua_settable(L, -3);
+      }
+      lua_settable(L, -3);
+
+      lua_pushstring(L, "trailing_parameter");
+      if (packet->trailing_param) {
+        lua_pushstring(L, packet->trailing_param->c_str());
+      } else {
+        lua_pushnil(L);
+      }
+      lua_settable(L, -3);
       lua_pushinteger(
           L, std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0)
                  .count());
-      lua_pcall(L, 1, 0, 0);
+      lua_pcall(L, 2, 0, 0);
     }
-
-    lua_close(L);
-
-    send(
-        irc::message_data{.command = "QUIT",
-                          .trailing_param = "[Chlorobot] run loop has halted"});
+    lua_getglobal(L, "on_tick");
+    lua_pushinteger(
+        L,
+        std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count());
+    lua_pcall(L, 1, 0, 0);
   }
 
-  irc::socket_ssl::~socket_ssl() {
-    std::cerr << "Disconnecting socket" << std::endl;
-    stream.shutdown();
-    context.stop();
-  }
+  lua_close(L);
 
-  void irc::socket_ssl::send(irc::message_data && data) {
-    boost::asio::streambuf writer_buffer;
-    std::ostream writer_stream(&writer_buffer);
-    writer_stream << data.serialize();
+  send(irc::message_data{.command = "QUIT",
+                         .trailing_param = "[Chlorobot] run loop has halted"});
+}
+
+irc::socket_ssl::~socket_ssl() {
+  std::cerr << "Disconnecting socket" << std::endl;
+  stream.shutdown();
+  context.stop();
+}
+
+void irc::socket_ssl::send(irc::message_data &&data) {
+  boost::asio::streambuf writer_buffer;
+  std::ostream writer_stream(&writer_buffer);
+  writer_stream << data.serialize();
+  if (debug) {
+    std::cerr << "[S <= C] " << data.serialize();
+  }
+  boost::asio::write(stream, writer_buffer);
+}
+
+std::optional<irc::message_data> irc::socket_ssl::recv() {
+  std::optional<irc::message_data> message = std::nullopt;
+  boost::asio::streambuf reader_buffer;
+  boost::system::error_code error;
+  std::size_t n = 0;
+
+  // Setup an async timeout task
+  boost::asio::async_read_until(
+      stream, reader_buffer, "\r\n",
+      [&error, &n](const boost::system::error_code &result_error,
+                   std::size_t result_n) {
+        error = result_error;
+        n = result_n;
+      });
+  context.restart();
+  context.run_for(trigger_rate);
+
+  // We have a message...
+  if (n > 0) {
+    std::string reader;
+    std::istream reader_stream(&reader_buffer);
+    std::getline(reader_stream, reader);
     if (debug) {
-      std::cerr << "[S <= C] " << data.serialize();
+      std::cerr << "[S => C] " << reader << std::endl;
     }
-    boost::asio::write(stream, writer_buffer);
+    message.emplace(irc::message_data::parse(reader));
   }
+  return message;
+}
 
-  std::optional<irc::message_data> irc::socket_ssl::recv() {
-    std::optional<irc::message_data> message = std::nullopt;
-    boost::asio::streambuf reader_buffer;
-    boost::system::error_code error;
-    std::size_t n = 0;
+irc::message_data irc::message_data::parse(const std::string &message) {
+  U64 i = 0;
+  // Remove trailing carriage return
+  std::string clipped = message;
+  clipped.pop_back();
 
-    // Setup an async timeout task
-    boost::asio::async_read_until(
-        stream, reader_buffer, "\r\n",
-        [&error, &n](const boost::system::error_code &result_error,
-                     std::size_t result_n) {
-          error = result_error;
-          n = result_n;
-        });
-    context.restart();
-    context.run_for(trigger_rate);
+  decltype(irc::message_data::prefix) prefix = std::nullopt;
+  decltype(irc::message_data::command) command{};
+  decltype(irc::message_data::params) params{};
+  decltype(irc::message_data::trailing_param) trailing_param = std::nullopt;
 
-    // We have a message...
-    if (n > 0) {
-      std::string reader;
-      std::istream reader_stream(&reader_buffer);
-      std::getline(reader_stream, reader);
-      if (debug) {
-        std::cerr << "[S => C] " << reader << std::endl;
-      }
-      message.emplace(irc::message_data::parse(reader));
-    }
-    return message;
-  }
-
-  irc::message_data irc::message_data::parse(const std::string &message) {
-    U64 i = 0;
-    // Remove trailing carriage return
-    std::string clipped = message;
-    clipped.pop_back();
-
-    decltype(irc::message_data::prefix) prefix = std::nullopt;
-    decltype(irc::message_data::command) command{};
-    decltype(irc::message_data::params) params{};
-    decltype(irc::message_data::trailing_param) trailing_param = std::nullopt;
-
-    for (const auto &split : std::views::split(clipped, ' ')) {
-      if (trailing_param) {
-        *trailing_param += ' ';
-        *trailing_param += std::string{split.begin(), split.end()};
-      } else {
-        switch (i) {
-        case 0: {
-          if (split[0] == ':') {
-            prefix.emplace(std::string{split.begin(), split.end()}.substr(1));
-          } else {
-            try {
-              // We're using Boost anyway
-              command.emplace<U16>(boost::lexical_cast<U16>(
-                  std::string{split.begin(), split.end()}));
-            } catch (boost::bad_lexical_cast _) {
-              command.emplace<std::string>(
-                  std::string{split.begin(), split.end()});
-            }
-          }
-          break;
-        }
-        case 1: {
-          if (prefix) {
-            // Command now
-            try {
-              // We're using Boost anyway
-              command.emplace<U16>(boost::lexical_cast<U16>(
-                  std::string{split.begin(), split.end()}));
-            } catch (boost::bad_lexical_cast _) {
-              command.emplace<std::string>(
-                  std::string{split.begin(), split.end()});
-            }
-          } else if (split[0] == ':') {
-            // Suffix now
-            trailing_param = std::string{split.begin(), split.end()}.substr(1);
-          } else {
-            // Space-separated parameters now
-            params.emplace_back(std::string{split.begin(), split.end()});
-          }
-          break;
-        }
-        default: {
-          if (split[0] == ':') {
-            // Suffix now
-            trailing_param = std::string{split.begin(), split.end()}.substr(1);
-          } else {
-            // Space-separated parameters now
-            params.emplace_back(std::string{split.begin(), split.end()});
-          }
-          break;
-        }
-        }
-        i++;
-      }
-    }
-
-    return irc::message_data{.prefix = prefix,
-                             .command = command,
-                             .params = params,
-                             .trailing_param = trailing_param};
-  }
-
-  const std::string irc::message_data::serialize() const {
-    std::string message = "";
-    if (prefix) {
-      message += ":" + *prefix + " ";
-    }
-    if (command.index() == 0) {
-      message += std::to_string(std::get<U16>(command));
-    } else {
-      message += std::get<std::string>(command);
-    }
-    for (const std::string &param : params) {
-      message += " " + param;
-    }
+  for (const auto &split : std::views::split(clipped, ' ')) {
     if (trailing_param) {
-      message += " :" + *trailing_param;
+      *trailing_param += ' ';
+      *trailing_param += std::string{split.begin(), split.end()};
+    } else {
+      switch (i) {
+      case 0: {
+        if (split[0] == ':') {
+          prefix.emplace(std::string{split.begin(), split.end()}.substr(1));
+        } else {
+          try {
+            // We're using Boost anyway
+            command.emplace<U16>(boost::lexical_cast<U16>(
+                std::string{split.begin(), split.end()}));
+          } catch (boost::bad_lexical_cast _) {
+            command.emplace<std::string>(
+                std::string{split.begin(), split.end()});
+          }
+        }
+        break;
+      }
+      case 1: {
+        if (prefix) {
+          // Command now
+          try {
+            // We're using Boost anyway
+            command.emplace<U16>(boost::lexical_cast<U16>(
+                std::string{split.begin(), split.end()}));
+          } catch (boost::bad_lexical_cast _) {
+            command.emplace<std::string>(
+                std::string{split.begin(), split.end()});
+          }
+        } else if (split[0] == ':') {
+          // Suffix now
+          trailing_param = std::string{split.begin(), split.end()}.substr(1);
+        } else {
+          // Space-separated parameters now
+          params.emplace_back(std::string{split.begin(), split.end()});
+        }
+        break;
+      }
+      default: {
+        if (split[0] == ':') {
+          // Suffix now
+          trailing_param = std::string{split.begin(), split.end()}.substr(1);
+        } else {
+          // Space-separated parameters now
+          params.emplace_back(std::string{split.begin(), split.end()});
+        }
+        break;
+      }
+      }
+      i++;
     }
-    return message + "\r\n";
   }
+
+  return irc::message_data{.prefix = prefix,
+                           .command = command,
+                           .params = params,
+                           .trailing_param = trailing_param};
+}
+
+const std::string irc::message_data::serialize() const {
+  std::string message = "";
+  if (prefix) {
+    message += ":" + *prefix + " ";
+  }
+  if (command.index() == 0) {
+    message += std::to_string(std::get<U16>(command));
+  } else {
+    message += std::get<std::string>(command);
+  }
+  for (const std::string &param : params) {
+    message += " " + param;
+  }
+  if (trailing_param) {
+    message += " :" + *trailing_param;
+  }
+  return message + "\r\n";
+}
