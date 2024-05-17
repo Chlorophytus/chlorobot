@@ -170,6 +170,7 @@ irc::socket_ssl::socket_ssl(std::string &&host, std::string &&port,
 
           send(irc::message_data{.command = "AUTHENTICATE",
                                  .params = {std::string{base64_out}}});
+          send(irc::message_data{.command = "CAP", .params = {"END"}});
         }
       }
     }
@@ -262,7 +263,6 @@ irc::socket_ssl::~socket_ssl() {
 }
 
 void irc::socket_ssl::send(irc::message_data &&data) {
-  boost::asio::streambuf writer_buffer;
   std::ostream writer_stream(&writer_buffer);
   writer_stream << data.serialize();
   if (debug) {
@@ -273,7 +273,6 @@ void irc::socket_ssl::send(irc::message_data &&data) {
 
 std::optional<irc::message_data> irc::socket_ssl::recv() {
   std::optional<irc::message_data> message = std::nullopt;
-  boost::asio::streambuf reader_buffer;
   boost::system::error_code error;
   std::size_t n = 0;
 

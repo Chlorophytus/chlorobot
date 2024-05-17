@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.26)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Project instantiation
-project(chlorobot VERSION 0.1.0.3)
+project(chlorobot VERSION 0.1.0.4)
 
 # Add Lua
 find_package(Lua 5.4 REQUIRED)
