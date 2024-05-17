@@ -104,6 +104,7 @@ configuration.hpp
 CPack*
 build
 .env
+env.lua
 
 # Test result files
 *.csv

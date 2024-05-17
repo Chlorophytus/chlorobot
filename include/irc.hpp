@@ -2,10 +2,16 @@
 #include "main.hpp"
 namespace chlorobot {
 namespace irc {
+/// @brief Lua scripting calls
+namespace scripting {
+int send(lua_State *);
+int stop(lua_State *);
+}
+
 /// @brief User identification data sent to the IRC daemon
 struct user_data {
-  std::string nickname; // Nickname shown when sending chat messages
-  std::string ident;    // Ident field (will be shown to left of hostmask)
+  std::string nickname;  // Nickname shown when sending chat messages
+  std::string ident;     // Ident field (will be shown to left of hostmask)
   std::string real_name; // Real name shown to whoever does a WHOIS on you
 
   std::string sasl_account;  // SASL account username
@@ -14,10 +20,10 @@ struct user_data {
 
 /// @brief Parsed IRC message data
 struct message_data {
-  std::optional<std::string> prefix;      // The first chunk
+  std::optional<std::string> prefix = std::nullopt; // The first chunk
   std::variant<U16, std::string> command; // A command numeric or string
   std::vector<std::string> params;        // Space-separated parameters
-  std::optional<std::string> trailing_param; // The last chunk
+  std::optional<std::string> trailing_param = std::nullopt; // The last chunk
 
   static message_data parse(const std::string &);
 
@@ -29,6 +35,8 @@ struct socket_ssl {
   boost::asio::io_context context;
   const irc::user_data data;
   boost::asio::ssl::stream<boost::asio::ip::tcp::socket> stream;
+  lua_State *L = nullptr;
+  bool running = true;
 
   /// @brief Connects to the IRC server by SSL on the specified port with user
   /// data
@@ -37,6 +45,9 @@ struct socket_ssl {
   /// @param user_data The user data to use
   socket_ssl(std::string &&, std::string &&, user_data &&);
   ~socket_ssl();
+
+  void send(message_data &&);
+  std::optional<message_data> recv();
 };
 } // namespace irc
 } // namespace chlorobot

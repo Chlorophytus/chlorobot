@@ -6,12 +6,16 @@
 #include <bits/stdc++.h>
 
 // Lua is included
-#include "lua.h"
+#include "lua.hpp"
+
+// ICU is included
+// #include "unicode/usprep.h"
 
 // Boost is included
 #include "boost/asio.hpp"
 #include "boost/asio/ssl.hpp"
 #include "boost/lexical_cast.hpp"
+#include "boost/beast/core/detail/base64.hpp"
 
 // Unsigned 8-bit integer scalar
 using U8 = std::uint8_t;
