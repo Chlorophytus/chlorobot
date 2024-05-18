@@ -22,9 +22,12 @@ function on_recv(packet, wall_clock)
     -- Commands
     if packet.command == "PRIVMSG" then
         local bang_token = string.find(packet.prefix, "!", 1, true)
+        local at_token = string.find(packet.prefix, "@", 1, true)
         local username = string.sub(packet.prefix, 1, bang_token - 1)
+        local cloak = string.sub(packet.prefix, at_token + 1)
+
         local origin = packet.parameters[1]
-        local use_notices = origin == "Chlorobot" 
+        local use_notices = origin == chlorobot:my_username()
         local trailing = packet.trailing_parameter
 
         if string.sub(trailing, 1, 2) == "c|" then
@@ -60,7 +63,7 @@ function on_recv(packet, wall_clock)
             for key, value in pairs(chlorobot_commands) do
                 if key == command then
                     not_present = false
-                    value(username, reply_fun, args)
+                    value(cloak, reply_fun, args)
                 end
             end
 

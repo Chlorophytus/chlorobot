@@ -5,6 +5,8 @@ namespace irc {
 /// @brief Lua scripting calls
 namespace scripting {
 int send(lua_State *);
+int my_username(lua_State *);
+int my_owner(lua_State *);
 int stop(lua_State *);
 int version(lua_State *);
 }
@@ -17,6 +19,8 @@ struct user_data {
 
   std::string sasl_account;  // SASL account username
   std::string sasl_password; // SASL password
+
+  std::string owner; // Bot owner username
 };
 
 /// @brief Parsed IRC message data

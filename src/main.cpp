@@ -13,6 +13,7 @@ int main(int argc, char **argv) {
     const std::string real_name = std::getenv("CHLOROBOT_REALNAME");
     const std::string sasl_username = std::getenv("CHLOROBOT_SASL_USERNAME");
     const std::string sasl_password = std::getenv("CHLOROBOT_SASL_PASSWORD");
+    const std::string owner = std::getenv("CHLOROBOT_OWNER");
 
     auto &&socket = std::make_unique<chlorobot::irc::socket_ssl>(
         std::string{std::getenv("CHLOROBOT_NETWORK_HOST")},
@@ -21,7 +22,8 @@ int main(int argc, char **argv) {
                                   .ident = ident,
                                   .real_name = real_name,
                                   .sasl_account = sasl_username,
-                                  .sasl_password = sasl_password});
+                                  .sasl_password = sasl_password,
+                                  .owner = owner});
 
     // Success is assumed when everything finishes with no exceptions
     status = EXIT_SUCCESS;

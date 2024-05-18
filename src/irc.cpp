@@ -12,6 +12,24 @@ int irc::scripting::stop(lua_State *L) {
   return 0;
 }
 
+int irc::scripting::my_username(lua_State *L) {
+  lua_getfield(L, 1, "context");
+  auto S = reinterpret_cast<irc::socket_ssl *>(lua_touserdata(L, -1));
+  lua_pushstring(L, S->data.nickname.c_str());
+
+  return 1;
+}
+
+int irc::scripting::my_owner(lua_State *L) {
+  lua_getfield(L, 1, "context");
+  auto S = reinterpret_cast<irc::socket_ssl *>(lua_touserdata(L, -1));
+  lua_pushstring(L, S->data.owner.c_str());
+
+  return 1;
+}
+
+
+
 int irc::scripting::send(lua_State *L) {
   lua_getfield(L, 1, "context");
   auto S = reinterpret_cast<irc::socket_ssl *>(lua_touserdata(L, -1));
@@ -195,6 +213,12 @@ irc::socket_ssl::socket_ssl(std::string &&host, std::string &&port,
 
   lua_pushcfunction(L, irc::scripting::version);
   lua_setfield(L, 1, "version");
+
+  lua_pushcfunction(L, irc::scripting::my_username);
+  lua_setfield(L, 1, "my_username");
+
+  lua_pushcfunction(L, irc::scripting::my_owner);
+  lua_setfield(L, 1, "my_owner");
 
   lua_pushlightuserdata(L, this);
   lua_setfield(L, 1, "context");
