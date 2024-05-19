@@ -1,16 +1,10 @@
-has_registered = false
-not_joined = true
-joined_at = nil
-
 dofile("priv/commands.lua")
 print("Lua started successfully")
 
-function on_recv(packet, wall_clock)
+function on_recv(packet)
     -- SASL Success
-    if packet.command == 903 then
-        print("Joined within " .. wall_clock .. "ms")
-        joined_at = wall_clock
-        has_registered = true
+    if packet.command == 900 then
+        dofile("priv/env.lua")
     end
     -- Pings/pongs
     if packet.command == "PING" then
@@ -43,7 +37,7 @@ function on_recv(packet, wall_clock)
                 i = i + 1
             end
             local not_present = true
-            local reply_fun = function (text)
+            local reply_fun = function(text)
                 chlorobot:send({
                     command = "PRIVMSG",
                     parameters = { origin },
@@ -51,7 +45,7 @@ function on_recv(packet, wall_clock)
                 })
             end
             if use_notices then
-                reply_fun = function (text)
+                reply_fun = function(text)
                     chlorobot:send({
                         command = "NOTICE",
                         parameters = { username },
@@ -70,15 +64,6 @@ function on_recv(packet, wall_clock)
             if not_present then
                 reply_fun("Command not found")
             end
-        end
-    end
-end
-
-function on_tick(wall_clock)
-    if has_registered then
-        if not_joined and (wall_clock - joined_at) > 1000 then
-            not_joined = false
-            dofile("priv/env.lua")
         end
     end
 end

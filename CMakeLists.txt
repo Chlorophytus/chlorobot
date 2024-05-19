@@ -5,13 +5,15 @@ cmake_minimum_required(VERSION 3.26)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Project instantiation
-project(chlorobot VERSION 0.1.0.6)
+project(chlorobot VERSION 0.1.0.7)
 
 # Add Lua
 find_package(Lua 5.4 REQUIRED)
 # Add Boost
 find_package(Boost 1.83 REQUIRED)
-find_package(OpenSSL REQUIRED)
+find_package(OpenSSL REQUIRED) 
+# Add LibreTLS
+pkg_check_modules(LibTLS REQUIRED libtls)
 
 # Configure the project header
 configure_file(include/configuration.txt
@@ -19,6 +21,7 @@ configure_file(include/configuration.txt
 
 # Build our main executable
 add_executable(${PROJECT_NAME}
+    src/tls_socket.cpp
     src/irc.cpp
     src/main.cpp)
 
@@ -30,11 +33,13 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 target_include_directories(${PROJECT_NAME} PRIVATE include
     ${LUA_INCLUDE_DIR} 
     ${Boost_INCLUDE_DIRS}
+    ${LibTLS_INCLUDE_DIRS}
 )
 
 # Finally link
 target_link_libraries(${PROJECT_NAME}
     ${LUA_LIBRARIES}
     ${Boost_LIBRARIES}
-    OpenSSL::SSL
+    ${LibTLS_LIBRARIES}
+    OpenSSL::SSL OpenSSL::Crypto
 )

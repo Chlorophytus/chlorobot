@@ -1,10 +1,12 @@
+chlorobot_loaded_on = os.date("!%c")
 chlorobot_commands = {}
+
 
 function command_ping(cloak, reply_fun, args)
     reply_fun("Pong")
 end
 
-function command_list(cloak, reply_fun, args)
+function command_help(cloak, reply_fun, args)
     local commands = ""
     for k, _ in pairs(chlorobot_commands) do
         commands = commands .. " " .. k
@@ -13,8 +15,8 @@ function command_list(cloak, reply_fun, args)
     reply_fun("Possible commands to use are:" .. commands)
 end
 
-function command_info(cloak, reply_fun, args)
-    reply_fun("I am Chlorobot v" .. chlorobot:version())
+function command_version(cloak, reply_fun, args)
+    reply_fun("I am Chlorobot v" .. chlorobot:version() .. " (loaded on " .. chlorobot_loaded_on .. ")")
 end
 
 function command_memory(cloak, reply_fun, args)
@@ -57,7 +59,7 @@ function command_fortune(cloak, reply_fun, args)
     end
 end
 
-function command_reload_cmds(cloak, reply_fun, args)
+function command_reload(cloak, reply_fun, args)
     if string.lower(cloak) == chlorobot:my_owner() then
         reply_fun("Trying to reload commands")
         dofile("priv/commands.lua")
@@ -66,12 +68,25 @@ function command_reload_cmds(cloak, reply_fun, args)
     end
 end
 
+function command_cpu_model(cloak, reply_fun, args)
+    local cpu_model_fd = io.popen("grep --color=never \"model name\" /proc/cpuinfo")
+
+    if cpu_model_fd ~= nil then
+        local cpu_model = cpu_model_fd:read("l")
+        cpu_model_fd:close()
+        reply_fun("I run on: " .. cpu_model)
+    else
+        reply_fun("Could not get CPU model")
+    end
+end
+
 chlorobot_commands = {
     ping = command_ping,
-    list = command_list,
-    info = command_info,
+    help = command_help,
+    version = command_version,
     memory = command_memory,
     uptime = command_uptime,
     fortune = command_fortune,
-    reload_cmds = command_reload_cmds
+    reload = command_reload,
+    cpu_model = command_cpu_model
 }

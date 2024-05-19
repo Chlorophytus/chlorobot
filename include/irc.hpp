@@ -1,5 +1,6 @@
 #pragma once
 #include "main.hpp"
+#include "tls_socket.hpp"
 namespace chlorobot {
 namespace irc {
 /// @brief Lua scripting calls
@@ -30,16 +31,13 @@ struct message_data {
   std::vector<std::string> params{};        // Space-separated parameters
   std::optional<std::string> trailing_param = std::nullopt; // The last chunk
 
-  static message_data parse(const std::string &);
+  static std::vector<message_data> parse(const std::string);
 
   const std::string serialize() const;
 };
 
 struct socket_ssl {
-  boost::asio::ssl::context ssl_context{boost::asio::ssl::context::tlsv13};
-  boost::asio::io_context context;
   const irc::user_data data;
-  boost::asio::ssl::stream<boost::asio::ip::tcp::socket> stream;
   lua_State *L = nullptr;
   bool running = true;
 
