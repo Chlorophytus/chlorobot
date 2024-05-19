@@ -69,7 +69,7 @@ function command_reload(cloak, reply_fun, args)
 end
 
 function command_cpu_model(cloak, reply_fun, args)
-    local cpu_model_fd = io.popen("grep --color=never \"model name\" /proc/cpuinfo")
+    local cpu_model_fd = io.popen("grep -i --color=never \"model\" /proc/cpuinfo")
 
     if cpu_model_fd ~= nil then
         local cpu_model = cpu_model_fd:read("l")
