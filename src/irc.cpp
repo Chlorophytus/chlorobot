@@ -4,6 +4,152 @@ using namespace chlorobot;
 constexpr static auto trigger_rate = std::chrono::milliseconds(10);
 constexpr static bool debug = true;
 
+decltype(irc::message_data::command) parse_command_variant(std::string &&str) {
+  U16 numeric = 0;
+  if (str.length() == 3) {
+    // Hundreds
+    if (std::isdigit(str[0])) {
+      switch (str[0]) {
+      default: {
+        break;
+      }
+      case '1': {
+        numeric += 100;
+        break;
+      }
+      case '2': {
+        numeric += 200;
+        break;
+      }
+      case '3': {
+        numeric += 300;
+        break;
+      }
+      case '4': {
+        numeric += 400;
+        break;
+      }
+      case '5': {
+        numeric += 500;
+        break;
+      }
+      case '6': {
+        numeric += 600;
+        break;
+      }
+      case '7': {
+        numeric += 700;
+        break;
+      }
+      case '8': {
+        numeric += 800;
+        break;
+      }
+      case '9': {
+        numeric += 900;
+        break;
+      }
+      }
+    } else {
+      return str;
+    }
+    // Tens
+    if (std::isdigit(str[1])) {
+      switch (str[1]) {
+      default: {
+        break;
+      }
+      case '1': {
+        numeric += 10;
+        break;
+      }
+      case '2': {
+        numeric += 20;
+        break;
+      }
+      case '3': {
+        numeric += 30;
+        break;
+      }
+      case '4': {
+        numeric += 40;
+        break;
+      }
+      case '5': {
+        numeric += 50;
+        break;
+      }
+      case '6': {
+        numeric += 60;
+        break;
+      }
+      case '7': {
+        numeric += 70;
+        break;
+      }
+      case '8': {
+        numeric += 80;
+        break;
+      }
+      case '9': {
+        numeric += 90;
+        break;
+      }
+      }
+    } else {
+      return str;
+    }
+    // Ones
+    if (std::isdigit(str[2])) {
+      switch (str[2]) {
+      default: {
+        break;
+      }
+      case '1': {
+        numeric += 1;
+        break;
+      }
+      case '2': {
+        numeric += 2;
+        break;
+      }
+      case '3': {
+        numeric += 3;
+        break;
+      }
+      case '4': {
+        numeric += 4;
+        break;
+      }
+      case '5': {
+        numeric += 5;
+        break;
+      }
+      case '6': {
+        numeric += 6;
+        break;
+      }
+      case '7': {
+        numeric += 7;
+        break;
+      }
+      case '8': {
+        numeric += 8;
+        break;
+      }
+      case '9': {
+        numeric += 9;
+        break;
+      }
+      }
+    } else {
+      return str;
+    }
+    return numeric;
+  }
+  return str;
+}
+
 int irc::scripting::stop(lua_State *L) {
   lua_getfield(L, 1, "context");
   auto S = reinterpret_cast<irc::socket_ssl *>(lua_touserdata(L, -1));
@@ -172,8 +318,8 @@ irc::socket_ssl::socket_ssl(std::string &&host, std::string &&port,
               packet.params.at(0) == "+") {
             // this is a bit tricky
             waiting = false;
-            char base64_in[400]{0};
-            char base64_out[400]{0};
+            U8 base64_in[400]{0};
+            U8 base64_out[50]{0};
             // authcid
             U32 i = 0;
             for (char in : data.sasl_account) {
@@ -193,10 +339,12 @@ irc::socket_ssl::socket_ssl(std::string &&host, std::string &&port,
               i++;
             }
 
-            boost::beast::detail::base64::encode(base64_out, base64_in, i);
+            // 400 / 8 = 50
+            EVP_EncodeBlock(base64_out, base64_in, 50);
 
             tls_socket::send(irc::message_data{
-                .command = "AUTHENTICATE", .params = {std::string{base64_out}}}
+                .command = "AUTHENTICATE",
+                .params = {std::string{reinterpret_cast<char *>(base64_out), 50}}}
                                  .serialize());
             tls_socket::send(
                 irc::message_data{.command = "CAP", .params = {"END"}}
@@ -311,7 +459,7 @@ irc::message_data::parse(const std::string message) {
     if (msg.back() == '\r') {
       msg.pop_back();
     }
-    if(msg.empty()) {
+    if (msg.empty()) {
       continue;
     }
     if (debug) {
@@ -335,28 +483,15 @@ irc::message_data::parse(const std::string message) {
           if (split[0] == ':') {
             prefix.emplace(std::string{split.begin(), split.end()}.substr(1));
           } else {
-            try {
-              // We're using Boost anyway
-              command.emplace<U16>(boost::lexical_cast<U16>(
-                  std::string{split.begin(), split.end()}));
-            } catch (boost::bad_lexical_cast _) {
-              command.emplace<std::string>(
-                  std::string{split.begin(), split.end()});
-            }
+            command =
+                parse_command_variant(std::string{split.begin(), split.end()});
           }
           break;
         }
         case 1: {
           if (prefix) {
-            // Command now
-            try {
-              // We're using Boost anyway
-              command.emplace<U16>(boost::lexical_cast<U16>(
-                  std::string{split.begin(), split.end()}));
-            } catch (boost::bad_lexical_cast _) {
-              command.emplace<std::string>(
-                  std::string{split.begin(), split.end()});
-            }
+            command =
+                parse_command_variant(std::string{split.begin(), split.end()});
           } else if (split[0] == ':') {
             // Suffix now
             trailing_param = std::string{split.begin(), split.end()}.substr(1);

@@ -11,9 +11,8 @@
 // libtls is included
 #include "tls.h"
 
-// Boost is included
-#include "boost/lexical_cast.hpp"
-#include "boost/beast/core/detail/base64.hpp"
+// OpenSSL Base64 is included
+#include "openssl/evp.h"
 
 // Unsigned 8-bit integer scalar
 using U8 = std::uint8_t;
