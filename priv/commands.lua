@@ -23,7 +23,7 @@ function command_memory(cloak, reply_fun, args)
     local memory_fd = io.popen("free -m")
 
     if memory_fd ~= nil then
-        memory_fd:lines("l")
+        local _  = memory_fd:read("l")
         local memory = memory_fd:read("l")
 
         local region = 1
