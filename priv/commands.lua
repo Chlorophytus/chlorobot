@@ -20,12 +20,29 @@ function command_version(cloak, reply_fun, args)
 end
 
 function command_memory(cloak, reply_fun, args)
-    local memory_fd = io.popen("free -m -L")
+    local memory_fd = io.popen("free -m")
 
     if memory_fd ~= nil then
+        memory_fd:lines("l")
         local memory = memory_fd:read("l")
+
+        local region = 1
+        local used_mb = nil
+        local total_mb = nil
+
+        for memory_tab in string.gmatch(memory, "%S+") do
+            if region == 1 then
+                total_mb = memory_tab
+            elseif region == 2 then
+                used_mb = memory_tab
+            else
+                break
+            end
+            region = region + 1
+        end
+
         memory_fd:close()
-        reply_fun("Memory usage data in megabytes: " .. memory)
+        reply_fun("Memory usage data: " .. used_mb .. "MB out of " .. total_mb .. "MB used")
     else
         reply_fun("Could not get memory usage data")
     end
