@@ -1,5 +1,5 @@
 # Minimum version is CMake 3.26
-cmake_minimum_required(VERSION 3.26)
+cmake_minimum_required(VERSION 3.25)
 
 # Export compile commands for the language server
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
