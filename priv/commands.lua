@@ -31,9 +31,9 @@ function command_memory(cloak, reply_fun, args)
         local total_mb = nil
 
         for memory_tab in string.gmatch(memory, "%S+") do
-            if region == 1 then
+            if region == 2 then
                 total_mb = memory_tab
-            elseif region == 2 then
+            elseif region == 3 then
                 used_mb = memory_tab
             else
                 break
