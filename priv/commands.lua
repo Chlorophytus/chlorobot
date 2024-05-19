@@ -20,7 +20,7 @@ function command_version(cloak, reply_fun, args)
 end
 
 function command_memory(cloak, reply_fun, args)
-    local memory_fd = io.popen("free -m")
+    local memory_fd = io.popen("free -m | tr -s ' '")
 
     if memory_fd ~= nil then
         local _  = memory_fd:read("l")
@@ -30,7 +30,7 @@ function command_memory(cloak, reply_fun, args)
         local used_mb = nil
         local total_mb = nil
 
-        for memory_tab in string.gmatch(memory, "[^\t]+") do
+        for memory_tab in string.gmatch(memory, "%S+") do
             if region == 2 then
                 total_mb = memory_tab
             elseif region == 3 then
