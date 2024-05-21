@@ -1,6 +1,7 @@
 chlorobot_loaded_on = os.date("!%c")
 chlorobot_commands = {}
 
+dofile("priv/markov.lua")
 
 function command_ping(cloak, reply_fun, args)
     reply_fun("Pong")
@@ -23,11 +24,11 @@ function command_memory(cloak, reply_fun, args)
     local memory_fd = io.popen("free -m")
 
     if memory_fd ~= nil then
-        local _  = memory_fd:read("l")
-        local memory = memory_fd:read("l")
+        local _        = memory_fd:read("l")
+        local memory   = memory_fd:read("l")
 
-        local region = 1
-        local used_mb = nil
+        local region   = 1
+        local used_mb  = nil
         local total_mb = nil
 
         for memory_tab in string.gmatch(memory, "%S+") do
@@ -99,6 +100,38 @@ function command_cpu_model(cloak, reply_fun, args)
     end
 end
 
+function command_markov(cloak, reply_fun, args)
+    -- For example, using the NLTK Inaugural dataset needs to be sanitized:
+    -- cat *.txt | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//' | sed '/^$/d' | tr -cd '\11\12\15\40-\176' > inaugural.txt
+    -- then in IRC: "c|markov load inaugural.txt"
+    if args[1] == "load" then
+        if string.lower(cloak) == chlorobot:my_owner() then
+            if #args > 1 then
+                local corpus_name = table.concat(table.remove(args, 1), " ")
+                reply_fun("Trying to load a text corpus: " .. corpus_name)
+                chlorobot_markov_data = markov_feed(corpus_name)
+            else
+                reply_fun("Usage: markov load (file_name...)")
+            end
+        else
+            reply_fun("Not authorized to load a Markov text corpus")
+        end
+    end
+    if args[1] == "run" then
+        if string.lower(cloak) == chlorobot:my_owner() then
+            if #args == 3 then
+                local min = tonumber(args[2])
+                local max = tonumber(args[3])
+                reply_fun(markov_run(chlorobot_markov_data, min, max))
+            else
+                reply_fun("Usage: markov run (min_words) (max_words)")
+            end
+        else
+            reply_fun("Not authorized to run the Markov chain text generator")
+        end
+    end
+end
+
 chlorobot_commands = {
     ping = command_ping,
     help = command_help,
@@ -107,5 +140,6 @@ chlorobot_commands = {
     uptime = command_uptime,
     fortune = command_fortune,
     reload = command_reload,
-    cpu_model = command_cpu_model
+    cpu_model = command_cpu_model,
+    markov = command_markov
 }
