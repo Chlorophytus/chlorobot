@@ -1,7 +1,7 @@
 function markov_feed(filename)
     local markov = { starters = {}, mids = {}, ends = {} }
+    local previous_word = nil
     for line in io.lines(filename) do
-        local previous_word = nil
         for word in string.gmatch(line, "[%a!.?]+") do
             local sanitized = string.match(string.lower(word), "%a+")
             if sanitized ~= nil then
@@ -19,6 +19,7 @@ function markov_feed(filename)
                     else
                         table.insert(markov.starters, sanitized)
                     end
+                    previous_word = sanitized
                 end
 
                 if ending ~= nil then
@@ -30,6 +31,7 @@ function markov_feed(filename)
                     else
                         table.insert(markov.ends[sanitized], ending)
                     end
+                    previous_word = nil
                 else
                     if markov.mids == nil then
                         markov.mids = { previous_word = { sanitized } }
@@ -45,8 +47,8 @@ function markov_feed(filename)
                             table.insert(markov.mids[previous_word], sanitized)
                         end
                     end
+                    previous_word = sanitized
                 end
-                previous_word = sanitized
             end
         end
     end
