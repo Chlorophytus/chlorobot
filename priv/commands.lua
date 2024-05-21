@@ -107,7 +107,8 @@ function command_markov(cloak, reply_fun, args)
     if args[1] == "load" then
         if string.lower(cloak) == chlorobot:my_owner() then
             if #args > 1 then
-                local corpus_name = table.concat(table.remove(args, 1), " ")
+                table.remove(args, 1)
+                local corpus_name = table.concat(args, " ")
                 reply_fun("Trying to load a text corpus: " .. corpus_name)
                 chlorobot_markov_data = markov_feed(corpus_name)
             else
