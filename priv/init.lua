@@ -28,7 +28,7 @@ function on_recv(packet)
             local command = ""
             local args = {}
             local i = 0
-            for v in string.gmatch(trailing, "%g+", 3) do
+            for v in string.gmatch(trailing, "%S+", 3) do
                 if i == 0 then
                     command = v
                 else
