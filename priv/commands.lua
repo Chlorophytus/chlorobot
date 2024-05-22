@@ -81,10 +81,10 @@ end
 
 function command_reload(cloak, reply_fun, args)
     if string.lower(cloak) == chlorobot:my_owner() then
-        reply_fun("Trying to reload commands")
+        reply_fun("Trying to reload Lua scripts")
         dofile("priv/init.lua")
     else
-        reply_fun("Not authorized to reload commands")
+        reply_fun("Not authorized to reload Lua scripts")
     end
 end
 
