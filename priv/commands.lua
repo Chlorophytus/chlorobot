@@ -1,8 +1,6 @@
 chlorobot_loaded_on = os.date("!%c")
 chlorobot_commands = {}
 
-dofile("priv/markov.lua")
-
 function command_ping(cloak, reply_fun, args)
     reply_fun("Pong")
 end
@@ -133,6 +131,16 @@ function command_markov(cloak, reply_fun, args)
     end
 end
 
+function command_eval(cloak, reply_fun, args)
+    if string.lower(cloak) == chlorobot:my_owner() then
+        reply_fun("Executing Lua statement...")
+        local statement = table.concat(args, " ")
+        load(statement)()
+    else
+        reply_fun("Not authorized to execute Lua statements")
+    end
+end
+
 chlorobot_commands = {
     ping = command_ping,
     help = command_help,
@@ -142,5 +150,6 @@ chlorobot_commands = {
     fortune = command_fortune,
     reload = command_reload,
     cpu_model = command_cpu_model,
-    markov = command_markov
+    markov = command_markov,
+    eval = command_eval
 }

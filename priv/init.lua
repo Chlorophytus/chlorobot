@@ -1,4 +1,6 @@
 dofile("priv/commands.lua")
+dofile("priv/markov.lua")
+dofile("priv/utils.lua")
 print("Lua started successfully")
 
 function on_recv(packet)
