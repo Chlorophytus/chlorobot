@@ -1,234 +1,21 @@
 #include "../include/irc.hpp"
 using namespace chlorobot;
 
-constexpr static auto trigger_rate = std::chrono::milliseconds(10);
-constexpr static bool debug = true;
+static bool running = true;
+static std::unique_ptr<std::vector<irc::listener>> listeners = nullptr;
 
-decltype(irc::message_data::command) parse_command_variant(std::string &&str) {
-  U16 numeric = 0;
-  if (str.length() == 3) {
-    // Hundreds
-    if (std::isdigit(str[0])) {
-      switch (str[0]) {
-      default: {
-        break;
-      }
-      case '1': {
-        numeric += 100;
-        break;
-      }
-      case '2': {
-        numeric += 200;
-        break;
-      }
-      case '3': {
-        numeric += 300;
-        break;
-      }
-      case '4': {
-        numeric += 400;
-        break;
-      }
-      case '5': {
-        numeric += 500;
-        break;
-      }
-      case '6': {
-        numeric += 600;
-        break;
-      }
-      case '7': {
-        numeric += 700;
-        break;
-      }
-      case '8': {
-        numeric += 800;
-        break;
-      }
-      case '9': {
-        numeric += 900;
-        break;
-      }
-      }
-    } else {
-      return str;
-    }
-    // Tens
-    if (std::isdigit(str[1])) {
-      switch (str[1]) {
-      default: {
-        break;
-      }
-      case '1': {
-        numeric += 10;
-        break;
-      }
-      case '2': {
-        numeric += 20;
-        break;
-      }
-      case '3': {
-        numeric += 30;
-        break;
-      }
-      case '4': {
-        numeric += 40;
-        break;
-      }
-      case '5': {
-        numeric += 50;
-        break;
-      }
-      case '6': {
-        numeric += 60;
-        break;
-      }
-      case '7': {
-        numeric += 70;
-        break;
-      }
-      case '8': {
-        numeric += 80;
-        break;
-      }
-      case '9': {
-        numeric += 90;
-        break;
-      }
-      }
-    } else {
-      return str;
-    }
-    // Ones
-    if (std::isdigit(str[2])) {
-      switch (str[2]) {
-      default: {
-        break;
-      }
-      case '1': {
-        numeric += 1;
-        break;
-      }
-      case '2': {
-        numeric += 2;
-        break;
-      }
-      case '3': {
-        numeric += 3;
-        break;
-      }
-      case '4': {
-        numeric += 4;
-        break;
-      }
-      case '5': {
-        numeric += 5;
-        break;
-      }
-      case '6': {
-        numeric += 6;
-        break;
-      }
-      case '7': {
-        numeric += 7;
-        break;
-      }
-      case '8': {
-        numeric += 8;
-        break;
-      }
-      case '9': {
-        numeric += 9;
-        break;
-      }
-      }
-    } else {
-      return str;
-    }
-    return numeric;
-  }
-  return str;
-}
+// duration to wait to get a RPC message
+constexpr static auto rpc_deadline = gpr_timespec{
+    .tv_sec = 0,
+    .tv_nsec = 1'000'000,
+};
 
-int irc::scripting::stop(lua_State *L) {
-  lua_getfield(L, 1, "context");
-  auto S = reinterpret_cast<irc::socket_ssl *>(lua_touserdata(L, -1));
-  S->running = false;
+void irc::connect(std::string &&host, std::string &&port,
+                  irc_data::user &&_data, std::string &&_rpc_token) {
+  const auto rpc_token = _rpc_token;
+  const auto data = _data;
+  listeners = std::make_unique<std::vector<irc::listener>>();
 
-  return 0;
-}
-
-int irc::scripting::my_username(lua_State *L) {
-  lua_getfield(L, 1, "context");
-  auto S = reinterpret_cast<irc::socket_ssl *>(lua_touserdata(L, -1));
-  lua_pushstring(L, S->data.nickname.c_str());
-
-  return 1;
-}
-
-int irc::scripting::my_owner(lua_State *L) {
-  lua_getfield(L, 1, "context");
-  auto S = reinterpret_cast<irc::socket_ssl *>(lua_touserdata(L, -1));
-  lua_pushstring(L, S->data.owner.c_str());
-
-  return 1;
-}
-
-int irc::scripting::send(lua_State *L) {
-  lua_getfield(L, 1, "context");
-  auto S = reinterpret_cast<irc::socket_ssl *>(lua_touserdata(L, -1));
-
-  decltype(irc::message_data::prefix) prefix = std::nullopt;
-  decltype(irc::message_data::command) command;
-  decltype(irc::message_data::params) params{};
-  decltype(irc::message_data::trailing_param) trailing_param = std::nullopt;
-
-  lua_getfield(L, 2, "prefix");
-  if (lua_isstring(L, -1)) {
-    prefix.emplace(lua_tostring(L, -1));
-  }
-  lua_pop(L, 1);
-
-  lua_getfield(L, 2, "command");
-  if (lua_isinteger(L, -1)) {
-    command = static_cast<U16>(lua_tointeger(L, -1));
-  } else {
-    command = std::string{lua_tostring(L, -1)};
-  }
-  lua_pop(L, 1);
-
-  lua_getfield(L, 2, "trailing_parameter");
-  if (lua_isstring(L, -1)) {
-    trailing_param.emplace(lua_tostring(L, -1));
-  }
-  lua_pop(L, 1);
-
-  lua_getfield(L, 2, "parameters");
-  if (!lua_isnil(L, -1)) {
-    lua_pushnil(L);
-    while (lua_next(L, -2)) {
-      params.emplace_back(lua_tostring(L, -1));
-      lua_pop(L, 1);
-    }
-  }
-
-  tls_socket::send(irc::message_data{.prefix = prefix,
-                                     .command = command,
-                                     .params = params,
-                                     .trailing_param = trailing_param}
-                       .serialize());
-
-  return 0;
-}
-
-int irc::scripting::version(lua_State *L) {
-  lua_pushstring(L, chlorobot_VSTRING_FULL);
-  return 1;
-}
-
-irc::socket_ssl::socket_ssl(std::string &&host, std::string &&port,
-                            user_data &&_data)
-    : data{_data} {
   tls_socket::connect(host, port);
 
   std::cerr << "--- Connected ---" << std::endl;
@@ -236,19 +23,19 @@ irc::socket_ssl::socket_ssl(std::string &&host, std::string &&port,
   // Request SASL
   std::cerr << "Requesting SASL" << std::endl;
   tls_socket::send(
-      irc::message_data{.command = "CAP", .params = {"LS"}}.serialize());
+      irc_data::packet{.command = "CAP", .params = {"LS"}}.serialize());
 
   // Nickname
   std::cerr << "Sending nickname" << std::endl;
   tls_socket::send(
-      irc::message_data{.command = "NICK", .params = {data.nickname}}
+      irc_data::packet{.command = "NICK", .params = {data.nickname}}
           .serialize());
 
   // Username
   std::cerr << "Sending username" << std::endl;
-  tls_socket::send(irc::message_data{.command = "USER",
-                                     .params = {data.ident, "0", "*"},
-                                     .trailing_param = data.real_name}
+  tls_socket::send(irc_data::packet{.command = "USER",
+                                    .params = {data.ident, "0", "*"},
+                                    .trailing_param = data.real_name}
                        .serialize());
 
   // CAP SASL Acknowledge waiter
@@ -257,7 +44,7 @@ irc::socket_ssl::socket_ssl(std::string &&host, std::string &&port,
   while (waiting) {
     const auto recv = tls_socket::recv();
     if (recv) {
-      const auto packets = message_data::parse(*recv);
+      const auto packets = irc_data::packet::parse(*recv);
       for (auto &&packet : packets) {
         const auto command = packet.command;
         if (command.index() == 1) {
@@ -265,9 +52,9 @@ irc::socket_ssl::socket_ssl(std::string &&host, std::string &&port,
             std::string trailing_param = packet.trailing_param.value_or("");
             for (auto &&cap : std::views::split(trailing_param, ' ')) {
               if (std::string{cap.begin(), cap.end()} == "sasl") {
-                tls_socket::send(irc::message_data{.command = "CAP",
-                                                   .params = {"REQ"},
-                                                   .trailing_param = "sasl"}
+                tls_socket::send(irc_data::packet{.command = "CAP",
+                                                  .params = {"REQ"},
+                                                  .trailing_param = "sasl"}
                                      .serialize());
                 waiting = false;
                 break;
@@ -288,14 +75,14 @@ irc::socket_ssl::socket_ssl(std::string &&host, std::string &&port,
   while (waiting) {
     const auto recv = tls_socket::recv();
     if (recv) {
-      const auto packets = message_data::parse(*recv);
+      const auto packets = irc_data::packet::parse(*recv);
       for (auto &&packet : packets) {
         const auto command = packet.command;
         if (command.index() == 1 && std::get<std::string>(command) == "CAP" &&
             packet.params.at(1) == "ACK" &&
             packet.trailing_param.value_or("") == "sasl") {
           tls_socket::send(
-              irc::message_data{.command = "AUTHENTICATE", .params = {"PLAIN"}}
+              irc_data::packet{.command = "AUTHENTICATE", .params = {"PLAIN"}}
                   .serialize());
           waiting = false;
           break;
@@ -310,7 +97,7 @@ irc::socket_ssl::socket_ssl(std::string &&host, std::string &&port,
   while (waiting) {
     const auto recv = tls_socket::recv();
     if (recv) {
-      const auto packets = message_data::parse(*recv);
+      const auto packets = irc_data::packet::parse(*recv);
       for (auto &&packet : packets) {
         const auto command = packet.command;
         if (command.index() == 1) {
@@ -342,12 +129,13 @@ irc::socket_ssl::socket_ssl(std::string &&host, std::string &&port,
             // 400 / 8 = 50
             EVP_EncodeBlock(base64_out, base64_in, 50);
 
-            tls_socket::send(irc::message_data{
+            tls_socket::send(irc_data::packet{
                 .command = "AUTHENTICATE",
-                .params = {std::string{reinterpret_cast<char *>(base64_out), 50}}}
-                                 .serialize());
+                .params = {std::string{
+                    reinterpret_cast<char *>(base64_out),
+                    50}}}.serialize());
             tls_socket::send(
-                irc::message_data{.command = "CAP", .params = {"END"}}
+                irc_data::packet{.command = "CAP", .params = {"END"}}
                     .serialize());
             break;
           }
@@ -355,192 +143,166 @@ irc::socket_ssl::socket_ssl(std::string &&host, std::string &&port,
       }
     }
   }
+  std::cerr << "Starting gRPC server" << std::endl;
 
-  std::cerr << "Starting Lua" << std::endl;
-  L = luaL_newstate();
-  luaL_openlibs(L);
+  ChlorobotRPC::AsyncService rpc_service;
+  grpc::EnableDefaultHealthCheckService(true);
+  grpc::reflection::InitProtoReflectionServerBuilderPlugin();
+  grpc::ServerBuilder rpc_builder;
+  rpc_builder.AddListeningPort("127.0.0.1:50051",
+                               grpc::InsecureServerCredentials());
+  rpc_builder.RegisterService(&rpc_service);
+  auto completion_queue = rpc_builder.AddCompletionQueue();
+  auto server = rpc_builder.BuildAndStart();
+  grpc::ServerContext rpc_context;
 
-  lua_newtable(L);
-
-  lua_pushcfunction(L, irc::scripting::stop);
-  lua_setfield(L, 1, "stop");
-
-  lua_pushcfunction(L, irc::scripting::send);
-  lua_setfield(L, 1, "send");
-
-  lua_pushcfunction(L, irc::scripting::version);
-  lua_setfield(L, 1, "version");
-
-  lua_pushcfunction(L, irc::scripting::my_username);
-  lua_setfield(L, 1, "my_username");
-
-  lua_pushcfunction(L, irc::scripting::my_owner);
-  lua_setfield(L, 1, "my_owner");
-
-  lua_pushlightuserdata(L, this);
-  lua_setfield(L, 1, "context");
-
-  lua_setglobal(L, "chlorobot");
-
-  luaL_dofile(L, "priv/init.lua");
+  std::cerr << "Starting Run Loop" << std::endl;
 
   while (running) {
+    // Check if we got a send message
+    void *rpc_tag;
+    bool rpc_ok;
+    auto rpc_status =
+        completion_queue->AsyncNext(&rpc_tag, &rpc_ok, rpc_deadline);
     const auto recv = tls_socket::recv();
+
+    do {
+      if (rpc_ok &&
+          rpc_status == grpc::CompletionQueue::NextStatus::GOT_EVENT) {
+        // We got something, check what it is
+        if (static_cast<ChlorobotRequest *>(rpc_tag) != nullptr) {
+          ChlorobotRequest request;
+          grpc::ServerAsyncResponseWriter<ChlorobotAcknowledgement> responder(
+              &rpc_context);
+          rpc_service.RequestSend(&rpc_context, &request, &responder,
+                                  completion_queue.get(),
+                                  completion_queue.get(), rpc_tag);
+          if (request.auth().token() == rpc_token) {
+            ChlorobotAcknowledgement acknowledgement;
+            switch (request.data_case()) {
+            case ChlorobotRequest::DataCase::kCommandType: {
+              acknowledgement.mutable_version()->set_major(chlorobot_VMAJOR);
+              acknowledgement.mutable_version()->set_minor(chlorobot_VMINOR);
+              acknowledgement.mutable_version()->set_patch(chlorobot_VPATCH);
+              acknowledgement.mutable_version()->set_pretty(
+                  chlorobot_VSTRING_FULL);
+              break;
+            }
+            case ChlorobotRequest::DataCase::kPacket: {
+              const auto send_this = request.packet();
+              const auto send_params = send_this.parameters();
+              const auto send_size = send_params.size();
+
+              irc_data::packet serialize{};
+
+              if (send_this.has_prefix()) {
+                serialize.prefix = send_this.prefix();
+              }
+              switch (send_this.command_case()) {
+              case ChlorobotPacket::CommandCase::kNumeric: {
+                serialize.command = send_this.numeric();
+                break;
+              }
+              case ChlorobotPacket::CommandCase::kNonNumeric: {
+                serialize.command = send_this.non_numeric();
+                break;
+              }
+              default: {
+                throw std::runtime_error{
+                    "unimplemented IRC command object type"};
+                break;
+              }
+              }
+              for (auto send_i = 0; send_i < send_size; send_i++) {
+                serialize.params.emplace_back(send_params[send_i]);
+              }
+              if (send_this.has_trailing_parameter()) {
+                serialize.trailing_param = send_this.trailing_parameter();
+              }
+
+              tls_socket::send(serialize.serialize());
+              break;
+            }
+            default: {
+              throw std::runtime_error{"unimplemented Chlorobot request"};
+              break;
+            }
+            }
+            responder.Finish(acknowledgement, grpc::Status::OK, rpc_tag);
+          } else {
+            responder.Finish(ChlorobotAcknowledgement(),
+                             grpc::Status::CANCELLED, rpc_tag);
+          }
+        }
+        if (static_cast<ChlorobotAuthentication *>(rpc_tag) != nullptr) {
+          ChlorobotAuthentication request;
+          listeners->emplace_back();
+          listeners->back().tag = rpc_tag;
+
+          rpc_service.RequestListen(
+              &rpc_context, &request, listeners->back().writer,
+              completion_queue.get(), completion_queue.get(),
+              listeners->back().tag);
+          if (request.token() != rpc_token) {
+            listeners->back().writer->Finish(grpc::Status::CANCELLED,
+                                             listeners->back().tag);
+            listeners->pop_back();
+          }
+        }
+      }
+      rpc_status = completion_queue->AsyncNext(&rpc_tag, &rpc_ok, rpc_deadline);
+    } while (rpc_status == grpc::CompletionQueue::NextStatus::GOT_EVENT);
+
     if (recv) {
-      const auto packets = message_data::parse(*recv);
+      const auto packets = irc_data::packet::parse(*recv);
 
       for (auto &&packet : packets) {
-
-        if (packet.command.index() == 1 &&
-            std::get<std::string>(packet.command) == "ERROR") {
-          running = false;
-          break;
-        }
-
-        lua_getglobal(L, "on_recv");
-        lua_newtable(L);
-
-        lua_pushstring(L, "prefix");
+        // gRPC code
+        ChlorobotPacket rpc_packet;
         if (packet.prefix) {
-          lua_pushstring(L, packet.prefix->c_str());
+          rpc_packet.set_prefix(packet.prefix.value());
+        }
+        if (packet.command.index() == 1) {
+          rpc_packet.set_non_numeric(std::get<std::string>(packet.command));
         } else {
-          lua_pushnil(L);
+          rpc_packet.set_numeric(std::get<U32>(packet.command));
         }
-        lua_settable(L, -3);
-
-        lua_pushstring(L, "command");
-        if (packet.command.index() == 0) {
-          lua_pushinteger(
-              L, static_cast<lua_Integer>(std::get<U16>(packet.command)));
-        } else {
-          lua_pushstring(L, std::get<std::string>(packet.command).c_str());
+        const auto parameters_size = packet.params.size();
+        for (auto parameter_index = 0; parameter_index < parameters_size;
+             parameter_index++) {
+          rpc_packet.set_parameters(parameter_index,
+                                    packet.params[parameter_index]);
         }
-        lua_settable(L, -3);
-
-        lua_pushstring(L, "parameters");
-        lua_newtable(L);
-        U64 i = 1;
-        for (auto &&param : packet.params) {
-          lua_pushnumber(L, i++);
-          lua_pushstring(L, param.c_str());
-          lua_settable(L, -3);
-        }
-        lua_settable(L, -3);
-
-        lua_pushstring(L, "trailing_parameter");
         if (packet.trailing_param) {
-          lua_pushstring(L, packet.trailing_param->c_str());
-        } else {
-          lua_pushnil(L);
+          rpc_packet.set_trailing_parameter(packet.trailing_param.value());
         }
-        lua_settable(L, -3);
-        lua_pcall(L, 1, 0, 0);
+        for (auto &&rpc_listener : *listeners) {
+          rpc_listener.writer->Write(rpc_packet, rpc_listener.tag);
+        }
+
+        // core code
+        if (packet.command.index() == 1) {
+          const auto command_str = std::get<std::string>(packet.command);
+          if (command_str == "ERROR") {
+            std::cerr << "Disconnected: "
+                      << packet.trailing_param.value_or("???") << std::endl;
+            running = false;
+          }
+          if (command_str == "PING") {
+            tls_socket::send(irc_data::packet{
+                .command = "PONG", .trailing_param = packet.trailing_param}
+                                 .serialize());
+          }
+        }
       }
     }
   }
-  lua_close(L);
-  irc::tls_socket::send(irc::message_data{
-      .command = "QUIT", .trailing_param = "Run loop has halted"}
-                            .serialize());
-}
+  std::cerr << "Runloop halted, disconnecting socket" << std::endl;
+  tls_socket::send(irc_data::packet{.command = "QUIT",
+                                    .trailing_param = "Run loop has halted"}
+                       .serialize());
+  tls_socket::disconnect();
 
-irc::socket_ssl::~socket_ssl() {
-  std::cerr << "Disconnecting socket" << std::endl;
-  irc::tls_socket::disconnect();
-}
-
-std::vector<irc::message_data>
-irc::message_data::parse(const std::string message) {
-  auto msgs = message;
-  std::vector<irc::message_data> rets{};
-
-  for (auto &&msg_raw : std::views::split(msgs, '\n')) {
-    auto msg = std::string{msg_raw.begin(), msg_raw.end()};
-    if (msg.back() == '\r') {
-      msg.pop_back();
-    }
-    if (msg.empty()) {
-      continue;
-    }
-    if (debug) {
-      std::cerr << "[RECV] " << std::string{msg.begin(), msg.end()}
-                << std::endl;
-    }
-    U64 i = 0;
-
-    decltype(irc::message_data::prefix) prefix = std::nullopt;
-    decltype(irc::message_data::command) command{};
-    decltype(irc::message_data::params) params{};
-    decltype(irc::message_data::trailing_param) trailing_param = std::nullopt;
-
-    for (auto &&split : std::views::split(msg, ' ')) {
-      if (trailing_param) {
-        *trailing_param += ' ';
-        *trailing_param += std::string{split.begin(), split.end()};
-      } else {
-        switch (i) {
-        case 0: {
-          if (split[0] == ':') {
-            prefix.emplace(std::string{split.begin(), split.end()}.substr(1));
-          } else {
-            command =
-                parse_command_variant(std::string{split.begin(), split.end()});
-          }
-          break;
-        }
-        case 1: {
-          if (prefix) {
-            command =
-                parse_command_variant(std::string{split.begin(), split.end()});
-          } else if (split[0] == ':') {
-            // Suffix now
-            trailing_param = std::string{split.begin(), split.end()}.substr(1);
-          } else {
-            // Space-separated parameters now
-            params.emplace_back(std::string{split.begin(), split.end()});
-          }
-          break;
-        }
-        default: {
-          if (split[0] == ':') {
-            // Suffix now
-            trailing_param = std::string{split.begin(), split.end()}.substr(1);
-          } else {
-            // Space-separated parameters now
-            params.emplace_back(std::string{split.begin(), split.end()});
-          }
-          break;
-        }
-        }
-        i++;
-      }
-    }
-    rets.emplace_back(irc::message_data{.prefix = prefix,
-                                        .command = command,
-                                        .params = params,
-                                        .trailing_param = trailing_param});
-  }
-  return rets;
-}
-
-const std::string irc::message_data::serialize() const {
-  std::string message = "";
-  if (prefix) {
-    message += ":" + *prefix + " ";
-  }
-  if (command.index() == 0) {
-    message += std::to_string(std::get<U16>(command));
-  } else {
-    message += std::get<std::string>(command);
-  }
-  for (const std::string &param : params) {
-    message += " " + param;
-  }
-  if (trailing_param) {
-    message += " :" + *trailing_param;
-  }
-  if (debug) {
-    std::cerr << "[SEND] " << message << std::endl;
-  }
-  return message + "\r\n";
+  server->Shutdown();
+  completion_queue->Shutdown();
 }

@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+// A Chlorobot IRC RPC interface
+service ChlorobotRPC {
+    // Listens in on the IRC interface
+    //
+    // Streams parsed IRC packets
+    rpc Listen(ChlorobotAuthentication) returns (stream ChlorobotPacket) {}
+
+    // Sends a packet to the IRC interface
+    //
+    // Must send authentication data for security
+    // Returns an acknowledgement token indicating if it was successful
+    rpc Send(ChlorobotRequest) returns (ChlorobotAcknowledgement) {}
+}
+
+// A parsed IRC packet (SEE: IETF RFC 1459)
+message ChlorobotPacket {
+    // The prefix field as stated in the RFC
+    optional string prefix = 1;
+
+    // The second field as stated in the RFC
+    oneof command {
+        // A non-numeric string command
+        string non_numeric = 2;
+
+        // An IRC numeric (encoded: 001 from IRC is 1, 011 is 11, 111 is 111)
+        uint32 numeric = 3;
+    }
+
+    // Parameters separated by spaces
+    repeated string parameters = 4;
+
+    // The last parameter, not separated by spaces
+    optional string trailing_parameter = 5;
+}
+
+// An authentication data packet to log into the RPC
+message ChlorobotAuthentication {
+    // A token to log into the RPC
+    optional string token = 1;
+}
+
+enum ChlorobotCommandEnum {
+    SEND_NOTHING = 0;
+    SEND_VERSION = 1;
+}
+
+// An authenticated data packet with data to send to IRC
+message ChlorobotRequest {
+    // Authentication data
+    ChlorobotAuthentication auth = 1;
+
+    // An encoded IRC packet or command flag
+    oneof data {
+        ChlorobotPacket packet = 2;
+        ChlorobotCommandEnum command_type = 3;
+    }
+}
+
+// SemVer compliant version response
+message ChlorobotVersion {
+    uint32 major = 1;
+    uint32 minor = 2;
+    uint32 patch = 3;
+
+    // A pretty version information
+    string pretty = 4;
+}
+
+// A request send success acknowledgement, might be useful in the future
+message ChlorobotAcknowledgement {
+    optional ChlorobotVersion version = 1;
+}

@@ -6,7 +6,7 @@ static struct tls *client = nullptr;
 static int write_fd, read_fd;
 constexpr static auto max_buffer_size = 4096;
 
-void irc::tls_socket::connect(const std::string host, const std::string port) {
+void tls_socket::connect(const std::string host, const std::string port) {
   if (config == nullptr) {
     std::cerr << "TLS: Configure new object" << std::endl;
     config = tls_config_new();
@@ -48,7 +48,7 @@ void irc::tls_socket::connect(const std::string host, const std::string port) {
     throw std::runtime_error{"TLS configuration singleton already in use"};
   }
 }
-std::optional<std::string> irc::tls_socket::recv() {
+std::optional<std::string> tls_socket::recv() {
   char buffer[max_buffer_size]{0};
   const auto n = tls_read(client, buffer, max_buffer_size - 1);
   if(n > 0) {
@@ -58,7 +58,7 @@ std::optional<std::string> irc::tls_socket::recv() {
   }
 }
 
-void irc::tls_socket::send(const std::string message) {
+void tls_socket::send(const std::string message) {
   char buffer[max_buffer_size]{0};
   const auto n = message.size();
   if (n >= max_buffer_size) {
@@ -68,7 +68,7 @@ void irc::tls_socket::send(const std::string message) {
   tls_write(client, buffer, n);
 }
 
-void irc::tls_socket::disconnect() {
+void tls_socket::disconnect() {
   if (client != nullptr) {
     std::cerr << "TLS: Close client" << std::endl;
     tls_close(client);

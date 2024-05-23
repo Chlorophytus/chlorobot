@@ -5,10 +5,25 @@ cmake_minimum_required(VERSION 3.25)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Project instantiation
-project(chlorobot VERSION 0.1.0.8)
+project(chlorobot VERSION 0.2.0.9)
 
-# Add Lua
-find_package(Lua 5.4 REQUIRED)
+# Fetch gRPC
+option(USE_SYSTEM_GRPC "Use system installed gRPC" ON)
+if(USE_SYSTEM_GRPC)
+  # Find system-installed gRPC
+    find_package(gRPC CONFIG REQUIRED)
+else()
+    include(FetchContent)
+        FetchContent_Declare(
+        gRPC
+        GIT_REPOSITORY https://github.com/grpc/grpc
+        GIT_TAG        v1.51.4
+    )
+    set(FETCHCONTENT_QUIET OFF)
+    FetchContent_MakeAvailable(gRPC)
+endif()
+# Add Protobuf
+find_package(Protobuf REQUIRED)
 # Add OpenSSL
 find_package(OpenSSL REQUIRED) 
 # Add LibreTLS
@@ -21,6 +36,7 @@ configure_file(include/configuration.txt
 # Build our main executable
 add_executable(${PROJECT_NAME}
     src/tls_socket.cpp
+    src/irc_data.cpp
     src/irc.cpp
     src/main.cpp
 )
@@ -30,14 +46,37 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED TRUE)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 
 # Include headers here
-target_include_directories(${PROJECT_NAME} PRIVATE include
-    ${LUA_INCLUDE_DIR}
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${PROJECT_SOURCE_DIR}/include
     ${LibTLS_INCLUDE_DIRS}
+    ${Protobuf_INCLUDE_DIRS}
 )
 
+protobuf_generate_cpp(TARGET ${PROJECT_NAME}
+    IMPORT_DIRS ${PROJECT_SOURCE_DIR}/
+    PROTOS ${PROJECT_SOURCE_DIR}/chlorobot_rpc.proto
+    PROTOC_OUT_DIR ${PROJECT_SOURCE_DIR}/protos
+)
 # Finally link
 target_link_libraries(${PROJECT_NAME}
-    ${LUA_LIBRARIES}
     ${LibTLS_LIBRARIES}
     OpenSSL::SSL OpenSSL::Crypto
+    gRPC::grpc++
+    gRPC::grpc++_reflection
+    ${Protobuf_LIBRARIES}
+)
+# Protocol buffer generation
+protobuf_generate(TARGET ${PROJECT_NAME}
+    IMPORT_DIRS ${PROJECT_SOURCE_DIR}/
+    PROTOS ${PROJECT_SOURCE_DIR}/chlorobot_rpc.proto
+    PROTOC_OUT_DIR ${PROJECT_SOURCE_DIR}/protos
+)
+protobuf_generate(
+    TARGET ${PROJECT_NAME}
+    IMPORT_DIRS ${PROJECT_SOURCE_DIR}/
+    PROTOS ${PROJECT_SOURCE_DIR}/chlorobot_rpc.proto
+    PROTOC_OUT_DIR ${PROJECT_SOURCE_DIR}/protos
+    LANGUAGE grpc
+    PLUGIN protoc-gen-grpc=$<TARGET_FILE:gRPC::grpc_cpp_plugin>
+    GENERATE_EXTENSIONS .grpc.pb.h .grpc.pb.cc
 )

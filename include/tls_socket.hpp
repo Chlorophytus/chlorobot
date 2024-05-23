@@ -1,7 +1,6 @@
 #pragma once
 #include "main.hpp"
 namespace chlorobot {
-namespace irc {
 namespace tls_socket {
 /// @brief Connects as a client
 /// @param host The host to connect to
@@ -19,5 +18,4 @@ std::optional<std::string> recv();
 /// @brief Disconnects the client
 void disconnect();
 } // namespace tls_socket
-} // namespace irc
 } // namespace chlorobot

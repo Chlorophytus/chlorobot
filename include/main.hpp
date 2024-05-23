@@ -3,16 +3,18 @@
 #include "configuration.hpp"
 
 // All of the C++ standard library is included
-#include <bits/stdc++.h>
-
-// Lua is included
-#include "lua.hpp"
+#include <bits/stdc++.h>\
 
 // libtls is included
 #include "tls.h"
 
 // OpenSSL Base64 is included
 #include "openssl/evp.h"
+
+// gRPC is included
+#include <grpcpp/ext/proto_server_reflection_plugin.h>
+#include <grpcpp/grpcpp.h>
+#include <grpcpp/health_check_service_interface.h>
 
 // Unsigned 8-bit integer scalar
 using U8 = std::uint8_t;

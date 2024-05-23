@@ -111,3 +111,8 @@ env.lua
 
 # Clangd cache
 .cache
+
+# C++ Protobufs
+*.pb.cc
+*.pb.h
+protos/
