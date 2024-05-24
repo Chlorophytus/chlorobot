@@ -62,7 +62,7 @@ void irc::request::proceed() {
         }
         auto param_s = source_packet.parameters_size();
         for (auto param_i = 0; param_i < param_s; param_i++) {
-          dest_packet.params.emplace_back(source_packet.parameters(param_i));
+          dest_packet.params.push_back(source_packet.parameters(param_i));
         }
         if (source_packet.has_trailing_parameter()) {
           dest_packet.trailing_param = source_packet.trailing_parameter();
@@ -272,16 +272,6 @@ void irc::connect(std::string &&host, std::string &&port,
   new irc::request(&rpc_service, send_queue.get());
   new irc::authentication(&rpc_service, recv_queue.get());
 
-  // grpc::ServerContext send_ctx;
-  // grpc::ServerContext recv_ctx;
-  // ChlorobotRequest send_req;
-  // ChlorobotAuthentication recv_req;
-  // grpc::ServerAsyncResponseWriter<ChlorobotAcknowledgement> send_responder{
-  //     &send_ctx};
-  // grpc::ServerAsyncWriter<ChlorobotPacket> recv_responder{&recv_ctx};
-  // request send_requester{};
-  // authentication recv_requester{};
-
   std::cerr << "Starting Run Loop" << std::endl;
 
   // TODO:
@@ -308,37 +298,11 @@ void irc::connect(std::string &&host, std::string &&port,
       }
     }
 
-    // rpc_service.RequestSend(&send_ctx, &send_req, &send_responder,
-    //                         send_queue.get(), send_queue.get(),
-    //                         &send_requester);
-    // const auto send_status =
-    //     recv_queue->AsyncNext(&send_tag, &send_ok, rpc_deadline);
-
-    // // Check if we got a listen message
-    // void *recv_tag = nullptr;
-    // bool recv_ok = false;
-    // rpc_service.RequestListen(&recv_ctx, &recv_req, &recv_responder,
-    //                           recv_queue.get(), recv_queue.get(),
-    //                           &recv_requester);
-    // const auto recv_status =
-    //     recv_queue->AsyncNext(&recv_tag, &recv_ok, rpc_deadline);
-
-    //
-
-    // while (recv_status == grpc::CompletionQueue::GOT_EVENT) {
-
-    //   if (recv_ok && recv_tag) {
-    //     auto request = static_cast<irc::request *>(recv_tag);
-    //     auto authentication = static_cast<irc::authentication *>(recv_tag);
-    //     if (request != nullptr) {
-    //     }
-    //   }
-    // }
     const auto recv = tls_socket::recv();
     if (recv) {
       const auto packets = irc_data::packet::parse(*recv);
-      for (auto &&packet : packets) {
-        ChlorobotPacket rpc_packet;
+      for (auto packet : packets) {
+        ChlorobotPacket rpc_packet{};
         if (packet.prefix) {
           rpc_packet.set_prefix(packet.prefix.value());
         }
@@ -356,7 +320,7 @@ void irc::connect(std::string &&host, std::string &&port,
           rpc_packet.set_trailing_parameter(packet.trailing_param.value());
         }
 
-        for (auto &&tag : *listener_tags) {
+        for (auto tag : *listener_tags) {
           tag->broadcast(rpc_packet);
         }
 

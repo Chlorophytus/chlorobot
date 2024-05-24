@@ -11,18 +11,20 @@ import chlorobot_rpc_pb2_grpc
 async def chlorobot_listen(
         stub: chlorobot_rpc_pb2_grpc.ChlorobotRPCStub,
         auth_token: str) -> None:
-    authentication = chlorobot_rpc_pb2.ChlorobotAuthentication(token=auth_token)
-    join_packet = chlorobot_rpc_pb2.ChlorobotPacket(
-        non_numeric="JOIN", parameters=["##sweezero"])
-    join_channel = chlorobot_rpc_pb2.ChlorobotRequest(
-        auth=authentication, command_type=chlorobot_rpc_pb2.ChlorobotCommandEnum.SEND_VERSION)
-    print(await stub.Send(join_channel))
+    channel_join = input("Channel to join: ")
+    authentication = chlorobot_rpc_pb2.ChlorobotAuthentication(
+        token=auth_token)
+    channel = chlorobot_rpc_pb2.ChlorobotRequest(
+        auth=authentication, packet=chlorobot_rpc_pb2.ChlorobotPacket(
+            non_numeric="JOIN", parameters=[channel_join]))
+    print(await stub.Send(channel))
     try:
         listener = stub.Listen(authentication)
         async for message in listener:
             print(message)
     except KeyboardInterrupt:
         listener.cancel()
+
 
 async def main() -> None:
     async with grpc.aio.insecure_channel("127.0.0.1:50051") as channel:
