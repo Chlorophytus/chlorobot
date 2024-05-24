@@ -2,22 +2,136 @@
 using namespace chlorobot;
 
 static bool running = true;
-static std::unique_ptr<std::vector<irc::listener>> listeners = nullptr;
+static std::unique_ptr<std::set<irc::authentication *>> listener_tags = nullptr;
+static std::unique_ptr<std::string> rpc_token = nullptr;
 
 // duration to wait to get a RPC message
-constexpr static auto rpc_deadline = gpr_timespec{
-    .tv_sec = 0,
-    .tv_nsec = 1'000'000,
-};
+constexpr static auto rpc_deadline = std::chrono::milliseconds(50);
+
+irc::request::request(ChlorobotRPC::AsyncService *service,
+                      grpc::ServerCompletionQueue *queue)
+    : _service(service), _completion_queue(queue), _responder(&_context) {
+  proceed();
+}
+void irc::request::proceed() {
+  if (_state == irc::async_state::create) {
+    _state = irc::async_state::process;
+    _service->RequestSend(&_context, &_request, &_responder, _completion_queue,
+                          _completion_queue, this);
+  } else if (_state == irc::async_state::process) {
+    new irc::request(_service, _completion_queue);
+
+    if (_request.auth().token() == *rpc_token) {
+      switch (_request.data_case()) {
+      case ChlorobotRequest::DataCase::kCommandType: {
+        switch (_request.command_type()) {
+        case ChlorobotCommandEnum::SEND_VERSION: {
+          auto version_set = _acknowledgement.mutable_version();
+          version_set->set_major(chlorobot_VMAJOR);
+          version_set->set_minor(chlorobot_VMINOR);
+          version_set->set_patch(chlorobot_VPATCH);
+          version_set->set_pretty(chlorobot_VSTRING_FULL);
+          break;
+        }
+
+        default: {
+          break;
+        }
+        }
+        break;
+      }
+      case ChlorobotRequest::DataCase::kPacket: {
+        const auto source_packet = _request.packet();
+        auto dest_packet = irc_data::packet{};
+        if (source_packet.has_prefix()) {
+          dest_packet.prefix = source_packet.prefix();
+        }
+        switch (source_packet.command_case()) {
+        case ChlorobotPacket::CommandCase::kNonNumeric: {
+          dest_packet.command = source_packet.non_numeric();
+          break;
+        }
+        case ChlorobotPacket::CommandCase::kNumeric: {
+          dest_packet.command = source_packet.numeric();
+          break;
+        }
+        default: {
+          throw std::runtime_error{"Unimplemented gRPC request command case"};
+          break;
+        }
+        }
+        auto param_s = source_packet.parameters_size();
+        for (auto param_i = 0; param_i < param_s; param_i++) {
+          dest_packet.params.emplace_back(source_packet.parameters(param_i));
+        }
+        if (source_packet.has_trailing_parameter()) {
+          dest_packet.trailing_param = source_packet.trailing_parameter();
+        }
+        tls_socket::send(dest_packet.serialize());
+        break;
+      }
+      default: {
+        throw std::runtime_error{"Unimplemented gRPC request data case"};
+        break;
+      }
+      }
+
+      _state = irc::async_state::finish;
+      _responder.Finish(_acknowledgement, grpc::Status::OK, this);
+    } else {
+      _state = irc::async_state::finish;
+      _responder.Finish(_acknowledgement, grpc::Status::CANCELLED, this);
+    }
+  } else {
+    delete this;
+  }
+}
+
+irc::authentication::authentication(ChlorobotRPC::AsyncService *service,
+                                    grpc::ServerCompletionQueue *queue)
+    : _service(service), _completion_queue(queue), _responder(&_context) {
+  proceed();
+}
+void irc::authentication::proceed() {
+  if (_state == irc::async_state::create) {
+    _state = irc::async_state::process;
+    _context.AsyncNotifyWhenDone(this);
+    _service->RequestListen(&_context, &_authentication, &_responder,
+                            _completion_queue, _completion_queue, this);
+  } else if (_state == irc::async_state::process) {
+#ifdef chlorobot_DEBUG
+    std::cerr << "Started listening: " << this << std::endl;
+#endif
+    new irc::authentication(_service, _completion_queue);
+    listener_tags->insert(this);
+
+    _state = irc::async_state::finish;
+  } else {
+    if (_context.IsCancelled()) {
+#ifdef chlorobot_DEBUG
+      std::cerr << "Cancelled listening: " << this << std::endl;
+#endif
+      listener_tags->erase(this);
+      delete this;
+    }
+  }
+}
+void irc::authentication::broadcast(const ChlorobotPacket &packet) {
+  _responder.Write(packet, this);
+}
 
 void irc::connect(std::string &&host, std::string &&port,
                   irc_data::user &&_data, std::string &&_rpc_token) {
-  const auto rpc_token = _rpc_token;
   const auto data = _data;
-  listeners = std::make_unique<std::vector<irc::listener>>();
+  listener_tags = std::make_unique<std::set<irc::authentication *>>();
+  rpc_token = std::make_unique<std::string>(_rpc_token);
 
   tls_socket::connect(host, port);
 
+  while (!tls_socket::recv()) {
+    std::cerr << "Waiting on socket" << std::endl;
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+  }
   std::cerr << "--- Connected ---" << std::endl;
 
   // Request SASL
@@ -152,112 +266,78 @@ void irc::connect(std::string &&host, std::string &&port,
   rpc_builder.AddListeningPort("127.0.0.1:50051",
                                grpc::InsecureServerCredentials());
   rpc_builder.RegisterService(&rpc_service);
-  auto completion_queue = rpc_builder.AddCompletionQueue();
+  auto send_queue = rpc_builder.AddCompletionQueue();
+  auto recv_queue = rpc_builder.AddCompletionQueue();
   auto server = rpc_builder.BuildAndStart();
-  grpc::ServerContext rpc_context;
+  new irc::request(&rpc_service, send_queue.get());
+  new irc::authentication(&rpc_service, recv_queue.get());
+
+  // grpc::ServerContext send_ctx;
+  // grpc::ServerContext recv_ctx;
+  // ChlorobotRequest send_req;
+  // ChlorobotAuthentication recv_req;
+  // grpc::ServerAsyncResponseWriter<ChlorobotAcknowledgement> send_responder{
+  //     &send_ctx};
+  // grpc::ServerAsyncWriter<ChlorobotPacket> recv_responder{&recv_ctx};
+  // request send_requester{};
+  // authentication recv_requester{};
 
   std::cerr << "Starting Run Loop" << std::endl;
 
+  // TODO:
+  // https://github.com/grpc/grpc/blob/master/examples/cpp/helloworld/greeter_async_server.cc
   while (running) {
     // Check if we got a send message
-    void *rpc_tag;
-    bool rpc_ok;
-    auto rpc_status =
-        completion_queue->AsyncNext(&rpc_tag, &rpc_ok, rpc_deadline);
-    const auto recv = tls_socket::recv();
-
-    do {
-      if (rpc_ok &&
-          rpc_status == grpc::CompletionQueue::NextStatus::GOT_EVENT) {
-        // We got something, check what it is
-        if (static_cast<ChlorobotRequest *>(rpc_tag) != nullptr) {
-          ChlorobotRequest request;
-          grpc::ServerAsyncResponseWriter<ChlorobotAcknowledgement> responder(
-              &rpc_context);
-          rpc_service.RequestSend(&rpc_context, &request, &responder,
-                                  completion_queue.get(),
-                                  completion_queue.get(), rpc_tag);
-          if (request.auth().token() == rpc_token) {
-            ChlorobotAcknowledgement acknowledgement;
-            switch (request.data_case()) {
-            case ChlorobotRequest::DataCase::kCommandType: {
-              acknowledgement.mutable_version()->set_major(chlorobot_VMAJOR);
-              acknowledgement.mutable_version()->set_minor(chlorobot_VMINOR);
-              acknowledgement.mutable_version()->set_patch(chlorobot_VPATCH);
-              acknowledgement.mutable_version()->set_pretty(
-                  chlorobot_VSTRING_FULL);
-              break;
-            }
-            case ChlorobotRequest::DataCase::kPacket: {
-              const auto send_this = request.packet();
-              const auto send_params = send_this.parameters();
-              const auto send_size = send_params.size();
-
-              irc_data::packet serialize{};
-
-              if (send_this.has_prefix()) {
-                serialize.prefix = send_this.prefix();
-              }
-              switch (send_this.command_case()) {
-              case ChlorobotPacket::CommandCase::kNumeric: {
-                serialize.command = send_this.numeric();
-                break;
-              }
-              case ChlorobotPacket::CommandCase::kNonNumeric: {
-                serialize.command = send_this.non_numeric();
-                break;
-              }
-              default: {
-                throw std::runtime_error{
-                    "unimplemented IRC command object type"};
-                break;
-              }
-              }
-              for (auto send_i = 0; send_i < send_size; send_i++) {
-                serialize.params.emplace_back(send_params[send_i]);
-              }
-              if (send_this.has_trailing_parameter()) {
-                serialize.trailing_param = send_this.trailing_parameter();
-              }
-
-              tls_socket::send(serialize.serialize());
-              break;
-            }
-            default: {
-              throw std::runtime_error{"unimplemented Chlorobot request"};
-              break;
-            }
-            }
-            responder.Finish(acknowledgement, grpc::Status::OK, rpc_tag);
-          } else {
-            responder.Finish(ChlorobotAcknowledgement(),
-                             grpc::Status::CANCELLED, rpc_tag);
-          }
-        }
-        if (static_cast<ChlorobotAuthentication *>(rpc_tag) != nullptr) {
-          ChlorobotAuthentication request;
-          listeners->emplace_back();
-          listeners->back().tag = rpc_tag;
-
-          rpc_service.RequestListen(
-              &rpc_context, &request, listeners->back().writer,
-              completion_queue.get(), completion_queue.get(),
-              listeners->back().tag);
-          if (request.token() != rpc_token) {
-            listeners->back().writer->Finish(grpc::Status::CANCELLED,
-                                             listeners->back().tag);
-            listeners->pop_back();
-          }
-        }
+    void *send_tag;
+    bool send_ok;
+    const auto send_rpc_status = send_queue->AsyncNext(
+        &send_tag, &send_ok, std::chrono::system_clock::now() + rpc_deadline);
+    if (send_rpc_status == grpc::CompletionQueue::GOT_EVENT) {
+      if (send_ok) {
+        static_cast<irc::request *>(send_tag)->proceed();
       }
-      rpc_status = completion_queue->AsyncNext(&rpc_tag, &rpc_ok, rpc_deadline);
-    } while (rpc_status == grpc::CompletionQueue::NextStatus::GOT_EVENT);
+    }
 
+    void *recv_tag;
+    bool recv_ok;
+    const auto recv_rpc_status = recv_queue->AsyncNext(
+        &recv_tag, &recv_ok, std::chrono::system_clock::now() + rpc_deadline);
+    if (recv_rpc_status == grpc::CompletionQueue::GOT_EVENT) {
+      if (recv_ok) {
+        static_cast<irc::authentication *>(recv_tag)->proceed();
+      }
+    }
+
+    // rpc_service.RequestSend(&send_ctx, &send_req, &send_responder,
+    //                         send_queue.get(), send_queue.get(),
+    //                         &send_requester);
+    // const auto send_status =
+    //     recv_queue->AsyncNext(&send_tag, &send_ok, rpc_deadline);
+
+    // // Check if we got a listen message
+    // void *recv_tag = nullptr;
+    // bool recv_ok = false;
+    // rpc_service.RequestListen(&recv_ctx, &recv_req, &recv_responder,
+    //                           recv_queue.get(), recv_queue.get(),
+    //                           &recv_requester);
+    // const auto recv_status =
+    //     recv_queue->AsyncNext(&recv_tag, &recv_ok, rpc_deadline);
+
+    //
+
+    // while (recv_status == grpc::CompletionQueue::GOT_EVENT) {
+
+    //   if (recv_ok && recv_tag) {
+    //     auto request = static_cast<irc::request *>(recv_tag);
+    //     auto authentication = static_cast<irc::authentication *>(recv_tag);
+    //     if (request != nullptr) {
+    //     }
+    //   }
+    // }
+    const auto recv = tls_socket::recv();
     if (recv) {
       const auto packets = irc_data::packet::parse(*recv);
-
       for (auto &&packet : packets) {
-        // gRPC code
         ChlorobotPacket rpc_packet;
         if (packet.prefix) {
           rpc_packet.set_prefix(packet.prefix.value());
@@ -270,14 +350,14 @@ void irc::connect(std::string &&host, std::string &&port,
         const auto parameters_size = packet.params.size();
         for (auto parameter_index = 0; parameter_index < parameters_size;
              parameter_index++) {
-          rpc_packet.set_parameters(parameter_index,
-                                    packet.params[parameter_index]);
+          rpc_packet.add_parameters(packet.params[parameter_index]);
         }
         if (packet.trailing_param) {
           rpc_packet.set_trailing_parameter(packet.trailing_param.value());
         }
-        for (auto &&rpc_listener : *listeners) {
-          rpc_listener.writer->Write(rpc_packet, rpc_listener.tag);
+
+        for (auto &&tag : *listener_tags) {
+          tag->broadcast(rpc_packet);
         }
 
         // core code
@@ -304,5 +384,6 @@ void irc::connect(std::string &&host, std::string &&port,
   tls_socket::disconnect();
 
   server->Shutdown();
-  completion_queue->Shutdown();
+  send_queue->Shutdown();
+  recv_queue->Shutdown();
 }

@@ -1,15 +1,45 @@
 #pragma once
-#include "../protos/chlorobot_rpc.grpc.pb.h"
 #include "irc_data.hpp"
 #include "main.hpp"
 #include "tls_socket.hpp"
 namespace chlorobot {
 namespace irc {
-struct listener {
-  void *tag = nullptr;
-  grpc::ServerAsyncWriter<ChlorobotPacket> *writer = nullptr;
+enum class async_state { create, process, finish };
+
+/// @brief Handle Send proto
+class request {
+  ChlorobotRPC::AsyncService *_service;
+  grpc::ServerCompletionQueue *_completion_queue;
+  grpc::ServerContext _context;
+
+  ChlorobotRequest _request;
+  ChlorobotAcknowledgement _acknowledgement;
+
+  grpc::ServerAsyncResponseWriter<ChlorobotAcknowledgement> _responder;
+
+  async_state _state = async_state::create;
+public:
+  void proceed();
+  request(ChlorobotRPC::AsyncService *, grpc::ServerCompletionQueue *);
 };
 
+/// @brief Handle Listen proto
+class authentication {
+  ChlorobotRPC::AsyncService *_service;
+  grpc::ServerCompletionQueue *_completion_queue;
+  grpc::ServerContext _context;
+
+  ChlorobotAuthentication _authentication;
+  // ChlorobotAcknowledgement _acknowledgement;
+
+  grpc::ServerAsyncWriter<ChlorobotPacket> _responder;
+
+  async_state _state = async_state::create;
+public:
+  void proceed();
+  void broadcast(const ChlorobotPacket &);
+  authentication(ChlorobotRPC::AsyncService *, grpc::ServerCompletionQueue *);
+};
 /// @brief Connects to the IRC server by SSL on the specified port with user
 /// data
 /// @param host The server to connect to

@@ -209,10 +209,15 @@ irc_data::packet::parse(const std::string message) {
         i++;
       }
     }
+#ifdef chlorobot_DEBUG
+    std::cerr
+        << "[" << std::chrono::system_clock::now() << "] [RECV] " << msg
+        << std::endl;
+#endif
     rets.emplace_back(irc_data::packet{.prefix = prefix,
-                                        .command = command,
-                                        .params = params,
-                                        .trailing_param = trailing_param});
+                                       .command = command,
+                                       .params = params,
+                                       .trailing_param = trailing_param});
   }
   return rets;
 }
@@ -233,5 +238,10 @@ const std::string irc_data::packet::serialize() const {
   if (trailing_param) {
     message += " :" + *trailing_param;
   }
+#ifdef chlorobot_DEBUG
+  std::cerr
+      << "[" << std::chrono::system_clock::now() << "] [SEND] " << message
+      << std::endl;
+#endif
   return message + "\r\n";
 }

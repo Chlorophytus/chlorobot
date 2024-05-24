@@ -3,7 +3,7 @@
 #include "configuration.hpp"
 
 // All of the C++ standard library is included
-#include <bits/stdc++.h>\
+#include <bits/stdc++.h>
 
 // libtls is included
 #include "tls.h"
@@ -15,6 +15,7 @@
 #include <grpcpp/ext/proto_server_reflection_plugin.h>
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/health_check_service_interface.h>
+#include "../protos/chlorobot_rpc.grpc.pb.h"
 
 // Unsigned 8-bit integer scalar
 using U8 = std::uint8_t;
