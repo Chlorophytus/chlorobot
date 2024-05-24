@@ -1,19 +1,6 @@
 # chlorobot
 IRC Bot
 
-## Build on Ubuntu
-
-For a default minimal configuration, install these packages
-
-```shell
-$ sudo apt install build-essential cmake libssl-dev libtls-dev libgrpc++-dev protobuf-compiler-grpc
-```
-
-```shell
-$ mkdir build
-$ cmake -B build/ .
-$ make -C build/
-```
 
 ## Environment files
 
@@ -32,3 +19,27 @@ export CHLOROBOT_RPC_TOKEN="random_value_for_rpc_token"
 ```
 
 Then do `. .env`.
+
+## Build on Ubuntu
+
+For a default minimal configuration, install these packages
+
+```shell
+$ sudo apt install build-essential cmake libssl-dev libtls-dev libgrpc++-dev protobuf-compiler-grpc
+```
+
+```shell
+$ mkdir build
+$ cmake -B build/ .
+$ make -C build/
+```
+
+Generate example Python3 protobufs and run example resolver...
+```shell
+$ cd chloresolve
+$ virtualenv venv
+$ . venv/bin/activate
+$ pip install -r requirements.txt
+$ python3 -m grpc_tools.protoc ../chlorobot_rpc.proto --proto_path=.. --python_out=./ --grpc_python_out=./ --pyi_out=./
+$ python3 chloresolve.py
+```

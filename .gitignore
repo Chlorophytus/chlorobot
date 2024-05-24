@@ -116,4 +116,4 @@ env.lua
 *.pb.cc
 *.pb.h
 protos/
-chloresolve/protos/
+chloresolve/*_rpc_pb2*
