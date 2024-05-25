@@ -19,6 +19,7 @@ WORKDIR /opt/chlorobot
 COPY src/ ./src/
 COPY include/ ./include/
 COPY CMakeLists.txt .
+COPY chlorobot_rpc.proto .
 
 # We are ready to build
 WORKDIR /opt/chlorobot/build
