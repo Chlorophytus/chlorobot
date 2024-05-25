@@ -181,12 +181,12 @@ void irc::connect(std::string &&host, std::string &&port,
     const auto recv = tls_socket::recv();
     if (recv) {
       const auto packets = irc_data::packet::parse(*recv);
-      for (const auto packet : packets) {
+      for (auto &&packet : packets) {
         const auto command = packet.command;
         if (command.index() == 1) {
           if (std::get<std::string>(command) == "CAP") {
             std::string trailing_param = packet.trailing_param.value_or("");
-            for (const auto cap : std::views::split(trailing_param, ' ')) {
+            for (auto &&cap : std::views::split(trailing_param, ' ')) {
               if (std::string{cap.begin(), cap.end()} == "sasl") {
                 tls_socket::send(irc_data::packet{.command = "CAP",
                                                   .params = {"REQ"},
@@ -212,7 +212,7 @@ void irc::connect(std::string &&host, std::string &&port,
     const auto recv = tls_socket::recv();
     if (recv) {
       const auto packets = irc_data::packet::parse(*recv);
-      for (const auto packet : packets) {
+      for (auto &&packet : packets) {
         const auto command = packet.command;
         if (command.index() == 1 && std::get<std::string>(command) == "CAP" &&
             packet.params.at(1) == "ACK" &&
@@ -234,7 +234,7 @@ void irc::connect(std::string &&host, std::string &&port,
     const auto recv = tls_socket::recv();
     if (recv) {
       const auto packets = irc_data::packet::parse(*recv);
-      for (const auto packet : packets) {
+      for (auto &&packet : packets) {
         const auto command = packet.command;
         if (command.index() == 1) {
           if (std::get<std::string>(command) == "AUTHENTICATE" &&
