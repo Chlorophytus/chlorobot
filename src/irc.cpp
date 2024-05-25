@@ -128,9 +128,16 @@ void irc::connect(std::string &&host, std::string &&port,
 
   tls_socket::connect(host, port);
 
+  auto attempt = 0;
+
   while (!tls_socket::recv()) {
-    std::cerr << "Waiting on socket" << std::endl;
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    if (attempt < 10) {
+      std::cerr << "Waiting on socket" << std::endl;
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+      attempt++;
+    } else {
+      throw std::runtime_error{"Socket wait timed out, terminating"};
+    }
   }
   std::cerr << "--- Connected ---" << std::endl;
 
