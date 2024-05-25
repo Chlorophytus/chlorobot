@@ -48,7 +48,7 @@ void tls_socket::connect(const std::string host, const std::string port) {
       struct addrinfo *result;
       error = getaddrinfo(host.c_str(), port.c_str(), &hints, &result);
       if (error != 0) {
-        throw std::runtime_error{"Could not resolve"};
+        throw std::runtime_error{gai_strerror(error)};
       }
 
       std::cerr << "TLS: Connect TCP socket" << std::endl;
@@ -59,8 +59,9 @@ void tls_socket::connect(const std::string host, const std::string port) {
       if (error == -1) {
         throw std::runtime_error{"Could not connect"};
       }
-      std::cerr << "TLS: Upgrading..." << std::endl;
+      freeaddrinfo(result);
 
+      std::cerr << "TLS: Upgrading..." << std::endl;
       error = tls_connect_socket(client, client_fd, host.c_str());
       if (error != 0) {
         throw std::runtime_error{tls_error(client)};
