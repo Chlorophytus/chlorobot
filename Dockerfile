@@ -36,7 +36,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install runtime dependencies
 RUN apt update -yy && \
     apt upgrade -yy && \
-    apt install -yy libssl3t64 libtls28t64 libgrpc29t64
+    apt install -yy libssl3t64 libtls28t64 libgrpc++1.51t64
 
 # Add user
 RUN groupadd chlorobot && useradd -m -g chlorobot chlorobot
