@@ -1,9 +1,9 @@
 #include "../include/irc.hpp"
 using namespace chlorobot;
 
-static bool running = true;
-static std::unique_ptr<std::set<irc::authentication *>> listener_tags = nullptr;
-static std::unique_ptr<std::string> rpc_token = nullptr;
+bool running = true;
+std::unique_ptr<std::set<irc::authentication *>> listener_tags = nullptr;
+std::unique_ptr<std::string> rpc_token = nullptr;
 
 // duration to wait to get a RPC message
 constexpr static auto rpc_deadline = std::chrono::milliseconds(50);

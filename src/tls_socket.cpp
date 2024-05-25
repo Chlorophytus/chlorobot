@@ -4,11 +4,11 @@
 #include <sys/poll.h>
 using namespace chlorobot;
 
-static struct tls_config *config = nullptr;
-static struct tls *client = nullptr;
-static int client_fd;
-constexpr static auto max_buffer_size = 4096;
-constexpr static auto io_timeout_milliseconds = 100;
+struct tls_config *config = nullptr;
+struct tls *client = nullptr;
+int client_fd;
+constexpr auto max_buffer_size = 4096;
+constexpr auto io_timeout_milliseconds = 100;
 
 void tls_socket::connect(const std::string host, const std::string port) {
   if (config == nullptr) {
