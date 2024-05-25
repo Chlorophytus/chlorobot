@@ -40,6 +40,7 @@ RUN apt update -yy && \
 
 # Add user
 RUN groupadd chlorobot && useradd -m -g chlorobot chlorobot
-COPY --chown=chlorobot:chlorobot /opt/chlorobot/build/chlorobot ~chlorobot/
 USER chlorobot
+COPY --chown=chlorobot:chlorobot --from=build \
+    /opt/chlorobot/build/chlorobot ~chlorobot/
 ENTRYPOINT [ "~chlorobot/chlorobot" ]
