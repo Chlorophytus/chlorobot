@@ -274,8 +274,6 @@ void irc::connect(std::string &&host, std::string &&port,
 
   std::cerr << "Starting Run Loop" << std::endl;
 
-  // TODO:
-  // https://github.com/grpc/grpc/blob/master/examples/cpp/helloworld/greeter_async_server.cc
   while (running) {
     // Check if we got a send message
     void *send_tag;
@@ -306,10 +304,18 @@ void irc::connect(std::string &&host, std::string &&port,
         if (packet.prefix) {
           rpc_packet.set_prefix(packet.prefix.value());
         }
-        if (packet.command.index() == 1) {
-          rpc_packet.set_non_numeric(std::get<std::string>(packet.command));
-        } else {
+        switch (packet.command.index()) {
+        case 0: {
           rpc_packet.set_numeric(std::get<U32>(packet.command));
+          break;
+        }
+        case 1: {
+          rpc_packet.set_non_numeric(std::get<std::string>(packet.command));
+          break;
+        }
+        default: {
+          throw std::runtime_error{"undefined packet command variant"};
+        }
         }
         const auto parameters_size = packet.params.size();
         for (auto parameter_index = 0; parameter_index < parameters_size;
