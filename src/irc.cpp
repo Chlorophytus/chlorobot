@@ -282,6 +282,8 @@ void irc::connect(std::string &&host, std::string &&port,
   new irc::request(&rpc_service, send_queue.get());
   new irc::authentication(&rpc_service, recv_queue.get());
 
+  server->GetHealthCheckService()->SetServingStatus(true);
+
   while (running) {
     // Check if we got a send message
     void *send_tag;
