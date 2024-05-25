@@ -297,13 +297,21 @@ void irc::connect(std::string &&host, std::string &&port,
 
     void *recv_tag;
     bool recv_ok;
-    if (!pack_send_queue->empty()) {
+    if (pack_send_queue->empty()) {
+      const auto recv_rpc_status = recv_queue->AsyncNext(
+          &recv_tag, &recv_ok, std::chrono::system_clock::now() + rpc_deadline);
+      if (recv_rpc_status == grpc::CompletionQueue::GOT_EVENT) {
+        if (recv_ok) {
+          static_cast<irc::authentication *>(recv_tag)->proceed();
+        }
+      }
+    } else {
       auto packet = pack_send_queue->back();
 
       for (auto listener : *listener_tags) {
         listener->broadcast(packet);
 
-        const auto recv_rpc_status = recv_queue->Next(&recv_tag, &recv_ok);
+        recv_queue->Next(&recv_tag, &recv_ok);
         if (recv_ok) {
           static_cast<irc::authentication *>(recv_tag)->proceed();
         }
