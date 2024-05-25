@@ -99,18 +99,14 @@ void irc::authentication::proceed() {
     _service->RequestListen(&_context, &_authentication, &_responder,
                             _completion_queue, _completion_queue, this);
   } else if (_state == irc::async_state::process) {
-#ifdef chlorobot_DEBUG
     std::cerr << "Started listening: " << this << std::endl;
-#endif
     new irc::authentication(_service, _completion_queue);
     listener_tags->insert(this);
 
     _state = irc::async_state::finish;
   } else {
     if (_context.IsCancelled()) {
-#ifdef chlorobot_DEBUG
       std::cerr << "Cancelled listening: " << this << std::endl;
-#endif
       listener_tags->erase(this);
       delete this;
     }
@@ -138,6 +134,8 @@ void irc::connect(std::string &&host, std::string &&port,
   auto send_queue = rpc_builder.AddCompletionQueue();
   auto recv_queue = rpc_builder.AddCompletionQueue();
   auto server = rpc_builder.BuildAndStart();
+  server->GetHealthCheckService()->SetServingStatus(false);
+
   new irc::request(&rpc_service, send_queue.get());
   new irc::authentication(&rpc_service, recv_queue.get());
 
@@ -306,7 +304,9 @@ void irc::connect(std::string &&host, std::string &&port,
       }
     }
 
+    server->GetHealthCheckService()->SetServingStatus(true);
     const auto recv = tls_socket::recv();
+
     if (recv) {
       const auto packets = irc_data::packet::parse(*recv);
       for (auto packet : packets) {

@@ -1,6 +1,8 @@
 import chlorobot_rpc_pb2_grpc
 import chlorobot_rpc_pb2
 import grpc
+from grpc_health.v1 import health_pb2
+from grpc_health.v1 import health_pb2_grpc
 from typing import Optional
 import logging
 import asyncio
@@ -168,16 +170,30 @@ class Chloresolver:
 
 async def main() -> None:
     async with grpc.aio.insecure_channel(f"{os.environ["CHLOROBOT_RPC_SERVER"]}:50051") as channel:
+        logging.info("Trying to connect to gRPC socket")
         stub = chlorobot_rpc_pb2_grpc.ChlorobotRPCStub(channel)
-        resolver = Chloresolver(stub, os.environ["CHLOROBOT_RPC_TOKEN"], "c|", {
-            "ping": ChloresolverCommand(ChloresolverCommand.ping, "acknowledges if the bot resolver is online"),
-            "help": ChloresolverCommand(ChloresolverCommand.help, "lists commands or gives a detailed description of one"),
-            "join": ChloresolverCommand(ChloresolverCommand.join, "joins a channel"),
-            "part": ChloresolverCommand(ChloresolverCommand.part, "parts a channel"),
-            "version": ChloresolverCommand(ChloresolverCommand.version, "gets the core's version")
-        })
-        logging.info("Connected to gRPC socket")
-        await resolver.listen()
+        health_stub = health_pb2_grpc.HealthStub(channel)
+        has_health = False
+        for _ in range(15):
+            health = health_pb2.HealthCheckRequest(service="ChlorobotRPC")
+            result = health_stub.Check(health)
+            if result == health_pb2.HealthCheckResponse.SERVING:
+                has_health = True
+                break
+            await asyncio.sleep(1)
+
+        if has_health:
+            resolver = Chloresolver(stub, os.environ["CHLOROBOT_RPC_TOKEN"], "c|", {
+                "ping": ChloresolverCommand(ChloresolverCommand.ping, "acknowledges if the bot resolver is online"),
+                "help": ChloresolverCommand(ChloresolverCommand.help, "lists commands or gives a detailed description of one"),
+                "join": ChloresolverCommand(ChloresolverCommand.join, "joins a channel"),
+                "part": ChloresolverCommand(ChloresolverCommand.part, "parts a channel"),
+                "version": ChloresolverCommand(ChloresolverCommand.version, "gets the core's version")
+            })
+            logging.info("Connected to gRPC socket")
+            await resolver.listen()
+        else:
+            logging.error("Could not connect on time to gRPC")
 
 
 if __name__ == "__main__":
