@@ -8,7 +8,7 @@ struct tls_config *config = nullptr;
 struct tls *client = nullptr;
 int client_fd;
 constexpr auto max_buffer_size = 4096;
-constexpr auto io_timeout_milliseconds = 100;
+constexpr auto io_timeout_milliseconds = 50;
 
 void tls_socket::connect(const std::string host, const std::string port) {
   if (config == nullptr) {
