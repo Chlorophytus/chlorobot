@@ -37,9 +37,10 @@ class authentication {
   async_state _state = async_state::create;
 public:
   void proceed();
-  void broadcast(const ChlorobotPacket &);
+  void broadcast(const ChlorobotPacket);
   authentication(ChlorobotRPC::AsyncService *, grpc::ServerCompletionQueue *);
 };
+
 /// @brief Connects to the IRC server by SSL on the specified port with user
 /// data
 /// @param host The server to connect to

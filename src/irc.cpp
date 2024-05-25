@@ -3,12 +3,11 @@ using namespace chlorobot;
 
 bool running = true;
 std::unique_ptr<std::set<irc::authentication *>> listener_tags = nullptr;
-std::unique_ptr<std::set<irc::authentication *>> received_tags = nullptr;
 std::unique_ptr<std::string> rpc_token = nullptr;
-std::unique_ptr<std::set<irc_data::packet>> pack_queue = nullptr;
 
 // duration to wait to get a RPC message
 constexpr auto rpc_deadline = std::chrono::milliseconds(10);
+
 
 irc::request::request(ChlorobotRPC::AsyncService *service,
                       grpc::ServerCompletionQueue *queue)
@@ -103,28 +102,23 @@ void irc::authentication::proceed() {
   } else if (_state == irc::async_state::process) {
     std::cerr << "Started listening: " << this << std::endl;
     new irc::authentication(_service, _completion_queue);
-    listener_tags->insert(this);
 
     _state = irc::async_state::finish;
   } else {
     if (_context.IsCancelled()) {
       std::cerr << "Cancelled listening: " << this << std::endl;
-      listener_tags->erase(this);
       delete this;
     }
   }
 }
-void irc::authentication::broadcast(const ChlorobotPacket &packet) {
-  if (_state == irc::async_state::finish) {
-    _responder.Write(packet, this);
-  }
+void irc::authentication::broadcast(const ChlorobotPacket packet) {
+  _responder.Write(packet, this);
 }
 
 void irc::connect(std::string &&host, std::string &&port,
                   irc_data::user &&_data, std::string &&_rpc_token) {
   const auto data = _data;
   listener_tags = std::make_unique<std::set<irc::authentication *>>();
-  received_tags = std::make_unique<std::set<irc::authentication *>>();
   rpc_token = std::make_unique<std::string>(_rpc_token);
 
   std::cerr << "Starting gRPC server" << std::endl;
