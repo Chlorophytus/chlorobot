@@ -61,8 +61,6 @@ void tls_socket::connect(const std::string host, const std::string port) {
         throw std::runtime_error{"Could not connect"};
       }
 
-      freeaddrinfo(result);
-
       std::cerr << "TLS: Upgrading..." << std::endl;
       error = tls_connect_socket(client, client_fd, host.c_str());
       if (error != 0) {
@@ -81,6 +79,8 @@ void tls_socket::connect(const std::string host, const std::string port) {
         throw std::runtime_error{"Can't set socket file descriptor flags"};
       }
       std::cerr << "TLS: Now non-blocking!" << std::endl;
+
+      freeaddrinfo(result);
     } else {
       throw std::runtime_error{"TLS client singleton already in use"};
     }
