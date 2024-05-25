@@ -126,6 +126,21 @@ void irc::connect(std::string &&host, std::string &&port,
   listener_tags = std::make_unique<std::set<irc::authentication *>>();
   rpc_token = std::make_unique<std::string>(_rpc_token);
 
+  std::cerr << "Starting gRPC server" << std::endl;
+
+  ChlorobotRPC::AsyncService rpc_service;
+  grpc::EnableDefaultHealthCheckService(true);
+  grpc::reflection::InitProtoReflectionServerBuilderPlugin();
+  grpc::ServerBuilder rpc_builder;
+  rpc_builder.AddListeningPort("0.0.0.0:50051",
+                               grpc::InsecureServerCredentials());
+  rpc_builder.RegisterService(&rpc_service);
+  auto send_queue = rpc_builder.AddCompletionQueue();
+  auto recv_queue = rpc_builder.AddCompletionQueue();
+  auto server = rpc_builder.BuildAndStart();
+
+  std::cerr << "Starting IRC connection" << std::endl;
+
   tls_socket::connect(host, port);
 
   auto attempt = 0;
@@ -264,18 +279,6 @@ void irc::connect(std::string &&host, std::string &&port,
       }
     }
   }
-  std::cerr << "Starting gRPC server" << std::endl;
-
-  ChlorobotRPC::AsyncService rpc_service;
-  grpc::EnableDefaultHealthCheckService(true);
-  grpc::reflection::InitProtoReflectionServerBuilderPlugin();
-  grpc::ServerBuilder rpc_builder;
-  rpc_builder.AddListeningPort("0.0.0.0:50051",
-                               grpc::InsecureServerCredentials());
-  rpc_builder.RegisterService(&rpc_service);
-  auto send_queue = rpc_builder.AddCompletionQueue();
-  auto recv_queue = rpc_builder.AddCompletionQueue();
-  auto server = rpc_builder.BuildAndStart();
   new irc::request(&rpc_service, send_queue.get());
   new irc::authentication(&rpc_service, recv_queue.get());
 
