@@ -6,7 +6,7 @@ std::unique_ptr<std::set<irc::authentication *>> listener_tags = nullptr;
 std::unique_ptr<std::string> rpc_token = nullptr;
 
 // duration to wait to get a RPC message
-constexpr auto rpc_deadline = std::chrono::milliseconds(50);
+constexpr auto rpc_deadline = std::chrono::milliseconds(1);
 
 
 irc::request::request(ChlorobotRPC::AsyncService *service,
