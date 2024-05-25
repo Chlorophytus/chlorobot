@@ -2,9 +2,13 @@
 services:
   chlorobot:
     build: ./
+    env_file:
+      - .env
   chloresolver:
     build: ./chloresolve
     depends_on:
       - chlorobot
     links:
       - "chlorobot:chlorobot_rpc"
+    env_file:
+      - .env
