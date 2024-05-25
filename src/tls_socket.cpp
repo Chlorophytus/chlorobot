@@ -43,6 +43,8 @@ void tls_socket::connect(const std::string host, const std::string port) {
       memset(&hints, 0, sizeof(hints));
       hints.ai_family = AF_UNSPEC;
       hints.ai_socktype = SOCK_STREAM;
+      hints.ai_flags = 0;
+      hints.ai_protocol = 0;
       struct addrinfo *result;
 
       // https://stackoverflow.com/a/10292238
@@ -63,6 +65,7 @@ void tls_socket::connect(const std::string host, const std::string port) {
       if (error == -1) {
         throw std::runtime_error{"Could not connect"};
       }
+
       freeaddrinfo(result);
 
       std::cerr << "TLS: Upgrading..." << std::endl;
