@@ -306,7 +306,6 @@ void irc::connect(std::string &&host, std::string &&port,
       }
     }
 
-    server->GetHealthCheckService()->SetServingStatus(true);
     const auto recv = tls_socket::recv();
 
     if (recv) {

@@ -174,9 +174,9 @@ async def main() -> None:
         stub = chlorobot_rpc_pb2_grpc.ChlorobotRPCStub(channel)
         health_stub = health_pb2_grpc.HealthStub(channel)
         has_health = False
-        for _ in range(15):
+        for _ in range(30):
             health = health_pb2.HealthCheckRequest(service="ChlorobotRPC")
-            result = health_stub.Check(health)
+            result = await health_stub.Check(health)
             if result == health_pb2.HealthCheckResponse.SERVING:
                 has_health = True
                 break
