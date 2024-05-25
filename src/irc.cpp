@@ -138,6 +138,8 @@ void irc::connect(std::string &&host, std::string &&port,
   auto send_queue = rpc_builder.AddCompletionQueue();
   auto recv_queue = rpc_builder.AddCompletionQueue();
   auto server = rpc_builder.BuildAndStart();
+  new irc::request(&rpc_service, send_queue.get());
+  new irc::authentication(&rpc_service, recv_queue.get());
 
   std::cerr << "Starting IRC connection" << std::endl;
 
@@ -279,8 +281,6 @@ void irc::connect(std::string &&host, std::string &&port,
       }
     }
   }
-  new irc::request(&rpc_service, send_queue.get());
-  new irc::authentication(&rpc_service, recv_queue.get());
 
   std::cerr << "Starting Run Loop" << std::endl;
 
