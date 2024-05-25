@@ -52,15 +52,19 @@ void tls_socket::connect(const std::string host, const std::string port) {
         throw std::runtime_error{gai_strerror(error)};
       }
 
-      std::cerr << "TLS: Connect TCP socket" << std::endl;
+      std::cerr << "TLS: Make TCP socket file descriptor" << std::endl;
       struct protoent *tcp = getprotobyname("tcp");
       client_fd = socket(AF_UNSPEC, SOCK_STREAM, tcp->p_proto);
-      
-      std::cerr << "TLS: Connect TCP socket - made file descriptor" << std::endl;
+
+      if(client_fd == -1) {
+        throw std::runtime_error{strerror(errno)};
+      }
+
+      std::cerr << "TLS: Connect TCP socket" << std::endl;
       error = connect(client_fd, result->ai_addr, result->ai_addrlen);
 
       if (error == -1) {
-        throw std::runtime_error{"Could not connect"};
+        throw std::runtime_error{strerror(errno)};
       }
 
       std::cerr << "TLS: Upgrading..." << std::endl;
