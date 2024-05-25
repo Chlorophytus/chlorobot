@@ -102,11 +102,12 @@ void irc::authentication::proceed() {
   } else if (_state == irc::async_state::process) {
     std::cerr << "Started listening: " << this << std::endl;
     new irc::authentication(_service, _completion_queue);
-
+    listener_tags->insert(this);
     _state = irc::async_state::finish;
   } else {
     if (_context.IsCancelled()) {
       std::cerr << "Cancelled listening: " << this << std::endl;
+      listener_tags->erase(this);
       delete this;
     }
   }
