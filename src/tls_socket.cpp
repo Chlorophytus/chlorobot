@@ -48,7 +48,7 @@ void tls_socket::connect(const std::string host, const std::string port) {
       // https://stackoverflow.com/a/10292238
       int mutable_port = atoi(port.c_str());
       char mutable_pbuf[50]{0};
-      snprintf(mutable_pbuf, 0, "%d", mutable_port);
+      snprintf(mutable_pbuf, 49, "%d", mutable_port);
 
       error = getaddrinfo(host.c_str(), mutable_pbuf, &hints, &result);
       if (error != 0) {
