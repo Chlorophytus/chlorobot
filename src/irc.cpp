@@ -125,7 +125,6 @@ void irc::connect(std::string &&host, std::string &&port,
   std::cerr << "Starting gRPC server" << std::endl;
 
   ChlorobotRPC::AsyncService rpc_service;
-  grpc::EnableDefaultHealthCheckService(true);
   grpc::reflection::InitProtoReflectionServerBuilderPlugin();
   grpc::ServerBuilder rpc_builder;
   rpc_builder.AddListeningPort("0.0.0.0:50051",
@@ -134,7 +133,6 @@ void irc::connect(std::string &&host, std::string &&port,
   auto send_queue = rpc_builder.AddCompletionQueue();
   auto recv_queue = rpc_builder.AddCompletionQueue();
   auto server = rpc_builder.BuildAndStart();
-  server->GetHealthCheckService()->SetServingStatus(false);
 
   std::cerr << "Starting IRC connection" << std::endl;
 
@@ -281,8 +279,6 @@ void irc::connect(std::string &&host, std::string &&port,
 
   new irc::request(&rpc_service, send_queue.get());
   new irc::authentication(&rpc_service, recv_queue.get());
-
-  server->GetHealthCheckService()->SetServingStatus(true);
 
   while (running) {
     // Check if we got a send message
