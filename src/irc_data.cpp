@@ -1,6 +1,6 @@
 #include "../include/irc_data.hpp"
 using namespace chlorobot;
-std::variant<std::string, U32> parse_command_variant(const std::string str) {
+std::variant<U32, std::string> parse_command_variant(const std::string str) {
   U32 numeric = 0;
   if (str.length() == 3) {
     // Hundreds
