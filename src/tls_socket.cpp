@@ -53,9 +53,7 @@ void tls_socket::connect(const std::string host, const std::string port) {
       }
 
       std::cerr << "TLS: Make TCP socket file descriptor" << std::endl;
-      struct protoent *tcp = getprotobyname("tcp");
-      client_fd = socket(AF_UNSPEC, SOCK_STREAM, tcp->p_proto);
-
+      client_fd = socket(AF_UNSPEC, SOCK_STREAM, 0);
       if(client_fd == -1) {
         throw std::runtime_error{strerror(errno)};
       }
