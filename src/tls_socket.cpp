@@ -43,9 +43,14 @@ void tls_socket::connect(const std::string host, const std::string port) {
       memset(&hints, 0, sizeof(hints));
       hints.ai_family = AF_UNSPEC;
       hints.ai_socktype = SOCK_STREAM;
-      hints.ai_protocol = IPPROTO_TCP;
       struct addrinfo *result;
-      error = getaddrinfo(host.c_str(), port.c_str(), &hints, &result);
+
+      // https://stackoverflow.com/a/10292238
+      int mutable_port = atoi(port.c_str());
+      char mutable_pbuf[50]{0};
+      snprintf(mutable_pbuf, 0, "%d", mutable_port);
+
+      error = getaddrinfo(host.c_str(), mutable_pbuf, &hints, &result);
       if (error != 0) {
         throw std::runtime_error{gai_strerror(error)};
       }
