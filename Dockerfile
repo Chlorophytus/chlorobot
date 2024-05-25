@@ -39,7 +39,7 @@ RUN apt update -yy && \
     apt install -yy libssl3t64 libtls28t64 libgrpc29t64
 
 # Add user
-RUN addgroup -S chlorobot && adduser -S chlorobot -G chlorobot
+RUN groupadd chlorobot && useradd -m -g chlorobot chlorobot
 USER chlorobot
 COPY --chown=chlorobot:chlorobot /opt/chlorobot/build/chlorobot ~chlorobot/
 ENTRYPOINT [ "~chlorobot/chlorobot" ]
