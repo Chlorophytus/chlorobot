@@ -43,7 +43,7 @@ void tls_socket::connect(const std::string host, const std::string port) {
       memset(&hints, 0, sizeof(hints));
       hints.ai_family = AF_UNSPEC;
       hints.ai_socktype = SOCK_STREAM;
-      hints.ai_flags = 0;
+      hints.ai_flags = AI_ADDRCONFIG | AI_NUMERICSERV;
       hints.ai_protocol = IPPROTO_TCP;
       struct addrinfo *result;
       error = getaddrinfo(host.c_str(), port.c_str(), &hints, &result);
