@@ -3,10 +3,12 @@ using namespace chlorobot;
 
 bool running = true;
 std::unique_ptr<std::set<irc::authentication *>> listener_tags = nullptr;
+std::unique_ptr<std::set<irc::authentication *>> received_tags = nullptr;
 std::unique_ptr<std::string> rpc_token = nullptr;
+std::unique_ptr<std::set<irc_data::packet>> pack_queue = nullptr;
 
 // duration to wait to get a RPC message
-constexpr static auto rpc_deadline = std::chrono::milliseconds(100);
+constexpr auto rpc_deadline = std::chrono::milliseconds(10);
 
 irc::request::request(ChlorobotRPC::AsyncService *service,
                       grpc::ServerCompletionQueue *queue)
@@ -113,13 +115,16 @@ void irc::authentication::proceed() {
   }
 }
 void irc::authentication::broadcast(const ChlorobotPacket &packet) {
-  _responder.Write(packet, this);
+  if (_state == irc::async_state::finish) {
+    _responder.Write(packet, this);
+  }
 }
 
 void irc::connect(std::string &&host, std::string &&port,
                   irc_data::user &&_data, std::string &&_rpc_token) {
   const auto data = _data;
   listener_tags = std::make_unique<std::set<irc::authentication *>>();
+  received_tags = std::make_unique<std::set<irc::authentication *>>();
   rpc_token = std::make_unique<std::string>(_rpc_token);
 
   std::cerr << "Starting gRPC server" << std::endl;
