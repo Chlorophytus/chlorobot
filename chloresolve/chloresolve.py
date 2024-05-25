@@ -175,8 +175,8 @@ async def main() -> None:
         health_stub = health_pb2_grpc.HealthStub(channel)
         has_health = False
         for _ in range(30):
-            health = health_pb2.HealthCheckRequest(service="ChlorobotRPC")
-            result = await health_stub.Check(health)
+            health = health_pb2.HealthCheckRequest()
+            result = health_stub.Check(health)
             if result == health_pb2.HealthCheckResponse.SERVING:
                 has_health = True
                 break
@@ -194,6 +194,7 @@ async def main() -> None:
             await resolver.listen()
         else:
             logging.error("Could not connect on time to gRPC")
+            exit(-1)
 
 
 if __name__ == "__main__":
