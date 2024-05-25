@@ -136,9 +136,6 @@ void irc::connect(std::string &&host, std::string &&port,
   auto server = rpc_builder.BuildAndStart();
   server->GetHealthCheckService()->SetServingStatus(false);
 
-  new irc::request(&rpc_service, send_queue.get());
-  new irc::authentication(&rpc_service, recv_queue.get());
-
   std::cerr << "Starting IRC connection" << std::endl;
 
   tls_socket::connect(host, port);
@@ -281,6 +278,9 @@ void irc::connect(std::string &&host, std::string &&port,
   }
 
   std::cerr << "Starting Run Loop" << std::endl;
+
+  new irc::request(&rpc_service, send_queue.get());
+  new irc::authentication(&rpc_service, recv_queue.get());
 
   while (running) {
     // Check if we got a send message
