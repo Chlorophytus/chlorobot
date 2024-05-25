@@ -6,19 +6,19 @@ IRC Bot
 
 At the bare minimum, Chlorobot requires a `.env` file. You can set the RPC
 token to anything, just keep it safe.
-```bash
-export CHLOROBOT_NICKNAME="ExampleBotNick"
-export CHLOROBOT_IDENT="ExampleIdent"
-export CHLOROBOT_REALNAME="Example Bot Real Name"
-export CHLOROBOT_SASL_USERNAME="your-botuser-here"
-export CHLOROBOT_SASL_PASSWORD="your-password-here"
-export CHLOROBOT_NETWORK_HOST="irc.libera.chat"
-export CHLOROBOT_NETWORK_PORT="6697"
-export CHLOROBOT_OWNER="owner-irc-cloak-here"
-export CHLOROBOT_RPC_TOKEN="random_value_for_rpc_token"
+```
+CHLOROBOT_NICKNAME=ExampleBotNick
+CHLOROBOT_IDENT=ExampleIdent
+CHLOROBOT_REALNAME=Example Bot Real Name
+CHLOROBOT_SASL_USERNAME=your-botuser-here
+CHLOROBOT_SASL_PASSWORD=your-password-here
+CHLOROBOT_NETWORK_HOST=irc.libera.chat
+CHLOROBOT_NETWORK_PORT=6697
+CHLOROBOT_OWNER=owner-irc-cloak-here
+CHLOROBOT_RPC_TOKEN=random_value_for_rpc_token
 ```
 
-Then do `. .env`.
+You can load that in Docker
 
 ## Build on Ubuntu
 
