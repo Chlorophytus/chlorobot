@@ -22,7 +22,7 @@ COPY CMakeLists.txt .
 
 # We are ready to build
 WORKDIR /opt/chlorobot/build
-RUN cmake --DCMAKE_BUILD_TYPE=Release .. && \
+RUN cmake -DCMAKE_BUILD_TYPE=Release .. && \
     make -j$(nproc)
 # =============================================================================
 # Runner
