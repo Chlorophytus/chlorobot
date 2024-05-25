@@ -270,7 +270,7 @@ void irc::connect(std::string &&host, std::string &&port,
   grpc::EnableDefaultHealthCheckService(true);
   grpc::reflection::InitProtoReflectionServerBuilderPlugin();
   grpc::ServerBuilder rpc_builder;
-  rpc_builder.AddListeningPort("127.0.0.1:50051",
+  rpc_builder.AddListeningPort("0.0.0.0:50051",
                                grpc::InsecureServerCredentials());
   rpc_builder.RegisterService(&rpc_service);
   auto send_queue = rpc_builder.AddCompletionQueue();

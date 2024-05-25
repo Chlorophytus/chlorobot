@@ -167,7 +167,7 @@ class Chloresolver:
 
 
 async def main() -> None:
-    async with grpc.aio.insecure_channel("127.0.0.1:50051") as channel:
+    async with grpc.aio.insecure_channel(f"{os.environ["CHLOROBOT_RPC_SERVER"]}:50051") as channel:
         stub = chlorobot_rpc_pb2_grpc.ChlorobotRPCStub(channel)
         resolver = Chloresolver(stub, os.environ["CHLOROBOT_RPC_TOKEN"], "c|", {
             "ping": ChloresolverCommand(ChloresolverCommand.ping, "acknowledges if the bot resolver is online"),
