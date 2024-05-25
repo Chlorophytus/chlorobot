@@ -4,10 +4,12 @@ using namespace chlorobot;
 bool running = true;
 std::unique_ptr<std::set<irc::authentication *>> listener_tags = nullptr;
 std::unique_ptr<std::string> rpc_token = nullptr;
+// Only one writer can send information
+// https://groups.google.com/g/grpc-io/c/WbHewp7tufE/m/YBhsSRZRAwAJ
+std::unique_ptr<std::list<ChlorobotPacket>> pack_send_queue = nullptr;
 
 // duration to wait to get a RPC message
 constexpr auto rpc_deadline = std::chrono::milliseconds(1);
-
 
 irc::request::request(ChlorobotRPC::AsyncService *service,
                       grpc::ServerCompletionQueue *queue)
@@ -121,6 +123,7 @@ void irc::connect(std::string &&host, std::string &&port,
   const auto data = _data;
   listener_tags = std::make_unique<std::set<irc::authentication *>>();
   rpc_token = std::make_unique<std::string>(_rpc_token);
+  pack_send_queue = std::make_unique<std::list<ChlorobotPacket>>();
 
   std::cerr << "Starting gRPC server" << std::endl;
 
@@ -294,12 +297,19 @@ void irc::connect(std::string &&host, std::string &&port,
 
     void *recv_tag;
     bool recv_ok;
-    const auto recv_rpc_status = recv_queue->AsyncNext(
-        &recv_tag, &recv_ok, std::chrono::system_clock::now() + rpc_deadline);
-    if (recv_rpc_status == grpc::CompletionQueue::GOT_EVENT) {
-      if (recv_ok) {
-        static_cast<irc::authentication *>(recv_tag)->proceed();
+    if (!pack_send_queue->empty()) {
+      auto packet = pack_send_queue->back();
+
+      for (auto listener : *listener_tags) {
+        listener->broadcast(packet);
+
+        const auto recv_rpc_status = recv_queue->Next(&recv_tag, &recv_ok);
+        if (recv_ok) {
+          static_cast<irc::authentication *>(recv_tag)->proceed();
+        }
       }
+
+      pack_send_queue->pop_back();
     }
 
     const auto recv = tls_socket::recv();
@@ -332,11 +342,7 @@ void irc::connect(std::string &&host, std::string &&port,
         if (packet.trailing_param) {
           rpc_packet.set_trailing_parameter(packet.trailing_param.value());
         }
-
-        for (auto tag : *listener_tags) {
-          tag->broadcast(rpc_packet);
-        }
-
+        pack_send_queue->emplace_front(rpc_packet);
         // core code
         if (packet.command.index() == 1) {
           const auto command_str = std::get<std::string>(packet.command);
