@@ -1,7 +1,7 @@
 #include "../include/irc_data.hpp"
 using namespace chlorobot;
 
-decltype(irc_data::packet::command) parse_command_variant(std::string &&str) {
+decltype(irc_data::packet::command) parse_command_variant(const std::string str) {
   U32 numeric = 0;
   if (str.length() == 3) {
     // Hundreds
