@@ -55,6 +55,8 @@ void tls_socket::connect(const std::string host, const std::string port) {
       std::cerr << "TLS: Connect TCP socket" << std::endl;
       struct protoent *tcp = getprotobyname("tcp");
       client_fd = socket(AF_UNSPEC, SOCK_STREAM, tcp->p_proto);
+      
+      std::cerr << "TLS: Connect TCP socket - made file descriptor" << std::endl;
       error = connect(client_fd, result->ai_addr, result->ai_addrlen);
 
       if (error == -1) {
