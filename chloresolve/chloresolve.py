@@ -1,5 +1,6 @@
 import logging.handlers
 import pathlib
+import chloresolve.dispatch
 import chlorobot_rpc_pb2_grpc
 import chlorobot_rpc_pb2
 import grpc
@@ -11,7 +12,7 @@ import chloresolve
 
 
 class Chloresolver:
-    def __init__(self, stub, token: str, trigger: str, commands: dict[str, ChloresolverCommand]) -> None:
+    def __init__(self, stub, token: str, trigger: str, commands: dict[str, chloresolve.dispatch.Command]) -> None:
         self.stub = stub
         self.authentication = chlorobot_rpc_pb2.ChlorobotAuthentication(
             token=token)
