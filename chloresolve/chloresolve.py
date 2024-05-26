@@ -124,7 +124,7 @@ async def main() -> None:
 
 if __name__ == "__main__":
     rotate_handler = logging.handlers.TimedRotatingFileHandler(
-        filename=pathlib.Path("/", "var", "log", "chloresolver")
+        filename=pathlib.Path("/", "var", "log", "chloresolver"),
         when="D",
         interval=1,
         utc=True
