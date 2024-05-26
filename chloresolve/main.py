@@ -125,11 +125,12 @@ async def main() -> None:
 
 if __name__ == "__main__":
     rotate_handler = logging.handlers.TimedRotatingFileHandler(
-        filename=pathlib.Path("/", "var", "log", "chloresolver"),
+        filename=pathlib.Path("/", "var", "log", "chloresolver", "log"),
         when="D",
         interval=1,
-        utc=True
+        utc=True,
     )
+    rotate_handler.suffix = "_%Y-%m-%d.txt"
     logging.basicConfig(
         level=logging.INFO, format='[%(asctime)s] [%(name)s - %(levelname)s] %(message)s', handlers=[rotate_handler])
     asyncio.run(main())
