@@ -7,9 +7,7 @@ from typing import Optional
 import logging
 import asyncio
 import os
-import command, dispatch
-
-__version__ = "0.1.0+rev8"
+from chloresolve import command, dispatch
 
 
 class Chloresolver:
