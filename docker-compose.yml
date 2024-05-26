@@ -10,11 +10,5 @@ services:
       - chlorobot
     links:
       - "chlorobot:chlorobot-rpc"
-    volumes:
-      - chloresolver-log:/var/log/chloresolver
     env_file:
       - .env
-
-volumes:
-  chloresolver-log:
-    
