@@ -56,7 +56,7 @@ class Chloresolver:
                         self.logger.info(f"[RCMD] n:{nickname} i:{ident} c:{
                                          cloak} | h:{channel} | a:{chanargs}")
 
-                        await self.dispatch((self, channel, nickname, ident, cloak, chanargs))
+                        await self.dispatch(chloresolve.dispatch.Arguments(self, channel, nickname, ident, cloak, chanargs))
 
     async def dispatch(self, dispatch_info: chloresolve.dispatch.Arguments) -> None:
         dispatch = dispatch_info.chanargs[0].lower()
