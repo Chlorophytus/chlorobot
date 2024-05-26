@@ -9,6 +9,12 @@ services:
     depends_on:
       - chlorobot
     links:
-      - "chlorobot:chlorobot_rpc"
+      - "chlorobot:chlorobot-rpc"
+    volumes:
+      - chloresolver-log:/var/log/chloresolver
     env_file:
       - .env
+
+volumes:
+  chloresolver-log:
+    

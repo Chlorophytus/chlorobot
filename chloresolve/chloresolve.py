@@ -1,3 +1,5 @@
+import logging.handlers
+import pathlib
 import chlorobot_rpc_pb2_grpc
 import chlorobot_rpc_pb2
 import grpc
@@ -5,73 +7,7 @@ from typing import Optional
 import logging
 import asyncio
 import os
-
-
-class Chloresolver:
-    pass
-
-
-class ChloresolverDispatchArgs:
-    def __init__(self, resolver: Chloresolver, channel: str, nickname: str, ident: str, cloak: str, chanargs: list[str]):
-        self.channel = channel
-        self.nickname = nickname
-        self.ident = ident
-        self.cloak = cloak
-        self.chanargs = chanargs
-        self.resolver = resolver
-
-
-class ChloresolverCommand:
-    def __init__(self, function, help_str: str = "no help available") -> None:
-        self.function = function
-        self.help_str = help_str
-
-    async def __call__(self, args: ChloresolverDispatchArgs) -> None:
-        await self.function(args)
-
-    @staticmethod
-    async def not_found(args: ChloresolverDispatchArgs):
-        await args.resolver.message(args.channel, args.nickname, "Command not found")
-
-    @staticmethod
-    async def ping(args: ChloresolverDispatchArgs):
-        await args.resolver.message(args.channel, args.nickname, "Pong")
-
-    @staticmethod
-    async def help(args: ChloresolverDispatchArgs):
-        match len(args.chanargs):
-            case 1:
-                available = ", ".join([*args.resolver.commands])
-                await args.resolver.message(args.channel, args.nickname, f"Commands available are '{available}'")
-            case 2:
-                dispatch_cmd = args.resolver.commands.get(
-                    args.chanargs[1], CHLORESOLVE_COMMAND_NOT_FOUND)
-                await args.resolver.message(args.channel, args.nickname, f"{args.chanargs[1]} - {dispatch_cmd.help_str}")
-            case _:
-                await args.resolver.message(args.channel, args.nickname, "This call takes 0 or 1 arguments")
-
-    @staticmethod
-    async def version(args: ChloresolverDispatchArgs):
-        version = await args.resolver.version_string()
-        await args.resolver.message(args.channel, args.nickname, f"Chlorobot - Core v{version}")
-
-    @staticmethod
-    async def join(args: ChloresolverDispatchArgs):
-        if args.cloak.lower() == os.environ["CHLOROBOT_OWNER"]:
-            await args.resolver.send(None, "JOIN", [args.chanargs[1]], None)
-        else:
-            await args.resolver.message(args.channel, args.nickname, f"Not authorized")
-
-    @staticmethod
-    async def part(args: ChloresolverDispatchArgs):
-        if args.cloak.lower() == os.environ["CHLOROBOT_OWNER"]:
-            await args.resolver.send(None, "PART", [args.chanargs[1]], None)
-        else:
-            await args.resolver.message(args.channel, args.nickname, f"Not authorized")
-
-
-CHLORESOLVE_COMMAND_NOT_FOUND = ChloresolverCommand(
-    ChloresolverCommand.not_found, "invalid command")
+import chloresolve
 
 
 class Chloresolver:
@@ -119,12 +55,12 @@ class Chloresolver:
                         self.logger.info(f"[RCMD] n:{nickname} i:{ident} c:{
                                          cloak} | h:{channel} | a:{chanargs}")
 
-                        await self.dispatch(ChloresolverDispatchArgs(self, channel, nickname, ident, cloak, chanargs))
+                        await self.dispatch((self, channel, nickname, ident, cloak, chanargs))
 
-    async def dispatch(self, dispatch_info: ChloresolverDispatchArgs) -> None:
+    async def dispatch(self, dispatch_info: chloresolve.dispatch.Arguments) -> None:
         dispatch = dispatch_info.chanargs[0].lower()
         dispatch_cmd = self.commands.get(
-            dispatch, CHLORESOLVE_COMMAND_NOT_FOUND)
+            dispatch, chloresolve.commands.not_found)
         await dispatch_cmd(dispatch_info)
 
     async def message(self, channel: str, nickname: str, message: str) -> None:
@@ -171,21 +107,28 @@ async def main() -> None:
         logging.info("Trying to connect to gRPC socket")
         stub = chlorobot_rpc_pb2_grpc.ChlorobotRPCStub(channel)
         resolver = Chloresolver(stub, os.environ["CHLOROBOT_RPC_TOKEN"], "c|", {
-            "ping": ChloresolverCommand(ChloresolverCommand.ping, "acknowledges if the bot resolver is online"),
-            "help": ChloresolverCommand(ChloresolverCommand.help, "lists commands or gives a detailed description of one"),
-            "join": ChloresolverCommand(ChloresolverCommand.join, "joins a channel"),
-            "part": ChloresolverCommand(ChloresolverCommand.part, "parts a channel"),
-            "version": ChloresolverCommand(ChloresolverCommand.version, "gets the core's version")
+            "ping": chloresolve.dispatch.Command(chloresolve.ping, "acknowledges if the bot resolver is online"),
+            "help": chloresolve.dispatch.Command(chloresolve.help, "lists commands or gives a detailed description of one"),
+            "join": chloresolve.dispatch.Command(chloresolve.join, "joins a channel"),
+            "part": chloresolve.dispatch.Command(chloresolve.part, "parts a channel"),
+            "version": chloresolve.dispatch.Command(chloresolve.version, "gets the bot's version information")
         })
 
-        ping = chlorobot_rpc_pb2.ChlorobotRequest(auth=resolver.authentication, command_type=chlorobot_rpc_pb2.ChlorobotCommandEnum.SEND_NOTHING)
-        result = await stub.Send(ping, timeout=10)
-        
+        ping = chlorobot_rpc_pb2.ChlorobotRequest(
+            auth=resolver.authentication, command_type=chlorobot_rpc_pb2.ChlorobotCommandEnum.SEND_NOTHING)
+        result = await stub.Send(ping, timeout=15)
+
         logging.info("Connected to gRPC socket")
         await resolver.listen()
 
 
 if __name__ == "__main__":
+    rotate_handler = logging.handlers.TimedRotatingFileHandler(
+        filename=pathlib.Path("/", "var", "log", "chloresolver")
+        when="D",
+        interval=1,
+        utc=True
+    )
     logging.basicConfig(
-        level=logging.INFO, format='[%(asctime)s] [%(name)s - %(levelname)s] %(message)s')
+        level=logging.INFO, format='[%(asctime)s] [%(name)s - %(levelname)s] %(message)s', handlers=[rotate_handler])
     asyncio.run(main())
