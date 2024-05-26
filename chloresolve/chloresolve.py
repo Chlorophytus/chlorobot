@@ -7,13 +7,13 @@ from typing import Optional
 import logging
 import asyncio
 import os
-from . import dispatch
+import command, dispatch
 
-__version__ = "0.1.0+rev7"
+__version__ = "0.1.0+rev8"
 
 
 class Chloresolver:
-    def __init__(self, stub, token: str, trigger: str, commands: dict[str, chloresolve.dispatch.Command]) -> None:
+    def __init__(self, stub, token: str, trigger: str, commands: dict[str, dispatch.Command]) -> None:
         self.stub = stub
         self.authentication = chlorobot_rpc_pb2.ChlorobotAuthentication(
             token=token)
@@ -59,10 +59,10 @@ class Chloresolver:
 
                         await self.dispatch((self, channel, nickname, ident, cloak, chanargs))
 
-    async def dispatch(self, dispatch_info: chloresolve.dispatch.Arguments) -> None:
+    async def dispatch(self, dispatch_info: dispatch.Arguments) -> None:
         dispatch = dispatch_info.chanargs[0].lower()
         dispatch_cmd = self.commands.get(
-            dispatch, chloresolve.commands.not_found)
+            dispatch, command.not_found)
         await dispatch_cmd(dispatch_info)
 
     async def message(self, channel: str, nickname: str, message: str) -> None:
