@@ -7,6 +7,6 @@ ADD main.py .
 ADD chlorobot_rpc_pb2.pyi .
 ADD chlorobot_rpc_pb2.py .
 ADD chlorobot_rpc_pb2_grpc.py .
-ADD chloresolve/* ./chloresolve
+ADD chloresolve/* ./chloresolve/
 
 ENTRYPOINT [ "python", "main.py" ]
