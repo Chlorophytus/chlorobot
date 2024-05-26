@@ -9,6 +9,7 @@ import asyncio
 import os
 import chloresolve
 from chloresolve import dispatch, command
+import datetime
 
 
 class Chloresolver:
@@ -125,11 +126,12 @@ async def main() -> None:
 
 if __name__ == "__main__":
     rotate_handler = logging.handlers.TimedRotatingFileHandler(
-        filename=pathlib.Path("/", "var", "log", "chloresolver", "%Y-%m-%d.log"),
+        filename=pathlib.Path("/", "var", "log", "chloresolver", "chloresolver"),
         when="D",
         interval=1,
         utc=True,
     )
+    rotate_handler.namer = lambda name: f"{name}_{datetime.datetime.now(tz=datetime.UTC).strftime("%Y-%m-%d")}.log"
     logging.basicConfig(
         level=logging.INFO, format='[%(asctime)s] [%(name)s - %(levelname)s] %(message)s')
     logging.getLogger().addHandler(rotate_handler)
