@@ -1,7 +1,7 @@
 from . import dispatch
 import os
 
-__version__ = "0.1.0+rev4"
+__version__ = "0.1.0+rev5"
 
 
 async def not_found(args: dispatch.Arguments):

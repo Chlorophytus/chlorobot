@@ -1,6 +1,5 @@
 import logging.handlers
 import pathlib
-import chloresolve.dispatch
 import chlorobot_rpc_pb2_grpc
 import chlorobot_rpc_pb2
 import grpc
@@ -8,7 +7,8 @@ from typing import Optional
 import logging
 import asyncio
 import os
-from . import chloresolve
+import chloresolve
+import chloresolve.dispatch
 
 
 class Chloresolver:
