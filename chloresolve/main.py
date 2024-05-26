@@ -7,6 +7,7 @@ from typing import Optional
 import logging
 import asyncio
 import os
+import chloresolve
 from chloresolve import command, dispatch
 
 
