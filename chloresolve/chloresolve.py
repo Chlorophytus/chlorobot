@@ -8,8 +8,7 @@ import logging
 import asyncio
 import os
 import chloresolve
-import chloresolve.dispatch
-
+from chloresolve import dispatch
 
 class Chloresolver:
     def __init__(self, stub, token: str, trigger: str, commands: dict[str, chloresolve.dispatch.Command]) -> None:
@@ -108,11 +107,11 @@ async def main() -> None:
         logging.info("Trying to connect to gRPC socket")
         stub = chlorobot_rpc_pb2_grpc.ChlorobotRPCStub(channel)
         resolver = Chloresolver(stub, os.environ["CHLOROBOT_RPC_TOKEN"], "c|", {
-            "ping": chloresolve.dispatch.Command(chloresolve.ping, "acknowledges if the bot resolver is online"),
-            "help": chloresolve.dispatch.Command(chloresolve.help, "lists commands or gives a detailed description of one"),
-            "join": chloresolve.dispatch.Command(chloresolve.join, "joins a channel"),
-            "part": chloresolve.dispatch.Command(chloresolve.part, "parts a channel"),
-            "version": chloresolve.dispatch.Command(chloresolve.version, "gets the bot's version information")
+            "ping": chloresolve.dispatch.Command(chloresolve.command.ping, "acknowledges if the bot resolver is online"),
+            "help": chloresolve.dispatch.Command(chloresolve.command.help, "lists commands or gives a detailed description of one"),
+            "join": chloresolve.dispatch.Command(chloresolve.command.join, "joins a channel"),
+            "part": chloresolve.dispatch.Command(chloresolve.command.part, "parts a channel"),
+            "version": chloresolve.dispatch.Command(chloresolve.command.version, "gets the bot's version information")
         })
 
         ping = chlorobot_rpc_pb2.ChlorobotRequest(
