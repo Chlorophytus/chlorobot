@@ -8,7 +8,7 @@ import logging
 import asyncio
 import os
 import chloresolve
-from chloresolve import dispatch, command, log
+from chloresolve import dispatch, command
 
 
 class Chloresolver:
