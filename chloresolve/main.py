@@ -130,7 +130,8 @@ if __name__ == "__main__":
         interval=1,
         utc=True,
     )
-    rotate_handler.suffix = "_%Y-%m-%d.txt"
+    rotate_handler.suffix = "_%Y-%m-%d.log"
     logging.basicConfig(
-        level=logging.INFO, format='[%(asctime)s] [%(name)s - %(levelname)s] %(message)s', handlers=[rotate_handler])
+        level=logging.INFO, format='[%(asctime)s] [%(name)s - %(levelname)s] %(message)s')
+    logging.getLogger().addHandler(rotate_handler)
     asyncio.run(main())
