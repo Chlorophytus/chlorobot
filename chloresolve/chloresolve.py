@@ -8,7 +8,7 @@ from typing import Optional
 import logging
 import asyncio
 import os
-import chloresolve
+from . import chloresolve
 
 
 class Chloresolver:
