@@ -7,8 +7,10 @@ from typing import Optional
 import logging
 import asyncio
 import os
-import chloresolve
-from chloresolve import dispatch
+from . import dispatch
+
+__version__ = "0.1.0+rev7"
+
 
 class Chloresolver:
     def __init__(self, stub, token: str, trigger: str, commands: dict[str, chloresolve.dispatch.Command]) -> None:
