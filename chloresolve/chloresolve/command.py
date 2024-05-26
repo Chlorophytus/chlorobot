@@ -1,5 +1,5 @@
 import os
-from . import dispatch
+from . import dispatch,__version__
 
 
 async def not_found(args: dispatch.Arguments):

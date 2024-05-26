@@ -104,6 +104,7 @@ class Chloresolver:
 
 
 async def main() -> None:
+    logging.info(f"Chloresolver {__version__}")
     async with grpc.aio.insecure_channel(f"{os.environ["CHLOROBOT_RPC_SERVER"]}:50051") as channel:
         logging.info("Trying to connect to gRPC socket")
         stub = chlorobot_rpc_pb2_grpc.ChlorobotRPCStub(channel)
