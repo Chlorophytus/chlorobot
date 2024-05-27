@@ -1,5 +1,7 @@
 import logging.handlers
 import pathlib
+import chloresolve.command
+import chloresolve.dispatch
 import chlorobot_rpc_pb2_grpc
 import chlorobot_rpc_pb2
 import grpc
@@ -114,8 +116,7 @@ async def main() -> None:
             "join": chloresolve.dispatch.Command(chloresolve.command.join, "joins a channel"),
             "part": chloresolve.dispatch.Command(chloresolve.command.part, "parts a channel"),
             "version": chloresolve.dispatch.Command(chloresolve.command.version, "gets the bot's version information"),
-            "memory": chloresolve.dispatch.Command(chloresolve.command.memory, "gets the bot's memory usage"),
-            "cpu_model": chloresolve.dispatch.Command(chloresolve.command.cpu_model, "gets the bot's CPU model")
+            "chain": chloresolve.dispatch.Command(chloresolve.command.chain, "creates a sentence using a Markov chain")
         })
 
         ping = chlorobot_rpc_pb2.ChlorobotRequest(
