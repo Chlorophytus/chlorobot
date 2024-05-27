@@ -8,6 +8,9 @@ async def not_found(args: dispatch.Arguments):
     await args.resolver.message(args.channel, args.nickname, "Command not found")
 
 
+COMMAND_NOT_FOUND = dispatch.Command(not_found, "command not found")
+
+
 async def ping(args: dispatch.Arguments):
     await args.resolver.message(args.channel, args.nickname, "Pong")
 
@@ -18,8 +21,7 @@ async def help(args: dispatch.Arguments):
             available = ", ".join([*args.resolver.commands])
             await args.resolver.message(args.channel, args.nickname, f"Commands available are '{available}'")
         case 2:
-            dispatch_cmd = args.resolver.commands.get(
-                args.chanargs[1], not_found)
+            dispatch_cmd = args.resolver.commands.get(args.chanargs[1], COMMAND_NOT_FOUND)
             await args.resolver.message(args.channel, args.nickname, f"{args.chanargs[1]} - {dispatch_cmd.help_str}")
         case _:
             await args.resolver.message(args.channel, args.nickname, "This call takes 0 or 1 arguments")
