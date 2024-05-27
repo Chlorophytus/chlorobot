@@ -1,5 +1,5 @@
 # chlorobot
-IRC Bot
+C++ IRC bot with a gRPC-connected Python core
 
 
 ## Environment files
@@ -16,30 +16,43 @@ CHLOROBOT_NETWORK_HOST=irc.libera.chat
 CHLOROBOT_NETWORK_PORT=6697
 CHLOROBOT_OWNER=owner-irc-cloak-here
 CHLOROBOT_RPC_TOKEN=random_value_for_rpc_token
+CHLOROBOT_RPC_SERVER=chlorobot-rpc
 ```
 
-You can load that in Docker
+You can load that in Docker Compose, `CHLOROBOT_RPC_SERVER` should be
+`chlorobot-rpc` unless the RPC server variable is actually edited in the
+`docker-compose.yml` file.
 
-## Build on Ubuntu
+## Docker Compose commands
 
-For a default minimal configuration, install these packages
+Chloresolver is just an example of a Python resolver that connects to the C++
+core's gRPC endpoint. By default, the Chlorobot gRPC server is assigned hostname
+`chlorobot-rpc`.
+
+> [!IMPORTANT]
+> The bot core will bind to `0.0.0.0` by default for gRPC, so use a firewall.
+> 
+> Future bot core versions might make this an environment variable.
+
+### Managing the bot
+
+#### Starting its C++ core and all dependencies
+
+C++ core updates are rare, unless something arises.
 
 ```shell
-$ sudo apt install build-essential cmake libssl-dev libtls-dev libgrpc++-dev protobuf-compiler-grpc
+$ docker-compose build # if you need to rebuild it
+$ docker-compose up
 ```
 
-```shell
-$ mkdir build
-$ cmake -B build/ .
-$ make -C build/
-```
+#### Hot swapping the Python resolver
 
-Generate example Python3 protobufs and run example resolver...
+The Python resolver can be swapped out with a different resolver, but here are
+the commands you need to rebuild and restart the resolver.
+
+The core will ping the IRC server, so the connection should not go down.
+
 ```shell
-$ cd chloresolve
-$ virtualenv venv
-$ . venv/bin/activate
-$ pip install -r requirements.txt
-$ python3 -m grpc_tools.protoc ../chlorobot_rpc.proto --proto_path=.. --python_out=./ --grpc_python_out=./ --pyi_out=./
-$ python3 chloresolve.py
+$ docker-compose down chloresolver # if it hasn't crashed
+$ docker-compose up -d --build chloresolver
 ```
