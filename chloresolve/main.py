@@ -10,6 +10,9 @@ import os
 import chloresolve
 from chloresolve import dispatch, command
 
+COMMAND_NOT_FOUND = chloresolve.dispatch.Command(
+    chloresolve.command.not_found, "invalid command")
+
 
 class Chloresolver:
     def __init__(self, stub, token: str, trigger: str, commands: dict[str, chloresolve.dispatch.Command]) -> None:
@@ -61,7 +64,7 @@ class Chloresolver:
     async def dispatch(self, dispatch_info: chloresolve.dispatch.Arguments) -> None:
         dispatch = dispatch_info.chanargs[0].lower()
         dispatch_cmd = self.commands.get(
-            dispatch, chloresolve.command.not_found)
+            dispatch, COMMAND_NOT_FOUND)
         await dispatch_cmd(dispatch_info)
 
     async def message(self, channel: str, nickname: str, message: str) -> None:
