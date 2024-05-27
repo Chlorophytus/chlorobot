@@ -10,6 +10,7 @@ COMMAND_NOT_FOUND: dispatch.Command = dispatch.Command(
     not_found, "command not found")
 
 global CHLOROBOT_MARKOV_CHAINER
+CHLOROBOT_MARKOV_CHAINER = markov.Chainer()
 
 
 async def ping(args: dispatch.Arguments):
@@ -61,9 +62,6 @@ async def chain(args: dispatch.Arguments):
                     if chanarg_len > 2:
                         path = " ".join(args.chanargs[2:])
                         try:
-                            if CHLOROBOT_MARKOV_CHAINER is None:
-                                CHLOROBOT_MARKOV_CHAINER = markov.Chainer()
-                            
                             with open(path, "r") as f:
                                 CHLOROBOT_MARKOV_CHAINER.parse(f)
                                 await args.resolver.message(args.channel, args.nickname, f"Parsed '{path}'")
