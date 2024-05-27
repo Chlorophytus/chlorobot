@@ -1,5 +1,5 @@
 # chlorobot
-C++ IRC bot with a gRPC-connected Python core
+C++ IRC bot with a gRPC-connected Python command handler
 
 
 ## Environment files
