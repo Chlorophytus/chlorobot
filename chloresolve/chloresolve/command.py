@@ -8,7 +8,8 @@ async def not_found(args: dispatch.Arguments):
 
 COMMAND_NOT_FOUND: dispatch.Command = dispatch.Command(
     not_found, "command not found")
-MARKOV_CHAINER: markov.Chainer = markov.Chainer()
+
+global CHLOROBOT_MARKOV_CHAINER
 
 
 async def ping(args: dispatch.Arguments):
@@ -54,14 +55,17 @@ async def chain(args: dispatch.Arguments):
             chanarg_determine = args.chanargs[1].lower()
             match chanarg_determine:
                 case "clear":
-                    MARKOV_CHAINER = markov.Chainer()
+                    CHLOROBOT_MARKOV_CHAINER = markov.Chainer()
                     await args.resolver.message(args.channel, args.nickname, "Cleared the Markov chainer")
                 case "parse":
                     if chanarg_len > 2:
                         path = " ".join(args.chanargs[2:])
                         try:
+                            if CHLOROBOT_MARKOV_CHAINER is None:
+                                CHLOROBOT_MARKOV_CHAINER = markov.Chainer()
+                            
                             with open(path, "r") as f:
-                                MARKOV_CHAINER.parse(f)
+                                CHLOROBOT_MARKOV_CHAINER.parse(f)
                                 await args.resolver.message(args.channel, args.nickname, f"Parsed '{path}'")
                         except FileNotFoundError:
                             await args.resolver.message(args.channel, args.nickname, "File does not exist")
