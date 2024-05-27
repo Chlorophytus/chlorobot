@@ -113,7 +113,9 @@ async def main() -> None:
             "help": chloresolve.dispatch.Command(chloresolve.command.help, "lists commands or gives a detailed description of one"),
             "join": chloresolve.dispatch.Command(chloresolve.command.join, "joins a channel"),
             "part": chloresolve.dispatch.Command(chloresolve.command.part, "parts a channel"),
-            "version": chloresolve.dispatch.Command(chloresolve.command.version, "gets the bot's version information")
+            "version": chloresolve.dispatch.Command(chloresolve.command.version, "gets the bot's version information"),
+            "memory": chloresolve.dispatch.Command(chloresolve.command.memory, "gets the bot's memory usage"),
+            "cpu_model": chloresolve.dispatch.Command(chloresolve.command.cpu_model, "gets the bot's CPU model")
         })
 
         ping = chlorobot_rpc_pb2.ChlorobotRequest(

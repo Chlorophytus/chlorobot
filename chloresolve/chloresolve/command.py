@@ -1,5 +1,7 @@
 import os
-from . import dispatch,__version__
+from . import dispatch, __version__
+import psutil
+import cpuinfo
 
 
 async def not_found(args: dispatch.Arguments):
@@ -40,3 +42,13 @@ async def part(args: dispatch.Arguments):
         await args.resolver.send(None, "PART", [args.chanargs[1]], None)
     else:
         await args.resolver.message(args.channel, args.nickname, f"Not authorized")
+
+
+async def memory(args: dispatch.Arguments):
+    memory = psutil.virtual_memory()
+    await args.resolver.message(args.channel, args.nickname, f"{memory.used // 1048576}MB out of {memory.total // 1048576}MB of memory is currently in use")
+
+
+async def cpu_model(args: dispatch.Arguments):
+    model = cpuinfo.get_cpu_info()["brand_raw"]
+    await args.resolver.message(args.channel, args.nickname, f"'{model}' is my CPU model")
