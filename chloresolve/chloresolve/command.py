@@ -9,9 +9,6 @@ async def not_found(args: dispatch.Arguments):
 COMMAND_NOT_FOUND: dispatch.Command = dispatch.Command(
     not_found, "command not found")
 
-global CHLOROBOT_MARKOV_CHAINER
-CHLOROBOT_MARKOV_CHAINER = markov.Chainer()
-
 
 async def ping(args: dispatch.Arguments):
     await args.resolver.message(args.channel, args.nickname, "Pong")
@@ -50,20 +47,21 @@ async def part(args: dispatch.Arguments):
 
 
 async def chain(args: dispatch.Arguments):
+    global CHAINER_OBJECT
     if args.cloak.lower() == os.environ["CHLOROBOT_OWNER"]:
         chanarg_len = len(args.chanargs)
         if chanarg_len > 1:
             chanarg_determine = args.chanargs[1].lower()
             match chanarg_determine:
                 case "clear":
-                    CHLOROBOT_MARKOV_CHAINER = markov.Chainer()
+                    CHAINER_OBJECT = markov.Chainer()
                     await args.resolver.message(args.channel, args.nickname, "Cleared the Markov chainer")
                 case "parse":
                     if chanarg_len > 2:
                         path = " ".join(args.chanargs[2:])
                         try:
                             with open(path, "r") as f:
-                                CHLOROBOT_MARKOV_CHAINER.parse(f)
+                                CHAINER_OBJECT.parse(f)
                                 await args.resolver.message(args.channel, args.nickname, f"Parsed '{path}'")
                         except FileNotFoundError:
                             await args.resolver.message(args.channel, args.nickname, "File does not exist")
@@ -75,7 +73,7 @@ async def chain(args: dispatch.Arguments):
                             min: int = int(args.chanarg[2])
                             max: int = int(args.chanarg[3])
 
-                            await args.resolver.message(args.channel, args.nickname, CHLOROBOT_MARKOV_CHAINER.run(min, max))
+                            await args.resolver.message(args.channel, args.nickname, CHAINER_OBJECT.run(min, max))
                         except ValueError:
                             await args.resolver.message(args.channel, args.nickname, "Minimum and maximum sentence word lengths must be integers")
                     else:
