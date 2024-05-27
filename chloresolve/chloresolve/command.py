@@ -70,8 +70,8 @@ async def chain(args: dispatch.Arguments):
                 case "run":
                     if chanarg_len == 4:
                         try:
-                            min: int = int(args.chanarg[2])
-                            max: int = int(args.chanarg[3])
+                            min: int = int(args.chanargs[2])
+                            max: int = int(args.chanargs[3])
 
                             await args.resolver.message(args.channel, args.nickname, CHAINER_OBJECT.run(min, max))
                         except ValueError:
