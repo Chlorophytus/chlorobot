@@ -50,14 +50,14 @@ async def part(args: dispatch.Arguments):
 async def chain(args: dispatch.Arguments):
     if args.cloak.lower() == os.environ["CHLOROBOT_OWNER"]:
         chanarg_len = len(args.chanargs)
-        if chanarg_len > 2:
+        if chanarg_len > 1:
             chanarg_determine = args.chanargs[1].lower()
             match chanarg_determine:
                 case "clear":
                     MARKOV_CHAINER = markov.Chainer()
                     await args.resolver.message(args.channel, args.nickname, "Cleared the Markov chainer")
                 case "parse":
-                    if chanarg_len > 3:
+                    if chanarg_len > 2:
                         path = " ".join(args.chanargs[2:])
                         try:
                             with open(path, "r") as f:
@@ -81,6 +81,6 @@ async def chain(args: dispatch.Arguments):
                 case _:
                     await args.resolver.message(args.channel, args.nickname, "Use subcommand 'clear', 'parse', or 'run'")
         else:
-            await args.resolver.message(args.channel, args.nickname, "This command takes 2 or more arguments")
+            await args.resolver.message(args.channel, args.nickname, "Use subcommand 'clear', 'parse', or 'run'")
     else:
         await args.resolver.message(args.channel, args.nickname, "Not authorized")
