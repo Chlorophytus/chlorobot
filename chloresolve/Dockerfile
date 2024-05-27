@@ -8,5 +8,6 @@ ADD chlorobot_rpc_pb2.pyi .
 ADD chlorobot_rpc_pb2.py .
 ADD chlorobot_rpc_pb2_grpc.py .
 ADD chloresolve/* ./chloresolve/
+ADD corpus_data/* ./corpus_data/
 
 ENTRYPOINT [ "python", "main.py" ]
