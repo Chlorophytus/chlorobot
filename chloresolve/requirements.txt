@@ -1,4 +1,5 @@
 grpcio==1.64.0
-grpcio-tools==1.64.0
 protobuf==5.27.0
+psutil==5.9.8
+py-cpuinfo==9.0.0
 setuptools==70.0.0
