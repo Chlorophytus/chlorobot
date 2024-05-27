@@ -77,7 +77,7 @@ async def chain(args: dispatch.Arguments):
                             min: int = int(args.chanarg[2])
                             max: int = int(args.chanarg[3])
 
-                            await args.resolver.message(args.channel, args.nickname, MARKOV_CHAINER.run(min, max))
+                            await args.resolver.message(args.channel, args.nickname, CHLOROBOT_MARKOV_CHAINER.run(min, max))
                         except ValueError:
                             await args.resolver.message(args.channel, args.nickname, "Minimum and maximum sentence word lengths must be integers")
                     else:
