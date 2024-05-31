@@ -27,22 +27,20 @@ class PageLookup:
         """
         self.endpoint: str = endpoint
 
-    def query(self, what: str) -> str:
+    def query(self, title: str) -> str:
         """
         Queries the endpoint API and then returns a future description result.
 
         The HTML will be stripped.
         """
         # Query your wiki's JSON description
-        r: requests.Response = requests.post(self.endpoint, json={
-            "action": "query",
-            "format": "json",
-            "prop": "description",
-            "titles": what,
-            "redirects": 1,
-            "ascii": 1,
-            "formatversion": "2"
-        })
+        r: requests.Response = requests.get("https://en.wikipedia.org/w/api.php", params={
+                                            'action': 'query',
+                                            'format': 'json',
+                                            'prop': 'description',
+                                            'titles': title,
+                                            'redirects': 1,
+                                            'formatversion': 2})
 
         # Get the result
         result = r.json()
