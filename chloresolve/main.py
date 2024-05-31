@@ -116,7 +116,8 @@ async def main() -> None:
             "join": chloresolve.dispatch.Command(chloresolve.command.join, "joins a channel"),
             "part": chloresolve.dispatch.Command(chloresolve.command.part, "parts a channel"),
             "version": chloresolve.dispatch.Command(chloresolve.command.version, "gets the bot's version information"),
-            "chain": chloresolve.dispatch.Command(chloresolve.command.chain, "creates a sentence using a Markov chain")
+            "chain": chloresolve.dispatch.Command(chloresolve.command.chain, "creates a sentence using a Markov chain"),
+            "wiki": chloresolve.dispatch.Command(chloresolve.command.wiki, "gets a Wikipedia article's short description")
         })
 
         ping = chlorobot_rpc_pb2.ChlorobotRequest(

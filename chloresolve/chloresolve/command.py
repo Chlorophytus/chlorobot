@@ -1,5 +1,5 @@
 import os
-from . import dispatch, markov, __version__
+from . import dispatch, markov, mediawiki, __version__
 
 
 async def not_found(args: dispatch.Arguments):
@@ -84,3 +84,17 @@ async def chain(args: dispatch.Arguments):
             await args.resolver.message(args.channel, args.nickname, "Use subcommand 'clear', 'parse', or 'run'")
     else:
         await args.resolver.message(args.channel, args.nickname, "Not authorized")
+
+
+async def wiki(args: dispatch.Arguments):
+    if len(args.chanargs) > 1:
+        article: str = " ".join(args.chanargs[1:])
+        wiki_lookup = mediawiki.PageLookup(
+            "https://en.wikipedia.org/w/api.php")
+        try:
+            description: str = wiki_lookup.query(article)
+            await args.resolver.message(args.channel, args.nickname, f"'{article}' - {description}")
+        except:
+            await args.resolver.message(args.channel, args.nickname, f"Article lookup failed")
+    else:
+        await args.resolver.message(args.channel, args.nickname, "Please give an article that can be looked up")
