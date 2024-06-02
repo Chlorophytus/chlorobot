@@ -34,7 +34,7 @@ class PageLookup:
         The HTML will be stripped.
         """
         # Query your wiki's JSON description
-        r: requests.Response = requests.get("https://en.wikipedia.org/w/api.php", params={
+        r: requests.Response = requests.get(self.endpoint, params={
                                             'action': 'query',
                                             'format': 'json',
                                             'prop': 'description',
@@ -44,12 +44,16 @@ class PageLookup:
 
         # Get the result
         result = r.json()
-        description: str = result['query']['pages'][0]['description']
+        print(result)
+        query: dict = result['query']['pages'][0]
 
-        # Strip the HTML
-        stripper: HTMLStripper = HTMLStripper()
-        stripper.feed(description)
-        stripper.close()
+        if 'description' in query.keys():
+            # Strip the HTML
+            stripper: HTMLStripper = HTMLStripper()
+            stripper.feed(query['description'])
+            stripper.close()
 
-        # Return the retrieved and stripped description
-        return stripper.stripped_text
+            # Return the retrieved and stripped description
+            return f'{query['title']} - {stripper.stripped_text}'
+        else:
+            return f'{query['title']} - No synopsis available'

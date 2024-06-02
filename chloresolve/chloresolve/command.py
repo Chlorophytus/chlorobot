@@ -93,8 +93,8 @@ async def wiki(args: dispatch.Arguments):
             "https://en.wikipedia.org/w/api.php")
         try:
             description: str = wiki_lookup.query(article)
-            await args.resolver.message(args.channel, args.nickname, f"'{article}' - {description}")
+            await args.resolver.message(args.channel, args.nickname, description)
         except:
-            await args.resolver.message(args.channel, args.nickname, f"Article lookup failed")
+            await args.resolver.message(args.channel, args.nickname, f"Article synopsis lookup failed")
     else:
         await args.resolver.message(args.channel, args.nickname, "Please give an article that can be looked up")
