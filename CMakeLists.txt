@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.25)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Project instantiation
-project(chlorobot VERSION 0.2.1.47)
+project(chlorobot VERSION 1.0.0.48)
 
 # Fetch gRPC
 option(USE_SYSTEM_GRPC "Use system installed gRPC" ON)
@@ -17,7 +17,7 @@ else()
         FetchContent_Declare(
         gRPC
         GIT_REPOSITORY https://github.com/grpc/grpc
-        GIT_TAG        v1.51.3
+        GIT_TAG        v1.64.1
     )
     set(FETCHCONTENT_QUIET OFF)
     FetchContent_MakeAvailable(gRPC)
