@@ -77,9 +77,9 @@ class Chloresolver:
         myself: str = os.environ["CHLOROBOT_NICKNAME"]
         if channel.startswith('#') or channel.startswith('&'):
             # channel
-            self.logger.info(f"[{channel}] <{myself}> {message}")
+            self.logger.info(f"[{channel}] <{myself}> {ircstyle.unstyle(message)}")
             try:
-                await self.send(None, b"PRIVMSG", [channel.encode()], f"{nickname}: {ircstyle.unstyle(message)}".encode())
+                await self.send(None, b"PRIVMSG", [channel.encode()], f"{nickname}: {message}".encode())
             except UnicodeEncodeError:
                 self.logger.warning("Could not encode the last message into bytes!")
         else:
