@@ -7,6 +7,7 @@ std::unique_ptr<std::string> rpc_token = nullptr;
 // Only one writer can send information
 // https://groups.google.com/g/grpc-io/c/WbHewp7tufE/m/YBhsSRZRAwAJ
 std::unique_ptr<std::list<ChlorobotPacket>> pack_send_queue = nullptr;
+constexpr U32 CURRENT_ENCODE_VERSION = 1;
 
 // duration to wait to get a RPC message
 constexpr auto rpc_deadline = std::chrono::milliseconds(1);
@@ -23,8 +24,16 @@ void irc::request::proceed() {
                           _completion_queue, this);
   } else if (_state == irc::async_state::process) {
     new irc::request(_service, _completion_queue);
-
-    if (_request.auth().token() == *rpc_token) {
+    const auto auth = _request.auth();
+    if (auth.token() == *rpc_token) {
+      const U32 encode_what_version = auth.has_version() ? auth.version() : 0;
+      if (encode_what_version < CURRENT_ENCODE_VERSION) {
+        std::cerr << "Request " << this
+                  << " is using deprecated RPC packet format version "
+                  << encode_what_version << std::endl;
+        std::cerr << "The current RPC packet format version is "
+                  << CURRENT_ENCODE_VERSION << std::endl;
+      }
       switch (_request.data_case()) {
       case ChlorobotRequest::DataCase::kCommandType: {
         switch (_request.command_type()) {
@@ -51,7 +60,17 @@ void irc::request::proceed() {
         }
         switch (source_packet.command_case()) {
         case ChlorobotPacket::CommandCase::kNonNumeric: {
-          dest_packet.command = source_packet.non_numeric();
+          switch (encode_what_version) {
+          case 0: {
+            dest_packet.command = source_packet.non_numeric_0();
+            break;
+          }
+          default: {
+            dest_packet.command = source_packet.non_numeric();
+            break;
+          }
+          }
+
           break;
         }
         case ChlorobotPacket::CommandCase::kNumeric: {
@@ -63,13 +82,31 @@ void irc::request::proceed() {
           break;
         }
         }
-        auto param_s = source_packet.parameters_size();
-        for (auto param_i = 0; param_i < param_s; param_i++) {
-          dest_packet.params.push_back(source_packet.parameters(param_i));
+        switch (encode_what_version) {
+        case 0: {
+          // outdated
+          auto param_s = source_packet.parameters_0_size();
+          for (auto param_i = 0; param_i < param_s; param_i++) {
+            dest_packet.params.push_back(source_packet.parameters_0(param_i));
+          }
+          if (source_packet.has_trailing_parameter_0()) {
+            dest_packet.trailing_param = source_packet.trailing_parameter_0();
+          }
+          break;
         }
-        if (source_packet.has_trailing_parameter()) {
-          dest_packet.trailing_param = source_packet.trailing_parameter();
+        default: {
+          // up to date
+          auto param_s = source_packet.parameters_size();
+          for (auto param_i = 0; param_i < param_s; param_i++) {
+            dest_packet.params.push_back(source_packet.parameters(param_i));
+          }
+          if (source_packet.has_trailing_parameter()) {
+            dest_packet.trailing_param = source_packet.trailing_parameter();
+          }
+          break;
         }
+        }
+
         tls_socket::send(dest_packet.serialize());
         break;
       }
@@ -97,10 +134,28 @@ irc::authentication::authentication(ChlorobotRPC::AsyncService *service,
 }
 void irc::authentication::proceed() {
   if (_state == irc::async_state::create) {
-    _state = irc::async_state::process;
     _context.AsyncNotifyWhenDone(this);
     _service->RequestListen(&_context, &_authentication, &_responder,
                             _completion_queue, _completion_queue, this);
+
+    _encode_version =
+        _authentication.has_version() ? _authentication.version() : 0;
+
+    if (_encode_version < CURRENT_ENCODE_VERSION) {
+      std::cerr << "Listener " << this
+                << " is using deprecated RPC packet format version "
+                << _authentication.version() << std::endl;
+      std::cerr << "The current RPC packet format version is "
+                << CURRENT_ENCODE_VERSION << std::endl;
+    }
+
+    if (_authentication.token() == *rpc_token) {
+      _state = irc::async_state::process;
+    } else {
+      std::cerr << "INVALID AUTH ON LISTENER: " << this << std::endl;
+      _responder.Finish(grpc::Status::CANCELLED, this);
+      _state = irc::async_state::finish;
+    }
   } else if (_state == irc::async_state::process) {
     std::cerr << "Started listening: " << this << std::endl;
     new irc::authentication(_service, _completion_queue);
@@ -114,8 +169,48 @@ void irc::authentication::proceed() {
     }
   }
 }
+
+U32 irc::authentication::get_encode_version() const { return _encode_version; }
+
 void irc::authentication::broadcast(const ChlorobotPacket packet) {
-  _responder.Write(packet, this);
+  switch (_encode_version) {
+  case 0: {
+    // remake the whole packet because of legacy status
+    ChlorobotPacket legacy{};
+    if (packet.has_prefix()) {
+      legacy.set_prefix_0(packet.prefix());
+    }
+    const auto parameters_size = packet.parameters_size();
+    for (auto parameter_index = 0; parameter_index < parameters_size;
+         parameter_index++) {
+      legacy.add_parameters_0(packet.parameters(parameter_index));
+    }
+    if (packet.has_trailing_parameter()) {
+      legacy.set_trailing_parameter_0(packet.trailing_parameter());
+    }
+
+    switch (packet.command_case()) {
+    case ChlorobotPacket::CommandCase::kNonNumeric: {
+      legacy.set_non_numeric_0(packet.non_numeric());
+      break;
+    }
+    case ChlorobotPacket::CommandCase::kNumeric: {
+      legacy.set_numeric(packet.numeric());
+      break;
+    }
+    default: {
+      throw std::runtime_error{"Unimplemented gRPC legacy convert command case"};
+      break;
+    }
+    }
+    _responder.Write(legacy, this);
+    break;
+  }
+  default: {
+    _responder.Write(packet, this);
+    break;
+  }
+  }
 }
 
 void irc::connect(std::string &&host, std::string &&port,

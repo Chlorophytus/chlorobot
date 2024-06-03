@@ -30,15 +30,18 @@ class authentication {
   grpc::ServerContext _context;
 
   ChlorobotAuthentication _authentication;
-  // ChlorobotAcknowledgement _acknowledgement;
 
   grpc::ServerAsyncWriter<ChlorobotPacket> _responder;
 
   async_state _state = async_state::create;
+
+  U32 _encode_version;
+
 public:
   void proceed();
   void broadcast(const ChlorobotPacket);
   authentication(ChlorobotRPC::AsyncService *, grpc::ServerCompletionQueue *);
+  U32 get_encode_version() const;
 };
 
 /// @brief Connects to the IRC server by SSL on the specified port with user

@@ -24,7 +24,10 @@ PROTOBUF_CONSTEXPR ChlorobotPacket::ChlorobotPacket(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_._has_bits_)*/{}
   , /*decltype(_impl_._cached_size_)*/{}
+  , /*decltype(_impl_.parameters_0_)*/{}
   , /*decltype(_impl_.parameters_)*/{}
+  , /*decltype(_impl_.prefix_0_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.trailing_parameter_0_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.prefix_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.trailing_parameter_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.command_)*/{}
@@ -38,20 +41,6 @@ struct ChlorobotPacketDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ChlorobotPacketDefaultTypeInternal _ChlorobotPacket_default_instance_;
-PROTOBUF_CONSTEXPR ChlorobotAuthentication::ChlorobotAuthentication(
-    ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_._has_bits_)*/{}
-  , /*decltype(_impl_._cached_size_)*/{}
-  , /*decltype(_impl_.token_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}} {}
-struct ChlorobotAuthenticationDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR ChlorobotAuthenticationDefaultTypeInternal()
-      : _instance(::_pbi::ConstantInitialized{}) {}
-  ~ChlorobotAuthenticationDefaultTypeInternal() {}
-  union {
-    ChlorobotAuthentication _instance;
-  };
-};
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ChlorobotAuthenticationDefaultTypeInternal _ChlorobotAuthentication_default_instance_;
 PROTOBUF_CONSTEXPR ChlorobotRequest::ChlorobotRequest(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.auth_)*/nullptr
@@ -67,6 +56,21 @@ struct ChlorobotRequestDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ChlorobotRequestDefaultTypeInternal _ChlorobotRequest_default_instance_;
+PROTOBUF_CONSTEXPR ChlorobotAuthentication::ChlorobotAuthentication(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_._has_bits_)*/{}
+  , /*decltype(_impl_._cached_size_)*/{}
+  , /*decltype(_impl_.token_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.version_)*/0u} {}
+struct ChlorobotAuthenticationDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR ChlorobotAuthenticationDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~ChlorobotAuthenticationDefaultTypeInternal() {}
+  union {
+    ChlorobotAuthentication _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ChlorobotAuthenticationDefaultTypeInternal _ChlorobotAuthentication_default_instance_;
 PROTOBUF_CONSTEXPR ChlorobotVersion::ChlorobotVersion(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.pretty_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
@@ -108,25 +112,25 @@ const uint32_t TableStruct_chlorobot_5frpc_2eproto::offsets[] PROTOBUF_SECTION_V
   PROTOBUF_FIELD_OFFSET(::ChlorobotPacket, _impl_._oneof_case_[0]),
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::ChlorobotPacket, _impl_.prefix_0_),
   PROTOBUF_FIELD_OFFSET(::ChlorobotPacket, _impl_.prefix_),
   ::_pbi::kInvalidFieldOffsetTag,
   ::_pbi::kInvalidFieldOffsetTag,
+  ::_pbi::kInvalidFieldOffsetTag,
   PROTOBUF_FIELD_OFFSET(::ChlorobotPacket, _impl_.parameters_),
+  PROTOBUF_FIELD_OFFSET(::ChlorobotPacket, _impl_.parameters_0_),
   PROTOBUF_FIELD_OFFSET(::ChlorobotPacket, _impl_.trailing_parameter_),
+  PROTOBUF_FIELD_OFFSET(::ChlorobotPacket, _impl_.trailing_parameter_0_),
   PROTOBUF_FIELD_OFFSET(::ChlorobotPacket, _impl_.command_),
   0,
+  2,
   ~0u,
   ~0u,
   ~0u,
+  ~0u,
+  ~0u,
+  3,
   1,
-  PROTOBUF_FIELD_OFFSET(::ChlorobotAuthentication, _impl_._has_bits_),
-  PROTOBUF_FIELD_OFFSET(::ChlorobotAuthentication, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::ChlorobotAuthentication, _impl_.token_),
-  0,
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::ChlorobotRequest, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -137,6 +141,16 @@ const uint32_t TableStruct_chlorobot_5frpc_2eproto::offsets[] PROTOBUF_SECTION_V
   ::_pbi::kInvalidFieldOffsetTag,
   ::_pbi::kInvalidFieldOffsetTag,
   PROTOBUF_FIELD_OFFSET(::ChlorobotRequest, _impl_.data_),
+  PROTOBUF_FIELD_OFFSET(::ChlorobotAuthentication, _impl_._has_bits_),
+  PROTOBUF_FIELD_OFFSET(::ChlorobotAuthentication, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::ChlorobotAuthentication, _impl_.token_),
+  PROTOBUF_FIELD_OFFSET(::ChlorobotAuthentication, _impl_.version_),
+  0,
+  1,
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::ChlorobotVersion, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -157,46 +171,50 @@ const uint32_t TableStruct_chlorobot_5frpc_2eproto::offsets[] PROTOBUF_SECTION_V
   0,
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, 12, -1, sizeof(::ChlorobotPacket)},
-  { 17, 24, -1, sizeof(::ChlorobotAuthentication)},
+  { 0, 16, -1, sizeof(::ChlorobotPacket)},
   { 25, -1, -1, sizeof(::ChlorobotRequest)},
-  { 35, -1, -1, sizeof(::ChlorobotVersion)},
-  { 45, 52, -1, sizeof(::ChlorobotAcknowledgement)},
+  { 35, 43, -1, sizeof(::ChlorobotAuthentication)},
+  { 45, -1, -1, sizeof(::ChlorobotVersion)},
+  { 55, 62, -1, sizeof(::ChlorobotAcknowledgement)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
   &::_ChlorobotPacket_default_instance_._instance,
-  &::_ChlorobotAuthentication_default_instance_._instance,
   &::_ChlorobotRequest_default_instance_._instance,
+  &::_ChlorobotAuthentication_default_instance_._instance,
   &::_ChlorobotVersion_default_instance_._instance,
   &::_ChlorobotAcknowledgement_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_chlorobot_5frpc_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\023chlorobot_rpc.proto\"\262\001\n\017ChlorobotPacke"
-  "t\022\023\n\006prefix\030\001 \001(\tH\001\210\001\001\022\025\n\013non_numeric\030\002 "
-  "\001(\tH\000\022\021\n\007numeric\030\003 \001(\rH\000\022\022\n\nparameters\030\004"
-  " \003(\t\022\037\n\022trailing_parameter\030\005 \001(\tH\002\210\001\001B\t\n"
-  "\007commandB\t\n\007_prefixB\025\n\023_trailing_paramet"
-  "er\"7\n\027ChlorobotAuthentication\022\022\n\005token\030\001"
-  " \001(\tH\000\210\001\001B\010\n\006_token\"\225\001\n\020ChlorobotRequest"
-  "\022&\n\004auth\030\001 \001(\0132\030.ChlorobotAuthentication"
-  "\022\"\n\006packet\030\002 \001(\0132\020.ChlorobotPacketH\000\022-\n\014"
-  "command_type\030\003 \001(\0162\025.ChlorobotCommandEnu"
-  "mH\000B\006\n\004data\"O\n\020ChlorobotVersion\022\r\n\005major"
-  "\030\001 \001(\r\022\r\n\005minor\030\002 \001(\r\022\r\n\005patch\030\003 \001(\r\022\016\n\006"
-  "pretty\030\004 \001(\t\"O\n\030ChlorobotAcknowledgement"
-  "\022\'\n\007version\030\001 \001(\0132\021.ChlorobotVersionH\000\210\001"
-  "\001B\n\n\010_version*:\n\024ChlorobotCommandEnum\022\020\n"
-  "\014SEND_NOTHING\020\000\022\020\n\014SEND_VERSION\020\0012\200\001\n\014Ch"
-  "lorobotRPC\0228\n\006Listen\022\030.ChlorobotAuthenti"
-  "cation\032\020.ChlorobotPacket\"\0000\001\0226\n\004Send\022\021.C"
-  "hlorobotRequest\032\031.ChlorobotAcknowledgeme"
-  "nt\"\000b\006proto3"
+  "\n\023chlorobot_rpc.proto\"\301\002\n\017ChlorobotPacke"
+  "t\022\025\n\010prefix_0\030\001 \001(\tH\001\210\001\001\022\023\n\006prefix\030\006 \001(\014"
+  "H\002\210\001\001\022\025\n\013non_numeric\030\007 \001(\014H\000\022\027\n\rnon_nume"
+  "ric_0\030\002 \001(\tH\000\022\021\n\007numeric\030\003 \001(\rH\000\022\022\n\npara"
+  "meters\030\010 \003(\014\022\024\n\014parameters_0\030\004 \003(\t\022\037\n\022tr"
+  "ailing_parameter\030\t \001(\014H\003\210\001\001\022!\n\024trailing_"
+  "parameter_0\030\005 \001(\tH\004\210\001\001B\t\n\007commandB\013\n\t_pr"
+  "efix_0B\t\n\007_prefixB\025\n\023_trailing_parameter"
+  "B\027\n\025_trailing_parameter_0\"\225\001\n\020ChlorobotR"
+  "equest\022&\n\004auth\030\001 \001(\0132\030.ChlorobotAuthenti"
+  "cation\022\"\n\006packet\030\002 \001(\0132\020.ChlorobotPacket"
+  "H\000\022-\n\014command_type\030\003 \001(\0162\025.ChlorobotComm"
+  "andEnumH\000B\006\n\004data\"Y\n\027ChlorobotAuthentica"
+  "tion\022\022\n\005token\030\001 \001(\tH\000\210\001\001\022\024\n\007version\030\002 \001("
+  "\rH\001\210\001\001B\010\n\006_tokenB\n\n\010_version\"O\n\020Chlorobo"
+  "tVersion\022\r\n\005major\030\001 \001(\r\022\r\n\005minor\030\002 \001(\r\022\r"
+  "\n\005patch\030\003 \001(\r\022\016\n\006pretty\030\004 \001(\t\"O\n\030Chlorob"
+  "otAcknowledgement\022\'\n\007version\030\001 \001(\0132\021.Chl"
+  "orobotVersionH\000\210\001\001B\n\n\010_version*:\n\024Chloro"
+  "botCommandEnum\022\020\n\014SEND_NOTHING\020\000\022\020\n\014SEND"
+  "_VERSION\020\0012\200\001\n\014ChlorobotRPC\0228\n\006Listen\022\030."
+  "ChlorobotAuthentication\032\020.ChlorobotPacke"
+  "t\"\0000\001\0226\n\004Send\022\021.ChlorobotRequest\032\031.Chlor"
+  "obotAcknowledgement\"\000b\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_chlorobot_5frpc_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_chlorobot_5frpc_2eproto = {
-    false, false, 772, descriptor_table_protodef_chlorobot_5frpc_2eproto,
+    false, false, 949, descriptor_table_protodef_chlorobot_5frpc_2eproto,
     "chlorobot_rpc.proto",
     &descriptor_table_chlorobot_5frpc_2eproto_once, nullptr, 0, 5,
     schemas, file_default_instances, TableStruct_chlorobot_5frpc_2eproto::offsets,
@@ -229,10 +247,16 @@ bool ChlorobotCommandEnum_IsValid(int value) {
 class ChlorobotPacket::_Internal {
  public:
   using HasBits = decltype(std::declval<ChlorobotPacket>()._impl_._has_bits_);
-  static void set_has_prefix(HasBits* has_bits) {
+  static void set_has_prefix_0(HasBits* has_bits) {
     (*has_bits)[0] |= 1u;
   }
+  static void set_has_prefix(HasBits* has_bits) {
+    (*has_bits)[0] |= 4u;
+  }
   static void set_has_trailing_parameter(HasBits* has_bits) {
+    (*has_bits)[0] |= 8u;
+  }
+  static void set_has_trailing_parameter_0(HasBits* has_bits) {
     (*has_bits)[0] |= 2u;
   }
 };
@@ -249,13 +273,32 @@ ChlorobotPacket::ChlorobotPacket(const ChlorobotPacket& from)
   new (&_impl_) Impl_{
       decltype(_impl_._has_bits_){from._impl_._has_bits_}
     , /*decltype(_impl_._cached_size_)*/{}
+    , decltype(_impl_.parameters_0_){from._impl_.parameters_0_}
     , decltype(_impl_.parameters_){from._impl_.parameters_}
+    , decltype(_impl_.prefix_0_){}
+    , decltype(_impl_.trailing_parameter_0_){}
     , decltype(_impl_.prefix_){}
     , decltype(_impl_.trailing_parameter_){}
     , decltype(_impl_.command_){}
     , /*decltype(_impl_._oneof_case_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _impl_.prefix_0_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.prefix_0_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (from._internal_has_prefix_0()) {
+    _this->_impl_.prefix_0_.Set(from._internal_prefix_0(), 
+      _this->GetArenaForAllocation());
+  }
+  _impl_.trailing_parameter_0_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.trailing_parameter_0_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (from._internal_has_trailing_parameter_0()) {
+    _this->_impl_.trailing_parameter_0_.Set(from._internal_trailing_parameter_0(), 
+      _this->GetArenaForAllocation());
+  }
   _impl_.prefix_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     _impl_.prefix_.Set("", GetArenaForAllocation());
@@ -278,6 +321,10 @@ ChlorobotPacket::ChlorobotPacket(const ChlorobotPacket& from)
       _this->_internal_set_non_numeric(from._internal_non_numeric());
       break;
     }
+    case kNonNumeric0: {
+      _this->_internal_set_non_numeric_0(from._internal_non_numeric_0());
+      break;
+    }
     case kNumeric: {
       _this->_internal_set_numeric(from._internal_numeric());
       break;
@@ -296,12 +343,23 @@ inline void ChlorobotPacket::SharedCtor(
   new (&_impl_) Impl_{
       decltype(_impl_._has_bits_){}
     , /*decltype(_impl_._cached_size_)*/{}
+    , decltype(_impl_.parameters_0_){arena}
     , decltype(_impl_.parameters_){arena}
+    , decltype(_impl_.prefix_0_){}
+    , decltype(_impl_.trailing_parameter_0_){}
     , decltype(_impl_.prefix_){}
     , decltype(_impl_.trailing_parameter_){}
     , decltype(_impl_.command_){}
     , /*decltype(_impl_._oneof_case_)*/{}
   };
+  _impl_.prefix_0_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.prefix_0_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  _impl_.trailing_parameter_0_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.trailing_parameter_0_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   _impl_.prefix_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     _impl_.prefix_.Set("", GetArenaForAllocation());
@@ -324,7 +382,10 @@ ChlorobotPacket::~ChlorobotPacket() {
 
 inline void ChlorobotPacket::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.parameters_0_.~RepeatedPtrField();
   _impl_.parameters_.~RepeatedPtrField();
+  _impl_.prefix_0_.Destroy();
+  _impl_.trailing_parameter_0_.Destroy();
   _impl_.prefix_.Destroy();
   _impl_.trailing_parameter_.Destroy();
   if (has_command()) {
@@ -341,6 +402,10 @@ void ChlorobotPacket::clear_command() {
   switch (command_case()) {
     case kNonNumeric: {
       _impl_.command_.non_numeric_.Destroy();
+      break;
+    }
+    case kNonNumeric0: {
+      _impl_.command_.non_numeric_0_.Destroy();
       break;
     }
     case kNumeric: {
@@ -361,13 +426,20 @@ void ChlorobotPacket::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  _impl_.parameters_0_.Clear();
   _impl_.parameters_.Clear();
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
+  if (cached_has_bits & 0x0000000fu) {
     if (cached_has_bits & 0x00000001u) {
-      _impl_.prefix_.ClearNonDefaultToEmpty();
+      _impl_.prefix_0_.ClearNonDefaultToEmpty();
     }
     if (cached_has_bits & 0x00000002u) {
+      _impl_.trailing_parameter_0_.ClearNonDefaultToEmpty();
+    }
+    if (cached_has_bits & 0x00000004u) {
+      _impl_.prefix_.ClearNonDefaultToEmpty();
+    }
+    if (cached_has_bits & 0x00000008u) {
       _impl_.trailing_parameter_.ClearNonDefaultToEmpty();
     }
   }
@@ -383,23 +455,23 @@ const char* ChlorobotPacket::_InternalParse(const char* ptr, ::_pbi::ParseContex
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // optional string prefix = 1;
+      // optional string prefix_0 = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
-          auto str = _internal_mutable_prefix();
+          auto str = _internal_mutable_prefix_0();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "ChlorobotPacket.prefix"));
+          CHK_(::_pbi::VerifyUTF8(str, "ChlorobotPacket.prefix_0"));
         } else
           goto handle_unusual;
         continue;
-      // string non_numeric = 2;
+      // string non_numeric_0 = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
-          auto str = _internal_mutable_non_numeric();
+          auto str = _internal_mutable_non_numeric_0();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "ChlorobotPacket.non_numeric"));
+          CHK_(::_pbi::VerifyUTF8(str, "ChlorobotPacket.non_numeric_0"));
         } else
           goto handle_unusual;
         continue;
@@ -411,28 +483,69 @@ const char* ChlorobotPacket::_InternalParse(const char* ptr, ::_pbi::ParseContex
         } else
           goto handle_unusual;
         continue;
-      // repeated string parameters = 4;
+      // repeated string parameters_0 = 4;
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            auto str = _internal_add_parameters_0();
+            ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+            CHK_(ptr);
+            CHK_(::_pbi::VerifyUTF8(str, "ChlorobotPacket.parameters_0"));
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<34>(ptr));
+        } else
+          goto handle_unusual;
+        continue;
+      // optional string trailing_parameter_0 = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+          auto str = _internal_mutable_trailing_parameter_0();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "ChlorobotPacket.trailing_parameter_0"));
+        } else
+          goto handle_unusual;
+        continue;
+      // optional bytes prefix = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
+          auto str = _internal_mutable_prefix();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // bytes non_numeric = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
+          auto str = _internal_mutable_non_numeric();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated bytes parameters = 8;
+      case 8:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
           ptr -= 1;
           do {
             ptr += 1;
             auto str = _internal_add_parameters();
             ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
             CHK_(ptr);
-            CHK_(::_pbi::VerifyUTF8(str, "ChlorobotPacket.parameters"));
             if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<34>(ptr));
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<66>(ptr));
         } else
           goto handle_unusual;
         continue;
-      // optional string trailing_parameter = 5;
-      case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+      // optional bytes trailing_parameter = 9;
+      case 9:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
           auto str = _internal_mutable_trailing_parameter();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "ChlorobotPacket.trailing_parameter"));
         } else
           goto handle_unusual;
         continue;
@@ -466,24 +579,24 @@ uint8_t* ChlorobotPacket::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // optional string prefix = 1;
-  if (_internal_has_prefix()) {
+  // optional string prefix_0 = 1;
+  if (_internal_has_prefix_0()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_prefix().data(), static_cast<int>(this->_internal_prefix().length()),
+      this->_internal_prefix_0().data(), static_cast<int>(this->_internal_prefix_0().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "ChlorobotPacket.prefix");
+      "ChlorobotPacket.prefix_0");
     target = stream->WriteStringMaybeAliased(
-        1, this->_internal_prefix(), target);
+        1, this->_internal_prefix_0(), target);
   }
 
-  // string non_numeric = 2;
-  if (_internal_has_non_numeric()) {
+  // string non_numeric_0 = 2;
+  if (_internal_has_non_numeric_0()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_non_numeric().data(), static_cast<int>(this->_internal_non_numeric().length()),
+      this->_internal_non_numeric_0().data(), static_cast<int>(this->_internal_non_numeric_0().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "ChlorobotPacket.non_numeric");
+      "ChlorobotPacket.non_numeric_0");
     target = stream->WriteStringMaybeAliased(
-        2, this->_internal_non_numeric(), target);
+        2, this->_internal_non_numeric_0(), target);
   }
 
   // uint32 numeric = 3;
@@ -492,24 +605,48 @@ uint8_t* ChlorobotPacket::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteUInt32ToArray(3, this->_internal_numeric(), target);
   }
 
-  // repeated string parameters = 4;
-  for (int i = 0, n = this->_internal_parameters_size(); i < n; i++) {
-    const auto& s = this->_internal_parameters(i);
+  // repeated string parameters_0 = 4;
+  for (int i = 0, n = this->_internal_parameters_0_size(); i < n; i++) {
+    const auto& s = this->_internal_parameters_0(i);
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       s.data(), static_cast<int>(s.length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "ChlorobotPacket.parameters");
+      "ChlorobotPacket.parameters_0");
     target = stream->WriteString(4, s, target);
   }
 
-  // optional string trailing_parameter = 5;
-  if (_internal_has_trailing_parameter()) {
+  // optional string trailing_parameter_0 = 5;
+  if (_internal_has_trailing_parameter_0()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_trailing_parameter().data(), static_cast<int>(this->_internal_trailing_parameter().length()),
+      this->_internal_trailing_parameter_0().data(), static_cast<int>(this->_internal_trailing_parameter_0().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "ChlorobotPacket.trailing_parameter");
+      "ChlorobotPacket.trailing_parameter_0");
     target = stream->WriteStringMaybeAliased(
-        5, this->_internal_trailing_parameter(), target);
+        5, this->_internal_trailing_parameter_0(), target);
+  }
+
+  // optional bytes prefix = 6;
+  if (_internal_has_prefix()) {
+    target = stream->WriteBytesMaybeAliased(
+        6, this->_internal_prefix(), target);
+  }
+
+  // bytes non_numeric = 7;
+  if (_internal_has_non_numeric()) {
+    target = stream->WriteBytesMaybeAliased(
+        7, this->_internal_non_numeric(), target);
+  }
+
+  // repeated bytes parameters = 8;
+  for (int i = 0, n = this->_internal_parameters_size(); i < n; i++) {
+    const auto& s = this->_internal_parameters(i);
+    target = stream->WriteBytes(8, s, target);
+  }
+
+  // optional bytes trailing_parameter = 9;
+  if (_internal_has_trailing_parameter()) {
+    target = stream->WriteBytesMaybeAliased(
+        9, this->_internal_trailing_parameter(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -528,37 +665,66 @@ size_t ChlorobotPacket::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated string parameters = 4;
+  // repeated string parameters_0 = 4;
+  total_size += 1 *
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(_impl_.parameters_0_.size());
+  for (int i = 0, n = _impl_.parameters_0_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      _impl_.parameters_0_.Get(i));
+  }
+
+  // repeated bytes parameters = 8;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(_impl_.parameters_.size());
   for (int i = 0, n = _impl_.parameters_.size(); i < n; i++) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
       _impl_.parameters_.Get(i));
   }
 
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
-    // optional string prefix = 1;
+  if (cached_has_bits & 0x0000000fu) {
+    // optional string prefix_0 = 1;
     if (cached_has_bits & 0x00000001u) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_prefix());
+          this->_internal_prefix_0());
     }
 
-    // optional string trailing_parameter = 5;
+    // optional string trailing_parameter_0 = 5;
     if (cached_has_bits & 0x00000002u) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+          this->_internal_trailing_parameter_0());
+    }
+
+    // optional bytes prefix = 6;
+    if (cached_has_bits & 0x00000004u) {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
+          this->_internal_prefix());
+    }
+
+    // optional bytes trailing_parameter = 9;
+    if (cached_has_bits & 0x00000008u) {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
           this->_internal_trailing_parameter());
     }
 
   }
   switch (command_case()) {
-    // string non_numeric = 2;
+    // bytes non_numeric = 7;
     case kNonNumeric: {
       total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
           this->_internal_non_numeric());
+      break;
+    }
+    // string non_numeric_0 = 2;
+    case kNonNumeric0: {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+          this->_internal_non_numeric_0());
       break;
     }
     // uint32 numeric = 3;
@@ -588,19 +754,30 @@ void ChlorobotPacket::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const 
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
+  _this->_impl_.parameters_0_.MergeFrom(from._impl_.parameters_0_);
   _this->_impl_.parameters_.MergeFrom(from._impl_.parameters_);
   cached_has_bits = from._impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
+  if (cached_has_bits & 0x0000000fu) {
     if (cached_has_bits & 0x00000001u) {
-      _this->_internal_set_prefix(from._internal_prefix());
+      _this->_internal_set_prefix_0(from._internal_prefix_0());
     }
     if (cached_has_bits & 0x00000002u) {
+      _this->_internal_set_trailing_parameter_0(from._internal_trailing_parameter_0());
+    }
+    if (cached_has_bits & 0x00000004u) {
+      _this->_internal_set_prefix(from._internal_prefix());
+    }
+    if (cached_has_bits & 0x00000008u) {
       _this->_internal_set_trailing_parameter(from._internal_trailing_parameter());
     }
   }
   switch (from.command_case()) {
     case kNonNumeric: {
       _this->_internal_set_non_numeric(from._internal_non_numeric());
+      break;
+    }
+    case kNonNumeric0: {
+      _this->_internal_set_non_numeric_0(from._internal_non_numeric_0());
       break;
     }
     case kNumeric: {
@@ -631,7 +808,16 @@ void ChlorobotPacket::InternalSwap(ChlorobotPacket* other) {
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  _impl_.parameters_0_.InternalSwap(&other->_impl_.parameters_0_);
   _impl_.parameters_.InternalSwap(&other->_impl_.parameters_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.prefix_0_, lhs_arena,
+      &other->_impl_.prefix_0_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.trailing_parameter_0_, lhs_arena,
+      &other->_impl_.trailing_parameter_0_, rhs_arena
+  );
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
       &_impl_.prefix_, lhs_arena,
       &other->_impl_.prefix_, rhs_arena
@@ -648,223 +834,6 @@ void ChlorobotPacket::InternalSwap(ChlorobotPacket* other) {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_chlorobot_5frpc_2eproto_getter, &descriptor_table_chlorobot_5frpc_2eproto_once,
       file_level_metadata_chlorobot_5frpc_2eproto[0]);
-}
-
-// ===================================================================
-
-class ChlorobotAuthentication::_Internal {
- public:
-  using HasBits = decltype(std::declval<ChlorobotAuthentication>()._impl_._has_bits_);
-  static void set_has_token(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
-};
-
-ChlorobotAuthentication::ChlorobotAuthentication(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                         bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
-  SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:ChlorobotAuthentication)
-}
-ChlorobotAuthentication::ChlorobotAuthentication(const ChlorobotAuthentication& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message() {
-  ChlorobotAuthentication* const _this = this; (void)_this;
-  new (&_impl_) Impl_{
-      decltype(_impl_._has_bits_){from._impl_._has_bits_}
-    , /*decltype(_impl_._cached_size_)*/{}
-    , decltype(_impl_.token_){}};
-
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  _impl_.token_.InitDefault();
-  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-    _impl_.token_.Set("", GetArenaForAllocation());
-  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (from._internal_has_token()) {
-    _this->_impl_.token_.Set(from._internal_token(), 
-      _this->GetArenaForAllocation());
-  }
-  // @@protoc_insertion_point(copy_constructor:ChlorobotAuthentication)
-}
-
-inline void ChlorobotAuthentication::SharedCtor(
-    ::_pb::Arena* arena, bool is_message_owned) {
-  (void)arena;
-  (void)is_message_owned;
-  new (&_impl_) Impl_{
-      decltype(_impl_._has_bits_){}
-    , /*decltype(_impl_._cached_size_)*/{}
-    , decltype(_impl_.token_){}
-  };
-  _impl_.token_.InitDefault();
-  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-    _impl_.token_.Set("", GetArenaForAllocation());
-  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-}
-
-ChlorobotAuthentication::~ChlorobotAuthentication() {
-  // @@protoc_insertion_point(destructor:ChlorobotAuthentication)
-  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
-  (void)arena;
-    return;
-  }
-  SharedDtor();
-}
-
-inline void ChlorobotAuthentication::SharedDtor() {
-  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  _impl_.token_.Destroy();
-}
-
-void ChlorobotAuthentication::SetCachedSize(int size) const {
-  _impl_._cached_size_.Set(size);
-}
-
-void ChlorobotAuthentication::Clear() {
-// @@protoc_insertion_point(message_clear_start:ChlorobotAuthentication)
-  uint32_t cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
-    _impl_.token_.ClearNonDefaultToEmpty();
-  }
-  _impl_._has_bits_.Clear();
-  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-}
-
-const char* ChlorobotAuthentication::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
-    uint32_t tag;
-    ptr = ::_pbi::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
-      // optional string token = 1;
-      case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
-          auto str = _internal_mutable_token();
-          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "ChlorobotAuthentication.token"));
-        } else
-          goto handle_unusual;
-        continue;
-      default:
-        goto handle_unusual;
-    }  // switch
-  handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
-      CHK_(ptr);
-      ctx->SetLastTag(tag);
-      goto message_done;
-    }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
-    CHK_(ptr != nullptr);
-  }  // while
-message_done:
-  _impl_._has_bits_.Or(has_bits);
-  return ptr;
-failure:
-  ptr = nullptr;
-  goto message_done;
-#undef CHK_
-}
-
-uint8_t* ChlorobotAuthentication::_InternalSerialize(
-    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:ChlorobotAuthentication)
-  uint32_t cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // optional string token = 1;
-  if (_internal_has_token()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_token().data(), static_cast<int>(this->_internal_token().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "ChlorobotAuthentication.token");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_token(), target);
-  }
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:ChlorobotAuthentication)
-  return target;
-}
-
-size_t ChlorobotAuthentication::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:ChlorobotAuthentication)
-  size_t total_size = 0;
-
-  uint32_t cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  // optional string token = 1;
-  cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_token());
-  }
-
-  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
-}
-
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData ChlorobotAuthentication::_class_data_ = {
-    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
-    ChlorobotAuthentication::MergeImpl
-};
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*ChlorobotAuthentication::GetClassData() const { return &_class_data_; }
-
-
-void ChlorobotAuthentication::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
-  auto* const _this = static_cast<ChlorobotAuthentication*>(&to_msg);
-  auto& from = static_cast<const ChlorobotAuthentication&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:ChlorobotAuthentication)
-  GOOGLE_DCHECK_NE(&from, _this);
-  uint32_t cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  if (from._internal_has_token()) {
-    _this->_internal_set_token(from._internal_token());
-  }
-  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-}
-
-void ChlorobotAuthentication::CopyFrom(const ChlorobotAuthentication& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:ChlorobotAuthentication)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool ChlorobotAuthentication::IsInitialized() const {
-  return true;
-}
-
-void ChlorobotAuthentication::InternalSwap(ChlorobotAuthentication* other) {
-  using std::swap;
-  auto* lhs_arena = GetArenaForAllocation();
-  auto* rhs_arena = other->GetArenaForAllocation();
-  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &_impl_.token_, lhs_arena,
-      &other->_impl_.token_, rhs_arena
-  );
-}
-
-::PROTOBUF_NAMESPACE_ID::Metadata ChlorobotAuthentication::GetMetadata() const {
-  return ::_pbi::AssignDescriptors(
-      &descriptor_table_chlorobot_5frpc_2eproto_getter, &descriptor_table_chlorobot_5frpc_2eproto_once,
-      file_level_metadata_chlorobot_5frpc_2eproto[1]);
 }
 
 // ===================================================================
@@ -1185,6 +1154,260 @@ void ChlorobotRequest::InternalSwap(ChlorobotRequest* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata ChlorobotRequest::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_chlorobot_5frpc_2eproto_getter, &descriptor_table_chlorobot_5frpc_2eproto_once,
+      file_level_metadata_chlorobot_5frpc_2eproto[1]);
+}
+
+// ===================================================================
+
+class ChlorobotAuthentication::_Internal {
+ public:
+  using HasBits = decltype(std::declval<ChlorobotAuthentication>()._impl_._has_bits_);
+  static void set_has_token(HasBits* has_bits) {
+    (*has_bits)[0] |= 1u;
+  }
+  static void set_has_version(HasBits* has_bits) {
+    (*has_bits)[0] |= 2u;
+  }
+};
+
+ChlorobotAuthentication::ChlorobotAuthentication(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:ChlorobotAuthentication)
+}
+ChlorobotAuthentication::ChlorobotAuthentication(const ChlorobotAuthentication& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  ChlorobotAuthentication* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_._has_bits_){from._impl_._has_bits_}
+    , /*decltype(_impl_._cached_size_)*/{}
+    , decltype(_impl_.token_){}
+    , decltype(_impl_.version_){}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _impl_.token_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.token_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (from._internal_has_token()) {
+    _this->_impl_.token_.Set(from._internal_token(), 
+      _this->GetArenaForAllocation());
+  }
+  _this->_impl_.version_ = from._impl_.version_;
+  // @@protoc_insertion_point(copy_constructor:ChlorobotAuthentication)
+}
+
+inline void ChlorobotAuthentication::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_._has_bits_){}
+    , /*decltype(_impl_._cached_size_)*/{}
+    , decltype(_impl_.token_){}
+    , decltype(_impl_.version_){0u}
+  };
+  _impl_.token_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.token_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+}
+
+ChlorobotAuthentication::~ChlorobotAuthentication() {
+  // @@protoc_insertion_point(destructor:ChlorobotAuthentication)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void ChlorobotAuthentication::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.token_.Destroy();
+}
+
+void ChlorobotAuthentication::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void ChlorobotAuthentication::Clear() {
+// @@protoc_insertion_point(message_clear_start:ChlorobotAuthentication)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000001u) {
+    _impl_.token_.ClearNonDefaultToEmpty();
+  }
+  _impl_.version_ = 0u;
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* ChlorobotAuthentication::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  _Internal::HasBits has_bits{};
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // optional string token = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+          auto str = _internal_mutable_token();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "ChlorobotAuthentication.token"));
+        } else
+          goto handle_unusual;
+        continue;
+      // optional uint32 version = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+          _Internal::set_has_version(&has_bits);
+          _impl_.version_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  _impl_._has_bits_.Or(has_bits);
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* ChlorobotAuthentication::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:ChlorobotAuthentication)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // optional string token = 1;
+  if (_internal_has_token()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_token().data(), static_cast<int>(this->_internal_token().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "ChlorobotAuthentication.token");
+    target = stream->WriteStringMaybeAliased(
+        1, this->_internal_token(), target);
+  }
+
+  // optional uint32 version = 2;
+  if (_internal_has_version()) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt32ToArray(2, this->_internal_version(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:ChlorobotAuthentication)
+  return target;
+}
+
+size_t ChlorobotAuthentication::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:ChlorobotAuthentication)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000003u) {
+    // optional string token = 1;
+    if (cached_has_bits & 0x00000001u) {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+          this->_internal_token());
+    }
+
+    // optional uint32 version = 2;
+    if (cached_has_bits & 0x00000002u) {
+      total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(this->_internal_version());
+    }
+
+  }
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData ChlorobotAuthentication::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    ChlorobotAuthentication::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*ChlorobotAuthentication::GetClassData() const { return &_class_data_; }
+
+
+void ChlorobotAuthentication::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<ChlorobotAuthentication*>(&to_msg);
+  auto& from = static_cast<const ChlorobotAuthentication&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:ChlorobotAuthentication)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000003u) {
+    if (cached_has_bits & 0x00000001u) {
+      _this->_internal_set_token(from._internal_token());
+    }
+    if (cached_has_bits & 0x00000002u) {
+      _this->_impl_.version_ = from._impl_.version_;
+    }
+    _this->_impl_._has_bits_[0] |= cached_has_bits;
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void ChlorobotAuthentication::CopyFrom(const ChlorobotAuthentication& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:ChlorobotAuthentication)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool ChlorobotAuthentication::IsInitialized() const {
+  return true;
+}
+
+void ChlorobotAuthentication::InternalSwap(ChlorobotAuthentication* other) {
+  using std::swap;
+  auto* lhs_arena = GetArenaForAllocation();
+  auto* rhs_arena = other->GetArenaForAllocation();
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.token_, lhs_arena,
+      &other->_impl_.token_, rhs_arena
+  );
+  swap(_impl_.version_, other->_impl_.version_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata ChlorobotAuthentication::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_chlorobot_5frpc_2eproto_getter, &descriptor_table_chlorobot_5frpc_2eproto_once,
       file_level_metadata_chlorobot_5frpc_2eproto[2]);
@@ -1688,13 +1911,13 @@ template<> PROTOBUF_NOINLINE ::ChlorobotPacket*
 Arena::CreateMaybeMessage< ::ChlorobotPacket >(Arena* arena) {
   return Arena::CreateMessageInternal< ::ChlorobotPacket >(arena);
 }
-template<> PROTOBUF_NOINLINE ::ChlorobotAuthentication*
-Arena::CreateMaybeMessage< ::ChlorobotAuthentication >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::ChlorobotAuthentication >(arena);
-}
 template<> PROTOBUF_NOINLINE ::ChlorobotRequest*
 Arena::CreateMaybeMessage< ::ChlorobotRequest >(Arena* arena) {
   return Arena::CreateMessageInternal< ::ChlorobotRequest >(arena);
+}
+template<> PROTOBUF_NOINLINE ::ChlorobotAuthentication*
+Arena::CreateMaybeMessage< ::ChlorobotAuthentication >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::ChlorobotAuthentication >(arena);
 }
 template<> PROTOBUF_NOINLINE ::ChlorobotVersion*
 Arena::CreateMaybeMessage< ::ChlorobotVersion >(Arena* arena) {

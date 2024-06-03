@@ -139,7 +139,8 @@ class ChlorobotPacket final :
     return *internal_default_instance();
   }
   enum CommandCase {
-    kNonNumeric = 2,
+    kNonNumeric = 7,
+    kNonNumeric0 = 2,
     kNumeric = 3,
     COMMAND_NOT_SET = 0,
   };
@@ -222,13 +223,41 @@ class ChlorobotPacket final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kParametersFieldNumber = 4,
-    kPrefixFieldNumber = 1,
-    kTrailingParameterFieldNumber = 5,
-    kNonNumericFieldNumber = 2,
+    kParameters0FieldNumber = 4,
+    kParametersFieldNumber = 8,
+    kPrefix0FieldNumber = 1,
+    kTrailingParameter0FieldNumber = 5,
+    kPrefixFieldNumber = 6,
+    kTrailingParameterFieldNumber = 9,
+    kNonNumericFieldNumber = 7,
+    kNonNumeric0FieldNumber = 2,
     kNumericFieldNumber = 3,
   };
-  // repeated string parameters = 4;
+  // repeated string parameters_0 = 4;
+  int parameters_0_size() const;
+  private:
+  int _internal_parameters_0_size() const;
+  public:
+  void clear_parameters_0();
+  const std::string& parameters_0(int index) const;
+  std::string* mutable_parameters_0(int index);
+  void set_parameters_0(int index, const std::string& value);
+  void set_parameters_0(int index, std::string&& value);
+  void set_parameters_0(int index, const char* value);
+  void set_parameters_0(int index, const char* value, size_t size);
+  std::string* add_parameters_0();
+  void add_parameters_0(const std::string& value);
+  void add_parameters_0(std::string&& value);
+  void add_parameters_0(const char* value);
+  void add_parameters_0(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& parameters_0() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_parameters_0();
+  private:
+  const std::string& _internal_parameters_0(int index) const;
+  std::string* _internal_add_parameters_0();
+  public:
+
+  // repeated bytes parameters = 8;
   int parameters_size() const;
   private:
   int _internal_parameters_size() const;
@@ -239,12 +268,12 @@ class ChlorobotPacket final :
   void set_parameters(int index, const std::string& value);
   void set_parameters(int index, std::string&& value);
   void set_parameters(int index, const char* value);
-  void set_parameters(int index, const char* value, size_t size);
+  void set_parameters(int index, const void* value, size_t size);
   std::string* add_parameters();
   void add_parameters(const std::string& value);
   void add_parameters(std::string&& value);
   void add_parameters(const char* value);
-  void add_parameters(const char* value, size_t size);
+  void add_parameters(const void* value, size_t size);
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& parameters() const;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_parameters();
   private:
@@ -252,7 +281,43 @@ class ChlorobotPacket final :
   std::string* _internal_add_parameters();
   public:
 
-  // optional string prefix = 1;
+  // optional string prefix_0 = 1;
+  bool has_prefix_0() const;
+  private:
+  bool _internal_has_prefix_0() const;
+  public:
+  void clear_prefix_0();
+  const std::string& prefix_0() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_prefix_0(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_prefix_0();
+  PROTOBUF_NODISCARD std::string* release_prefix_0();
+  void set_allocated_prefix_0(std::string* prefix_0);
+  private:
+  const std::string& _internal_prefix_0() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_prefix_0(const std::string& value);
+  std::string* _internal_mutable_prefix_0();
+  public:
+
+  // optional string trailing_parameter_0 = 5;
+  bool has_trailing_parameter_0() const;
+  private:
+  bool _internal_has_trailing_parameter_0() const;
+  public:
+  void clear_trailing_parameter_0();
+  const std::string& trailing_parameter_0() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_trailing_parameter_0(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_trailing_parameter_0();
+  PROTOBUF_NODISCARD std::string* release_trailing_parameter_0();
+  void set_allocated_trailing_parameter_0(std::string* trailing_parameter_0);
+  private:
+  const std::string& _internal_trailing_parameter_0() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_trailing_parameter_0(const std::string& value);
+  std::string* _internal_mutable_trailing_parameter_0();
+  public:
+
+  // optional bytes prefix = 6;
   bool has_prefix() const;
   private:
   bool _internal_has_prefix() const;
@@ -270,7 +335,7 @@ class ChlorobotPacket final :
   std::string* _internal_mutable_prefix();
   public:
 
-  // optional string trailing_parameter = 5;
+  // optional bytes trailing_parameter = 9;
   bool has_trailing_parameter() const;
   private:
   bool _internal_has_trailing_parameter() const;
@@ -288,7 +353,7 @@ class ChlorobotPacket final :
   std::string* _internal_mutable_trailing_parameter();
   public:
 
-  // string non_numeric = 2;
+  // bytes non_numeric = 7;
   bool has_non_numeric() const;
   private:
   bool _internal_has_non_numeric() const;
@@ -304,6 +369,24 @@ class ChlorobotPacket final :
   const std::string& _internal_non_numeric() const;
   inline PROTOBUF_ALWAYS_INLINE void _internal_set_non_numeric(const std::string& value);
   std::string* _internal_mutable_non_numeric();
+  public:
+
+  // string non_numeric_0 = 2;
+  bool has_non_numeric_0() const;
+  private:
+  bool _internal_has_non_numeric_0() const;
+  public:
+  void clear_non_numeric_0();
+  const std::string& non_numeric_0() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_non_numeric_0(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_non_numeric_0();
+  PROTOBUF_NODISCARD std::string* release_non_numeric_0();
+  void set_allocated_non_numeric_0(std::string* non_numeric_0);
+  private:
+  const std::string& _internal_non_numeric_0() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_non_numeric_0(const std::string& value);
+  std::string* _internal_mutable_non_numeric_0();
   public:
 
   // uint32 numeric = 3;
@@ -325,6 +408,7 @@ class ChlorobotPacket final :
  private:
   class _Internal;
   void set_has_non_numeric();
+  void set_has_non_numeric_0();
   void set_has_numeric();
 
   inline bool has_command() const;
@@ -336,175 +420,21 @@ class ChlorobotPacket final :
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> parameters_0_;
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> parameters_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr prefix_0_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr trailing_parameter_0_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr prefix_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr trailing_parameter_;
     union CommandUnion {
       constexpr CommandUnion() : _constinit_{} {}
         ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
       ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr non_numeric_;
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr non_numeric_0_;
       uint32_t numeric_;
     } command_;
     uint32_t _oneof_case_[1];
 
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_chlorobot_5frpc_2eproto;
-};
-// -------------------------------------------------------------------
-
-class ChlorobotAuthentication final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:ChlorobotAuthentication) */ {
- public:
-  inline ChlorobotAuthentication() : ChlorobotAuthentication(nullptr) {}
-  ~ChlorobotAuthentication() override;
-  explicit PROTOBUF_CONSTEXPR ChlorobotAuthentication(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
-
-  ChlorobotAuthentication(const ChlorobotAuthentication& from);
-  ChlorobotAuthentication(ChlorobotAuthentication&& from) noexcept
-    : ChlorobotAuthentication() {
-    *this = ::std::move(from);
-  }
-
-  inline ChlorobotAuthentication& operator=(const ChlorobotAuthentication& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline ChlorobotAuthentication& operator=(ChlorobotAuthentication&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
-  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
-        && GetOwningArena() != nullptr
-  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
-    ) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const ChlorobotAuthentication& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const ChlorobotAuthentication* internal_default_instance() {
-    return reinterpret_cast<const ChlorobotAuthentication*>(
-               &_ChlorobotAuthentication_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    1;
-
-  friend void swap(ChlorobotAuthentication& a, ChlorobotAuthentication& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(ChlorobotAuthentication* other) {
-    if (other == this) return;
-  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
-   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
-  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
-      InternalSwap(other);
-    } else {
-      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(ChlorobotAuthentication* other) {
-    if (other == this) return;
-    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  ChlorobotAuthentication* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<ChlorobotAuthentication>(arena);
-  }
-  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
-  void CopyFrom(const ChlorobotAuthentication& from);
-  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
-  void MergeFrom( const ChlorobotAuthentication& from) {
-    ChlorobotAuthentication::MergeImpl(*this, from);
-  }
-  private:
-  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
-  public:
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
-  void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(ChlorobotAuthentication* other);
-
-  private:
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "ChlorobotAuthentication";
-  }
-  protected:
-  explicit ChlorobotAuthentication(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
-  public:
-
-  static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kTokenFieldNumber = 1,
-  };
-  // optional string token = 1;
-  bool has_token() const;
-  private:
-  bool _internal_has_token() const;
-  public:
-  void clear_token();
-  const std::string& token() const;
-  template <typename ArgT0 = const std::string&, typename... ArgT>
-  void set_token(ArgT0&& arg0, ArgT... args);
-  std::string* mutable_token();
-  PROTOBUF_NODISCARD std::string* release_token();
-  void set_allocated_token(std::string* token);
-  private:
-  const std::string& _internal_token() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_token(const std::string& value);
-  std::string* _internal_mutable_token();
-  public:
-
-  // @@protoc_insertion_point(class_scope:ChlorobotAuthentication)
- private:
-  class _Internal;
-
-  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
-  typedef void InternalArenaConstructable_;
-  typedef void DestructorSkippable_;
-  struct Impl_ {
-    ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
-    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr token_;
   };
   union { Impl_ _impl_; };
   friend struct ::TableStruct_chlorobot_5frpc_2eproto;
@@ -565,7 +495,7 @@ class ChlorobotRequest final :
                &_ChlorobotRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    2;
+    1;
 
   friend void swap(ChlorobotRequest& a, ChlorobotRequest& b) {
     a.Swap(&b);
@@ -716,6 +646,179 @@ class ChlorobotRequest final :
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
     uint32_t _oneof_case_[1];
 
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_chlorobot_5frpc_2eproto;
+};
+// -------------------------------------------------------------------
+
+class ChlorobotAuthentication final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:ChlorobotAuthentication) */ {
+ public:
+  inline ChlorobotAuthentication() : ChlorobotAuthentication(nullptr) {}
+  ~ChlorobotAuthentication() override;
+  explicit PROTOBUF_CONSTEXPR ChlorobotAuthentication(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  ChlorobotAuthentication(const ChlorobotAuthentication& from);
+  ChlorobotAuthentication(ChlorobotAuthentication&& from) noexcept
+    : ChlorobotAuthentication() {
+    *this = ::std::move(from);
+  }
+
+  inline ChlorobotAuthentication& operator=(const ChlorobotAuthentication& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ChlorobotAuthentication& operator=(ChlorobotAuthentication&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const ChlorobotAuthentication& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const ChlorobotAuthentication* internal_default_instance() {
+    return reinterpret_cast<const ChlorobotAuthentication*>(
+               &_ChlorobotAuthentication_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    2;
+
+  friend void swap(ChlorobotAuthentication& a, ChlorobotAuthentication& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ChlorobotAuthentication* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ChlorobotAuthentication* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  ChlorobotAuthentication* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<ChlorobotAuthentication>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const ChlorobotAuthentication& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const ChlorobotAuthentication& from) {
+    ChlorobotAuthentication::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(ChlorobotAuthentication* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "ChlorobotAuthentication";
+  }
+  protected:
+  explicit ChlorobotAuthentication(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kTokenFieldNumber = 1,
+    kVersionFieldNumber = 2,
+  };
+  // optional string token = 1;
+  bool has_token() const;
+  private:
+  bool _internal_has_token() const;
+  public:
+  void clear_token();
+  const std::string& token() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_token(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_token();
+  PROTOBUF_NODISCARD std::string* release_token();
+  void set_allocated_token(std::string* token);
+  private:
+  const std::string& _internal_token() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_token(const std::string& value);
+  std::string* _internal_mutable_token();
+  public:
+
+  // optional uint32 version = 2;
+  bool has_version() const;
+  private:
+  bool _internal_has_version() const;
+  public:
+  void clear_version();
+  uint32_t version() const;
+  void set_version(uint32_t value);
+  private:
+  uint32_t _internal_version() const;
+  void _internal_set_version(uint32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:ChlorobotAuthentication)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr token_;
+    uint32_t version_;
   };
   union { Impl_ _impl_; };
   friend struct ::TableStruct_chlorobot_5frpc_2eproto;
@@ -1075,9 +1178,77 @@ class ChlorobotAcknowledgement final :
 #endif  // __GNUC__
 // ChlorobotPacket
 
-// optional string prefix = 1;
-inline bool ChlorobotPacket::_internal_has_prefix() const {
+// optional string prefix_0 = 1;
+inline bool ChlorobotPacket::_internal_has_prefix_0() const {
   bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
+  return value;
+}
+inline bool ChlorobotPacket::has_prefix_0() const {
+  return _internal_has_prefix_0();
+}
+inline void ChlorobotPacket::clear_prefix_0() {
+  _impl_.prefix_0_.ClearToEmpty();
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline const std::string& ChlorobotPacket::prefix_0() const {
+  // @@protoc_insertion_point(field_get:ChlorobotPacket.prefix_0)
+  return _internal_prefix_0();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void ChlorobotPacket::set_prefix_0(ArgT0&& arg0, ArgT... args) {
+ _impl_._has_bits_[0] |= 0x00000001u;
+ _impl_.prefix_0_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:ChlorobotPacket.prefix_0)
+}
+inline std::string* ChlorobotPacket::mutable_prefix_0() {
+  std::string* _s = _internal_mutable_prefix_0();
+  // @@protoc_insertion_point(field_mutable:ChlorobotPacket.prefix_0)
+  return _s;
+}
+inline const std::string& ChlorobotPacket::_internal_prefix_0() const {
+  return _impl_.prefix_0_.Get();
+}
+inline void ChlorobotPacket::_internal_set_prefix_0(const std::string& value) {
+  _impl_._has_bits_[0] |= 0x00000001u;
+  _impl_.prefix_0_.Set(value, GetArenaForAllocation());
+}
+inline std::string* ChlorobotPacket::_internal_mutable_prefix_0() {
+  _impl_._has_bits_[0] |= 0x00000001u;
+  return _impl_.prefix_0_.Mutable(GetArenaForAllocation());
+}
+inline std::string* ChlorobotPacket::release_prefix_0() {
+  // @@protoc_insertion_point(field_release:ChlorobotPacket.prefix_0)
+  if (!_internal_has_prefix_0()) {
+    return nullptr;
+  }
+  _impl_._has_bits_[0] &= ~0x00000001u;
+  auto* p = _impl_.prefix_0_.Release();
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.prefix_0_.IsDefault()) {
+    _impl_.prefix_0_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  return p;
+}
+inline void ChlorobotPacket::set_allocated_prefix_0(std::string* prefix_0) {
+  if (prefix_0 != nullptr) {
+    _impl_._has_bits_[0] |= 0x00000001u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000001u;
+  }
+  _impl_.prefix_0_.SetAllocated(prefix_0, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.prefix_0_.IsDefault()) {
+    _impl_.prefix_0_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:ChlorobotPacket.prefix_0)
+}
+
+// optional bytes prefix = 6;
+inline bool ChlorobotPacket::_internal_has_prefix() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
   return value;
 }
 inline bool ChlorobotPacket::has_prefix() const {
@@ -1085,7 +1256,7 @@ inline bool ChlorobotPacket::has_prefix() const {
 }
 inline void ChlorobotPacket::clear_prefix() {
   _impl_.prefix_.ClearToEmpty();
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline const std::string& ChlorobotPacket::prefix() const {
   // @@protoc_insertion_point(field_get:ChlorobotPacket.prefix)
@@ -1094,8 +1265,8 @@ inline const std::string& ChlorobotPacket::prefix() const {
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void ChlorobotPacket::set_prefix(ArgT0&& arg0, ArgT... args) {
- _impl_._has_bits_[0] |= 0x00000001u;
- _impl_.prefix_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_._has_bits_[0] |= 0x00000004u;
+ _impl_.prefix_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:ChlorobotPacket.prefix)
 }
 inline std::string* ChlorobotPacket::mutable_prefix() {
@@ -1107,11 +1278,11 @@ inline const std::string& ChlorobotPacket::_internal_prefix() const {
   return _impl_.prefix_.Get();
 }
 inline void ChlorobotPacket::_internal_set_prefix(const std::string& value) {
-  _impl_._has_bits_[0] |= 0x00000001u;
+  _impl_._has_bits_[0] |= 0x00000004u;
   _impl_.prefix_.Set(value, GetArenaForAllocation());
 }
 inline std::string* ChlorobotPacket::_internal_mutable_prefix() {
-  _impl_._has_bits_[0] |= 0x00000001u;
+  _impl_._has_bits_[0] |= 0x00000004u;
   return _impl_.prefix_.Mutable(GetArenaForAllocation());
 }
 inline std::string* ChlorobotPacket::release_prefix() {
@@ -1119,7 +1290,7 @@ inline std::string* ChlorobotPacket::release_prefix() {
   if (!_internal_has_prefix()) {
     return nullptr;
   }
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
   auto* p = _impl_.prefix_.Release();
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if (_impl_.prefix_.IsDefault()) {
@@ -1130,9 +1301,9 @@ inline std::string* ChlorobotPacket::release_prefix() {
 }
 inline void ChlorobotPacket::set_allocated_prefix(std::string* prefix) {
   if (prefix != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000001u;
+    _impl_._has_bits_[0] |= 0x00000004u;
   } else {
-    _impl_._has_bits_[0] &= ~0x00000001u;
+    _impl_._has_bits_[0] &= ~0x00000004u;
   }
   _impl_.prefix_.SetAllocated(prefix, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -1143,7 +1314,7 @@ inline void ChlorobotPacket::set_allocated_prefix(std::string* prefix) {
   // @@protoc_insertion_point(field_set_allocated:ChlorobotPacket.prefix)
 }
 
-// string non_numeric = 2;
+// bytes non_numeric = 7;
 inline bool ChlorobotPacket::_internal_has_non_numeric() const {
   return command_case() == kNonNumeric;
 }
@@ -1170,7 +1341,7 @@ inline void ChlorobotPacket::set_non_numeric(ArgT0&& arg0, ArgT... args) {
     set_has_non_numeric();
     _impl_.command_.non_numeric_.InitDefault();
   }
-  _impl_.command_.non_numeric_.Set( static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  _impl_.command_.non_numeric_.SetBytes( static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:ChlorobotPacket.non_numeric)
 }
 inline std::string* ChlorobotPacket::mutable_non_numeric() {
@@ -1220,6 +1391,83 @@ inline void ChlorobotPacket::set_allocated_non_numeric(std::string* non_numeric)
   // @@protoc_insertion_point(field_set_allocated:ChlorobotPacket.non_numeric)
 }
 
+// string non_numeric_0 = 2;
+inline bool ChlorobotPacket::_internal_has_non_numeric_0() const {
+  return command_case() == kNonNumeric0;
+}
+inline bool ChlorobotPacket::has_non_numeric_0() const {
+  return _internal_has_non_numeric_0();
+}
+inline void ChlorobotPacket::set_has_non_numeric_0() {
+  _impl_._oneof_case_[0] = kNonNumeric0;
+}
+inline void ChlorobotPacket::clear_non_numeric_0() {
+  if (_internal_has_non_numeric_0()) {
+    _impl_.command_.non_numeric_0_.Destroy();
+    clear_has_command();
+  }
+}
+inline const std::string& ChlorobotPacket::non_numeric_0() const {
+  // @@protoc_insertion_point(field_get:ChlorobotPacket.non_numeric_0)
+  return _internal_non_numeric_0();
+}
+template <typename ArgT0, typename... ArgT>
+inline void ChlorobotPacket::set_non_numeric_0(ArgT0&& arg0, ArgT... args) {
+  if (!_internal_has_non_numeric_0()) {
+    clear_command();
+    set_has_non_numeric_0();
+    _impl_.command_.non_numeric_0_.InitDefault();
+  }
+  _impl_.command_.non_numeric_0_.Set( static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:ChlorobotPacket.non_numeric_0)
+}
+inline std::string* ChlorobotPacket::mutable_non_numeric_0() {
+  std::string* _s = _internal_mutable_non_numeric_0();
+  // @@protoc_insertion_point(field_mutable:ChlorobotPacket.non_numeric_0)
+  return _s;
+}
+inline const std::string& ChlorobotPacket::_internal_non_numeric_0() const {
+  if (_internal_has_non_numeric_0()) {
+    return _impl_.command_.non_numeric_0_.Get();
+  }
+  return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
+}
+inline void ChlorobotPacket::_internal_set_non_numeric_0(const std::string& value) {
+  if (!_internal_has_non_numeric_0()) {
+    clear_command();
+    set_has_non_numeric_0();
+    _impl_.command_.non_numeric_0_.InitDefault();
+  }
+  _impl_.command_.non_numeric_0_.Set(value, GetArenaForAllocation());
+}
+inline std::string* ChlorobotPacket::_internal_mutable_non_numeric_0() {
+  if (!_internal_has_non_numeric_0()) {
+    clear_command();
+    set_has_non_numeric_0();
+    _impl_.command_.non_numeric_0_.InitDefault();
+  }
+  return _impl_.command_.non_numeric_0_.Mutable(      GetArenaForAllocation());
+}
+inline std::string* ChlorobotPacket::release_non_numeric_0() {
+  // @@protoc_insertion_point(field_release:ChlorobotPacket.non_numeric_0)
+  if (_internal_has_non_numeric_0()) {
+    clear_has_command();
+    return _impl_.command_.non_numeric_0_.Release();
+  } else {
+    return nullptr;
+  }
+}
+inline void ChlorobotPacket::set_allocated_non_numeric_0(std::string* non_numeric_0) {
+  if (has_command()) {
+    clear_command();
+  }
+  if (non_numeric_0 != nullptr) {
+    set_has_non_numeric_0();
+    _impl_.command_.non_numeric_0_.InitAllocated(non_numeric_0, GetArenaForAllocation());
+  }
+  // @@protoc_insertion_point(field_set_allocated:ChlorobotPacket.non_numeric_0)
+}
+
 // uint32 numeric = 3;
 inline bool ChlorobotPacket::_internal_has_numeric() const {
   return command_case() == kNumeric;
@@ -1258,7 +1506,7 @@ inline void ChlorobotPacket::set_numeric(uint32_t value) {
   // @@protoc_insertion_point(field_set:ChlorobotPacket.numeric)
 }
 
-// repeated string parameters = 4;
+// repeated bytes parameters = 8;
 inline int ChlorobotPacket::_internal_parameters_size() const {
   return _impl_.parameters_.size();
 }
@@ -1297,7 +1545,7 @@ inline void ChlorobotPacket::set_parameters(int index, const char* value) {
   _impl_.parameters_.Mutable(index)->assign(value);
   // @@protoc_insertion_point(field_set_char:ChlorobotPacket.parameters)
 }
-inline void ChlorobotPacket::set_parameters(int index, const char* value, size_t size) {
+inline void ChlorobotPacket::set_parameters(int index, const void* value, size_t size) {
   _impl_.parameters_.Mutable(index)->assign(
     reinterpret_cast<const char*>(value), size);
   // @@protoc_insertion_point(field_set_pointer:ChlorobotPacket.parameters)
@@ -1318,7 +1566,7 @@ inline void ChlorobotPacket::add_parameters(const char* value) {
   _impl_.parameters_.Add()->assign(value);
   // @@protoc_insertion_point(field_add_char:ChlorobotPacket.parameters)
 }
-inline void ChlorobotPacket::add_parameters(const char* value, size_t size) {
+inline void ChlorobotPacket::add_parameters(const void* value, size_t size) {
   _impl_.parameters_.Add()->assign(reinterpret_cast<const char*>(value), size);
   // @@protoc_insertion_point(field_add_pointer:ChlorobotPacket.parameters)
 }
@@ -1333,9 +1581,84 @@ ChlorobotPacket::mutable_parameters() {
   return &_impl_.parameters_;
 }
 
-// optional string trailing_parameter = 5;
+// repeated string parameters_0 = 4;
+inline int ChlorobotPacket::_internal_parameters_0_size() const {
+  return _impl_.parameters_0_.size();
+}
+inline int ChlorobotPacket::parameters_0_size() const {
+  return _internal_parameters_0_size();
+}
+inline void ChlorobotPacket::clear_parameters_0() {
+  _impl_.parameters_0_.Clear();
+}
+inline std::string* ChlorobotPacket::add_parameters_0() {
+  std::string* _s = _internal_add_parameters_0();
+  // @@protoc_insertion_point(field_add_mutable:ChlorobotPacket.parameters_0)
+  return _s;
+}
+inline const std::string& ChlorobotPacket::_internal_parameters_0(int index) const {
+  return _impl_.parameters_0_.Get(index);
+}
+inline const std::string& ChlorobotPacket::parameters_0(int index) const {
+  // @@protoc_insertion_point(field_get:ChlorobotPacket.parameters_0)
+  return _internal_parameters_0(index);
+}
+inline std::string* ChlorobotPacket::mutable_parameters_0(int index) {
+  // @@protoc_insertion_point(field_mutable:ChlorobotPacket.parameters_0)
+  return _impl_.parameters_0_.Mutable(index);
+}
+inline void ChlorobotPacket::set_parameters_0(int index, const std::string& value) {
+  _impl_.parameters_0_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set:ChlorobotPacket.parameters_0)
+}
+inline void ChlorobotPacket::set_parameters_0(int index, std::string&& value) {
+  _impl_.parameters_0_.Mutable(index)->assign(std::move(value));
+  // @@protoc_insertion_point(field_set:ChlorobotPacket.parameters_0)
+}
+inline void ChlorobotPacket::set_parameters_0(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.parameters_0_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:ChlorobotPacket.parameters_0)
+}
+inline void ChlorobotPacket::set_parameters_0(int index, const char* value, size_t size) {
+  _impl_.parameters_0_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:ChlorobotPacket.parameters_0)
+}
+inline std::string* ChlorobotPacket::_internal_add_parameters_0() {
+  return _impl_.parameters_0_.Add();
+}
+inline void ChlorobotPacket::add_parameters_0(const std::string& value) {
+  _impl_.parameters_0_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:ChlorobotPacket.parameters_0)
+}
+inline void ChlorobotPacket::add_parameters_0(std::string&& value) {
+  _impl_.parameters_0_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:ChlorobotPacket.parameters_0)
+}
+inline void ChlorobotPacket::add_parameters_0(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.parameters_0_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:ChlorobotPacket.parameters_0)
+}
+inline void ChlorobotPacket::add_parameters_0(const char* value, size_t size) {
+  _impl_.parameters_0_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:ChlorobotPacket.parameters_0)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
+ChlorobotPacket::parameters_0() const {
+  // @@protoc_insertion_point(field_list:ChlorobotPacket.parameters_0)
+  return _impl_.parameters_0_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+ChlorobotPacket::mutable_parameters_0() {
+  // @@protoc_insertion_point(field_mutable_list:ChlorobotPacket.parameters_0)
+  return &_impl_.parameters_0_;
+}
+
+// optional bytes trailing_parameter = 9;
 inline bool ChlorobotPacket::_internal_has_trailing_parameter() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
+  bool value = (_impl_._has_bits_[0] & 0x00000008u) != 0;
   return value;
 }
 inline bool ChlorobotPacket::has_trailing_parameter() const {
@@ -1343,7 +1666,7 @@ inline bool ChlorobotPacket::has_trailing_parameter() const {
 }
 inline void ChlorobotPacket::clear_trailing_parameter() {
   _impl_.trailing_parameter_.ClearToEmpty();
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline const std::string& ChlorobotPacket::trailing_parameter() const {
   // @@protoc_insertion_point(field_get:ChlorobotPacket.trailing_parameter)
@@ -1352,8 +1675,8 @@ inline const std::string& ChlorobotPacket::trailing_parameter() const {
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void ChlorobotPacket::set_trailing_parameter(ArgT0&& arg0, ArgT... args) {
- _impl_._has_bits_[0] |= 0x00000002u;
- _impl_.trailing_parameter_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_._has_bits_[0] |= 0x00000008u;
+ _impl_.trailing_parameter_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:ChlorobotPacket.trailing_parameter)
 }
 inline std::string* ChlorobotPacket::mutable_trailing_parameter() {
@@ -1365,11 +1688,11 @@ inline const std::string& ChlorobotPacket::_internal_trailing_parameter() const 
   return _impl_.trailing_parameter_.Get();
 }
 inline void ChlorobotPacket::_internal_set_trailing_parameter(const std::string& value) {
-  _impl_._has_bits_[0] |= 0x00000002u;
+  _impl_._has_bits_[0] |= 0x00000008u;
   _impl_.trailing_parameter_.Set(value, GetArenaForAllocation());
 }
 inline std::string* ChlorobotPacket::_internal_mutable_trailing_parameter() {
-  _impl_._has_bits_[0] |= 0x00000002u;
+  _impl_._has_bits_[0] |= 0x00000008u;
   return _impl_.trailing_parameter_.Mutable(GetArenaForAllocation());
 }
 inline std::string* ChlorobotPacket::release_trailing_parameter() {
@@ -1377,7 +1700,7 @@ inline std::string* ChlorobotPacket::release_trailing_parameter() {
   if (!_internal_has_trailing_parameter()) {
     return nullptr;
   }
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000008u;
   auto* p = _impl_.trailing_parameter_.Release();
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if (_impl_.trailing_parameter_.IsDefault()) {
@@ -1388,9 +1711,9 @@ inline std::string* ChlorobotPacket::release_trailing_parameter() {
 }
 inline void ChlorobotPacket::set_allocated_trailing_parameter(std::string* trailing_parameter) {
   if (trailing_parameter != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000002u;
+    _impl_._has_bits_[0] |= 0x00000008u;
   } else {
-    _impl_._has_bits_[0] &= ~0x00000002u;
+    _impl_._has_bits_[0] &= ~0x00000008u;
   }
   _impl_.trailing_parameter_.SetAllocated(trailing_parameter, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -1399,6 +1722,74 @@ inline void ChlorobotPacket::set_allocated_trailing_parameter(std::string* trail
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   // @@protoc_insertion_point(field_set_allocated:ChlorobotPacket.trailing_parameter)
+}
+
+// optional string trailing_parameter_0 = 5;
+inline bool ChlorobotPacket::_internal_has_trailing_parameter_0() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
+  return value;
+}
+inline bool ChlorobotPacket::has_trailing_parameter_0() const {
+  return _internal_has_trailing_parameter_0();
+}
+inline void ChlorobotPacket::clear_trailing_parameter_0() {
+  _impl_.trailing_parameter_0_.ClearToEmpty();
+  _impl_._has_bits_[0] &= ~0x00000002u;
+}
+inline const std::string& ChlorobotPacket::trailing_parameter_0() const {
+  // @@protoc_insertion_point(field_get:ChlorobotPacket.trailing_parameter_0)
+  return _internal_trailing_parameter_0();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void ChlorobotPacket::set_trailing_parameter_0(ArgT0&& arg0, ArgT... args) {
+ _impl_._has_bits_[0] |= 0x00000002u;
+ _impl_.trailing_parameter_0_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:ChlorobotPacket.trailing_parameter_0)
+}
+inline std::string* ChlorobotPacket::mutable_trailing_parameter_0() {
+  std::string* _s = _internal_mutable_trailing_parameter_0();
+  // @@protoc_insertion_point(field_mutable:ChlorobotPacket.trailing_parameter_0)
+  return _s;
+}
+inline const std::string& ChlorobotPacket::_internal_trailing_parameter_0() const {
+  return _impl_.trailing_parameter_0_.Get();
+}
+inline void ChlorobotPacket::_internal_set_trailing_parameter_0(const std::string& value) {
+  _impl_._has_bits_[0] |= 0x00000002u;
+  _impl_.trailing_parameter_0_.Set(value, GetArenaForAllocation());
+}
+inline std::string* ChlorobotPacket::_internal_mutable_trailing_parameter_0() {
+  _impl_._has_bits_[0] |= 0x00000002u;
+  return _impl_.trailing_parameter_0_.Mutable(GetArenaForAllocation());
+}
+inline std::string* ChlorobotPacket::release_trailing_parameter_0() {
+  // @@protoc_insertion_point(field_release:ChlorobotPacket.trailing_parameter_0)
+  if (!_internal_has_trailing_parameter_0()) {
+    return nullptr;
+  }
+  _impl_._has_bits_[0] &= ~0x00000002u;
+  auto* p = _impl_.trailing_parameter_0_.Release();
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.trailing_parameter_0_.IsDefault()) {
+    _impl_.trailing_parameter_0_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  return p;
+}
+inline void ChlorobotPacket::set_allocated_trailing_parameter_0(std::string* trailing_parameter_0) {
+  if (trailing_parameter_0 != nullptr) {
+    _impl_._has_bits_[0] |= 0x00000002u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000002u;
+  }
+  _impl_.trailing_parameter_0_.SetAllocated(trailing_parameter_0, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.trailing_parameter_0_.IsDefault()) {
+    _impl_.trailing_parameter_0_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:ChlorobotPacket.trailing_parameter_0)
 }
 
 inline bool ChlorobotPacket::has_command() const {
@@ -1410,78 +1801,6 @@ inline void ChlorobotPacket::clear_has_command() {
 inline ChlorobotPacket::CommandCase ChlorobotPacket::command_case() const {
   return ChlorobotPacket::CommandCase(_impl_._oneof_case_[0]);
 }
-// -------------------------------------------------------------------
-
-// ChlorobotAuthentication
-
-// optional string token = 1;
-inline bool ChlorobotAuthentication::_internal_has_token() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
-  return value;
-}
-inline bool ChlorobotAuthentication::has_token() const {
-  return _internal_has_token();
-}
-inline void ChlorobotAuthentication::clear_token() {
-  _impl_.token_.ClearToEmpty();
-  _impl_._has_bits_[0] &= ~0x00000001u;
-}
-inline const std::string& ChlorobotAuthentication::token() const {
-  // @@protoc_insertion_point(field_get:ChlorobotAuthentication.token)
-  return _internal_token();
-}
-template <typename ArgT0, typename... ArgT>
-inline PROTOBUF_ALWAYS_INLINE
-void ChlorobotAuthentication::set_token(ArgT0&& arg0, ArgT... args) {
- _impl_._has_bits_[0] |= 0x00000001u;
- _impl_.token_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:ChlorobotAuthentication.token)
-}
-inline std::string* ChlorobotAuthentication::mutable_token() {
-  std::string* _s = _internal_mutable_token();
-  // @@protoc_insertion_point(field_mutable:ChlorobotAuthentication.token)
-  return _s;
-}
-inline const std::string& ChlorobotAuthentication::_internal_token() const {
-  return _impl_.token_.Get();
-}
-inline void ChlorobotAuthentication::_internal_set_token(const std::string& value) {
-  _impl_._has_bits_[0] |= 0x00000001u;
-  _impl_.token_.Set(value, GetArenaForAllocation());
-}
-inline std::string* ChlorobotAuthentication::_internal_mutable_token() {
-  _impl_._has_bits_[0] |= 0x00000001u;
-  return _impl_.token_.Mutable(GetArenaForAllocation());
-}
-inline std::string* ChlorobotAuthentication::release_token() {
-  // @@protoc_insertion_point(field_release:ChlorobotAuthentication.token)
-  if (!_internal_has_token()) {
-    return nullptr;
-  }
-  _impl_._has_bits_[0] &= ~0x00000001u;
-  auto* p = _impl_.token_.Release();
-#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (_impl_.token_.IsDefault()) {
-    _impl_.token_.Set("", GetArenaForAllocation());
-  }
-#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  return p;
-}
-inline void ChlorobotAuthentication::set_allocated_token(std::string* token) {
-  if (token != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000001u;
-  } else {
-    _impl_._has_bits_[0] &= ~0x00000001u;
-  }
-  _impl_.token_.SetAllocated(token, GetArenaForAllocation());
-#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (_impl_.token_.IsDefault()) {
-    _impl_.token_.Set("", GetArenaForAllocation());
-  }
-#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:ChlorobotAuthentication.token)
-}
-
 // -------------------------------------------------------------------
 
 // ChlorobotRequest
@@ -1697,6 +2016,106 @@ inline void ChlorobotRequest::clear_has_data() {
 inline ChlorobotRequest::DataCase ChlorobotRequest::data_case() const {
   return ChlorobotRequest::DataCase(_impl_._oneof_case_[0]);
 }
+// -------------------------------------------------------------------
+
+// ChlorobotAuthentication
+
+// optional string token = 1;
+inline bool ChlorobotAuthentication::_internal_has_token() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
+  return value;
+}
+inline bool ChlorobotAuthentication::has_token() const {
+  return _internal_has_token();
+}
+inline void ChlorobotAuthentication::clear_token() {
+  _impl_.token_.ClearToEmpty();
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline const std::string& ChlorobotAuthentication::token() const {
+  // @@protoc_insertion_point(field_get:ChlorobotAuthentication.token)
+  return _internal_token();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void ChlorobotAuthentication::set_token(ArgT0&& arg0, ArgT... args) {
+ _impl_._has_bits_[0] |= 0x00000001u;
+ _impl_.token_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:ChlorobotAuthentication.token)
+}
+inline std::string* ChlorobotAuthentication::mutable_token() {
+  std::string* _s = _internal_mutable_token();
+  // @@protoc_insertion_point(field_mutable:ChlorobotAuthentication.token)
+  return _s;
+}
+inline const std::string& ChlorobotAuthentication::_internal_token() const {
+  return _impl_.token_.Get();
+}
+inline void ChlorobotAuthentication::_internal_set_token(const std::string& value) {
+  _impl_._has_bits_[0] |= 0x00000001u;
+  _impl_.token_.Set(value, GetArenaForAllocation());
+}
+inline std::string* ChlorobotAuthentication::_internal_mutable_token() {
+  _impl_._has_bits_[0] |= 0x00000001u;
+  return _impl_.token_.Mutable(GetArenaForAllocation());
+}
+inline std::string* ChlorobotAuthentication::release_token() {
+  // @@protoc_insertion_point(field_release:ChlorobotAuthentication.token)
+  if (!_internal_has_token()) {
+    return nullptr;
+  }
+  _impl_._has_bits_[0] &= ~0x00000001u;
+  auto* p = _impl_.token_.Release();
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.token_.IsDefault()) {
+    _impl_.token_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  return p;
+}
+inline void ChlorobotAuthentication::set_allocated_token(std::string* token) {
+  if (token != nullptr) {
+    _impl_._has_bits_[0] |= 0x00000001u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000001u;
+  }
+  _impl_.token_.SetAllocated(token, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.token_.IsDefault()) {
+    _impl_.token_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:ChlorobotAuthentication.token)
+}
+
+// optional uint32 version = 2;
+inline bool ChlorobotAuthentication::_internal_has_version() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
+  return value;
+}
+inline bool ChlorobotAuthentication::has_version() const {
+  return _internal_has_version();
+}
+inline void ChlorobotAuthentication::clear_version() {
+  _impl_.version_ = 0u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
+}
+inline uint32_t ChlorobotAuthentication::_internal_version() const {
+  return _impl_.version_;
+}
+inline uint32_t ChlorobotAuthentication::version() const {
+  // @@protoc_insertion_point(field_get:ChlorobotAuthentication.version)
+  return _internal_version();
+}
+inline void ChlorobotAuthentication::_internal_set_version(uint32_t value) {
+  _impl_._has_bits_[0] |= 0x00000002u;
+  _impl_.version_ = value;
+}
+inline void ChlorobotAuthentication::set_version(uint32_t value) {
+  _internal_set_version(value);
+  // @@protoc_insertion_point(field_set:ChlorobotAuthentication.version)
+}
+
 // -------------------------------------------------------------------
 
 // ChlorobotVersion

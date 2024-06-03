@@ -12,12 +12,14 @@ import os
 import chloresolve
 from chloresolve import dispatch, command
 
+CHLOROBOT_ENCODER_VERSION = 1
+
 
 class Chloresolver:
-    def __init__(self, stub, token: str, trigger: str, commands: dict[str, chloresolve.dispatch.Command]) -> None:
+    def __init__(self, stub, token: str, trigger: bytes, commands: dict[str, chloresolve.dispatch.Command]) -> None:
         self.stub = stub
         self.authentication = chlorobot_rpc_pb2.ChlorobotAuthentication(
-            token=token)
+            token=token, version=CHLOROBOT_ENCODER_VERSION)
         self.logger = logging.getLogger(__class__.__name__)
         self.trigger = trigger
         self.commands = commands
@@ -39,23 +41,33 @@ class Chloresolver:
 
             # Log the message
             if message.non_numeric:
-                self.logger.info(f"[RECV] p:{message.prefix} | cs:{message.non_numeric} | a:{
+                self.logger.debug(f"[RECV] p:{message.prefix} | cs:{message.non_numeric} | a:{
                     message.parameters} | t:{message.trailing_parameter}")
                 command = message.non_numeric
             elif message.numeric:
-                self.logger.info(f"[RECV] p:{message.prefix} | c#:{message.numeric} | a:{
+                self.logger.debug(f"[RECV] p:{message.prefix} | c#:{message.numeric} | a:{
                     message.parameters} | t:{message.trailing_parameter}")
                 command = message.numeric
 
             match command:
-                case "PRIVMSG":
+                case b"PRIVMSG":
+                    # gRPC endpoint does bytes
+                    [b_nickname, b_ident_cloak] = message.prefix.split(b'!', 1)
+                    [b_ident, b_cloak] = b_ident_cloak.split(b'@', 1)
+                    b_channel = message.parameters[0]
+
+                    # Decode them all
+                    nickname: str = b_nickname.decode('utf-8')
+                    ident: str = b_ident.decode('utf-8')
+                    cloak: str = b_cloak.decode('utf-8')
+                    channel: str = b_channel.decode('utf-8')
+
+                    self.logger.info(f"[{channel}] <{nickname}> {message}")
                     if message.trailing_parameter.startswith(self.trigger):
-                        [nickname, ident_cloak] = message.prefix.split("!", 1)
-                        [ident, cloak] = ident_cloak.split("@", 1)
-                        channel = message.parameters[0]
-                        chanargs = message.trailing_parameter.removeprefix(
-                            self.trigger).split(" ")
-                        self.logger.info(f"[RCMD] n:{nickname} i:{ident} c:{
+                        s_message: str = message.trailing_parameter.decode('utf-8', errors='ignore')
+                        chanargs = s_message.trailing_parameter.removeprefix(
+                            self.trigger).split(' ')
+                        self.logger.debug(f"[RCMD] n:{nickname} i:{ident} c:{
                                          cloak} | h:{channel} | a:{chanargs}")
 
                         await self.dispatch(chloresolve.dispatch.Arguments(self, channel, nickname, ident, cloak, chanargs))
@@ -67,24 +79,33 @@ class Chloresolver:
         await dispatch_cmd(dispatch_info)
 
     async def message(self, channel: str, nickname: str, message: str) -> None:
-        if channel.startswith("#") or channel.startswith("&"):
+        myself: str = os.environ["CHLOROBOT_NICKNAME"]
+        if channel.startswith('#') or channel.startswith('&'):
             # channel
-            await self.send(None, "PRIVMSG", [channel], f"{nickname}: {message}")
+            self.logger.info(f"[{channel}] <{myself}> {message}")
+            try:
+                await self.send(None, b"PRIVMSG", [channel.encode()], f"{nickname}: {message}".encode())
+            except UnicodeEncodeError:
+                self.logger.warning("Could not encode the last message into bytes!")
         else:
             # user
-            await self.send(None, "NOTICE", [nickname], message)
+            self.logger.info(f"[{nickname}] <{myself}> {message}")
+            try:
+                await self.send(None, b"NOTICE", [nickname.encode()], message.encode())
+            except UnicodeEncodeError:
+                self.logger.warning("Could not encode the last message into bytes!")
 
-    async def send(self, prefix: Optional[str], command: (int | str), parameters: list[str], trailing_parameter: Optional[str]) -> None:
+    async def send(self, prefix: Optional[bytes], command: (int | bytes), parameters: list[bytes], trailing_parameter: Optional[bytes]) -> None:
         message = None
 
         # Log the message
-        if isinstance(command, str):
+        if isinstance(command, bytes):
             message = chlorobot_rpc_pb2.ChlorobotPacket(
                 prefix=prefix,
                 non_numeric=command,
                 parameters=parameters,
                 trailing_parameter=trailing_parameter)
-            self.logger.info(f"[SEND] p:{message.prefix} | cs:{message.non_numeric} | a:{
+            self.logger.debug(f"[SEND] p:{message.prefix} | cs:{message.non_numeric} | a:{
                              message.parameters} | t:{message.trailing_parameter}")
         elif isinstance(command, int):
             message = chlorobot_rpc_pb2.ChlorobotPacket(
@@ -92,7 +113,7 @@ class Chloresolver:
                 numeric=command,
                 parameters=parameters,
                 trailing_parameter=trailing_parameter)
-            self.logger.info(f"[SEND] p:{message.prefix} | c#:{message.numeric} | a:{
+            self.logger.debug(f"[SEND] p:{message.prefix} | c#:{message.numeric} | a:{
                              message.parameters} | t:{message.trailing_parameter}")
 
         # Send it after
@@ -110,7 +131,7 @@ async def main() -> None:
     async with grpc.aio.insecure_channel(f"{os.environ["CHLOROBOT_RPC_SERVER"]}:50051") as channel:
         logging.info("Trying to connect to gRPC socket")
         stub = chlorobot_rpc_pb2_grpc.ChlorobotRPCStub(channel)
-        resolver = Chloresolver(stub, os.environ["CHLOROBOT_RPC_TOKEN"], "c|", {
+        resolver = Chloresolver(stub, os.environ["CHLOROBOT_RPC_TOKEN"], b'c|', {
             "ping": chloresolve.dispatch.Command(chloresolve.command.ping, "acknowledges if the bot resolver is online"),
             "help": chloresolve.dispatch.Command(chloresolve.command.help, "lists commands or gives a detailed description of one"),
             "join": chloresolve.dispatch.Command(chloresolve.command.join, "joins a channel"),
