@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.25)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Project instantiation
-project(chlorobot VERSION 1.1.0.49)
+project(chlorobot VERSION 1.1.0.50)
 
 # Fetch gRPC
 option(USE_SYSTEM_GRPC "Use system installed gRPC" ON)

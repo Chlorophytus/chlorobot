@@ -34,14 +34,14 @@ async def version(args: dispatch.Arguments):
 
 async def join(args: dispatch.Arguments):
     if args.cloak.lower() == os.environ["CHLOROBOT_OWNER"]:
-        await args.resolver.send(None, "JOIN", [args.chanargs[1]], None)
+        await args.resolver.send(None, b"JOIN", [args.chanargs[1].encode()], None)
     else:
         await args.resolver.message(args.channel, args.nickname, "Not authorized")
 
 
 async def part(args: dispatch.Arguments):
     if args.cloak.lower() == os.environ["CHLOROBOT_OWNER"]:
-        await args.resolver.send(None, "PART", [args.chanargs[1]], None)
+        await args.resolver.send(None, b"PART", [args.chanargs[1].encode()], None)
     else:
         await args.resolver.message(args.channel, args.nickname, "Not authorized")
 

@@ -10,16 +10,14 @@ import logging
 import asyncio
 import os
 import chloresolve
-from chloresolve import dispatch, command
-
-CHLOROBOT_ENCODER_VERSION = 1
+from chloresolve import command
 
 
 class Chloresolver:
-    def __init__(self, stub, token: str, trigger: bytes, commands: dict[str, chloresolve.dispatch.Command]) -> None:
+    def __init__(self, stub, token: str, trigger: str, commands: dict[str, chloresolve.dispatch.Command]) -> None:
         self.stub = stub
         self.authentication = chlorobot_rpc_pb2.ChlorobotAuthentication(
-            token=token, version=CHLOROBOT_ENCODER_VERSION)
+            token=token, version=1)
         self.logger = logging.getLogger(__class__.__name__)
         self.trigger = trigger
         self.commands = commands
@@ -61,12 +59,11 @@ class Chloresolver:
                     ident: str = b_ident.decode('utf-8')
                     cloak: str = b_cloak.decode('utf-8')
                     channel: str = b_channel.decode('utf-8')
+                    s_message: str = message.trailing_parameter.decode('utf-8', errors='ignore')
 
-                    self.logger.info(f"[{channel}] <{nickname}> {message}")
-                    if message.trailing_parameter.startswith(self.trigger):
-                        s_message: str = message.trailing_parameter.decode('utf-8', errors='ignore')
-                        chanargs = s_message.trailing_parameter.removeprefix(
-                            self.trigger).split(' ')
+                    self.logger.info(f"[{channel}] <{nickname}> {s_message}")
+                    if s_message.startswith(self.trigger):
+                        chanargs = s_message.removeprefix(self.trigger).split(' ')
                         self.logger.debug(f"[RCMD] n:{nickname} i:{ident} c:{
                                          cloak} | h:{channel} | a:{chanargs}")
 
@@ -131,7 +128,7 @@ async def main() -> None:
     async with grpc.aio.insecure_channel(f"{os.environ["CHLOROBOT_RPC_SERVER"]}:50051") as channel:
         logging.info("Trying to connect to gRPC socket")
         stub = chlorobot_rpc_pb2_grpc.ChlorobotRPCStub(channel)
-        resolver = Chloresolver(stub, os.environ["CHLOROBOT_RPC_TOKEN"], b'c|', {
+        resolver = Chloresolver(stub, os.environ["CHLOROBOT_RPC_TOKEN"], 'c|', {
             "ping": chloresolve.dispatch.Command(chloresolve.command.ping, "acknowledges if the bot resolver is online"),
             "help": chloresolve.dispatch.Command(chloresolve.command.help, "lists commands or gives a detailed description of one"),
             "join": chloresolve.dispatch.Command(chloresolve.command.join, "joins a channel"),
@@ -143,7 +140,7 @@ async def main() -> None:
 
         ping = chlorobot_rpc_pb2.ChlorobotRequest(
             auth=resolver.authentication, command_type=chlorobot_rpc_pb2.ChlorobotCommandEnum.SEND_NOTHING)
-        result = await stub.Send(ping, timeout=15)
+        result = await stub.Send(ping, timeout=20)
 
         logging.info("Connected to gRPC socket")
         await resolver.listen()

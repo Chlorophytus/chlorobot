@@ -137,6 +137,9 @@ void irc::authentication::proceed() {
     _context.AsyncNotifyWhenDone(this);
     _service->RequestListen(&_context, &_authentication, &_responder,
                             _completion_queue, _completion_queue, this);
+    _state = irc::async_state::process;
+  } else if (_state == irc::async_state::process) {
+    std::cerr << "Started listening: " << this << std::endl;
 
     _encode_version =
         _authentication.has_version() ? _authentication.version() : 0;
@@ -149,18 +152,18 @@ void irc::authentication::proceed() {
                 << CURRENT_ENCODE_VERSION << std::endl;
     }
 
+    new irc::authentication(_service, _completion_queue);
+
     if (_authentication.token() == *rpc_token) {
-      _state = irc::async_state::process;
+      std::cerr << "Valid auth on listener: " << this << std::endl;
+      listener_tags->insert(this);
+      _state = irc::async_state::finish;
     } else {
       std::cerr << "INVALID AUTH ON LISTENER: " << this << std::endl;
       _responder.Finish(grpc::Status::CANCELLED, this);
       _state = irc::async_state::finish;
     }
-  } else if (_state == irc::async_state::process) {
-    std::cerr << "Started listening: " << this << std::endl;
-    new irc::authentication(_service, _completion_queue);
-    listener_tags->insert(this);
-    _state = irc::async_state::finish;
+
   } else {
     if (_context.IsCancelled()) {
       std::cerr << "Cancelled listening: " << this << std::endl;
