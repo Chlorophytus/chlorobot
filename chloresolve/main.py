@@ -1,7 +1,4 @@
 import logging.handlers
-import pathlib
-import chloresolve.command
-import chloresolve.dispatch
 import chlorobot_rpc_pb2_grpc
 import chlorobot_rpc_pb2
 import grpc
@@ -10,7 +7,8 @@ import logging
 import asyncio
 import os
 import chloresolve
-from chloresolve import command
+from chloresolve import command, dispatch
+import ircstyle
 
 
 class Chloresolver:
@@ -61,7 +59,7 @@ class Chloresolver:
                     channel: str = b_channel.decode('utf-8')
                     s_message: str = message.trailing_parameter.decode('utf-8', errors='ignore')
 
-                    self.logger.info(f"[{channel}] <{nickname}> {s_message}")
+                    self.logger.info(f"[{channel}] <{nickname}> {ircstyle.unstyle(s_message)}")
                     if s_message.startswith(self.trigger):
                         chanargs = s_message.removeprefix(self.trigger).split(' ')
                         self.logger.debug(f"[RCMD] n:{nickname} i:{ident} c:{
@@ -81,12 +79,12 @@ class Chloresolver:
             # channel
             self.logger.info(f"[{channel}] <{myself}> {message}")
             try:
-                await self.send(None, b"PRIVMSG", [channel.encode()], f"{nickname}: {message}".encode())
+                await self.send(None, b"PRIVMSG", [channel.encode()], f"{nickname}: {ircstyle.unstyle(message)}".encode())
             except UnicodeEncodeError:
                 self.logger.warning("Could not encode the last message into bytes!")
         else:
             # user
-            self.logger.info(f"[{nickname}] <{myself}> {message}")
+            self.logger.info(f"[{nickname}] <{myself}> {ircstyle.unstyle(message)}")
             try:
                 await self.send(None, b"NOTICE", [nickname.encode()], message.encode())
             except UnicodeEncodeError:
