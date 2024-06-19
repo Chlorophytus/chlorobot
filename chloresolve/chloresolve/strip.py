@@ -16,7 +16,7 @@ def strip_irc_attributes(buffer: bytes) -> bytes:
     """
     # Strip attributes first
     stripped: bytes = buffer
-    for attrib in CODE_ATTRIBS:
+    for attrib in (CODE_NORMAL, CODE_BOLD, CODE_ITALICS, CODE_UNDERLINE):
         stripped = stripped.replace(attrib, b'')
 
     # Time to strip colors
