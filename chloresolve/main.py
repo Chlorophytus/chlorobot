@@ -79,7 +79,7 @@ class Chloresolver:
                         s_message: str = message_stripped.decode(
                             "utf-8", errors="ignore"
                         )
-                        self.logger.info(f"[{channel}] * {nickname} {s_message}")
+                        self.logger.info(f"[{channel}] * {nickname}{s_message}")
                     else:
                         s_message: str = message_stripped.decode(
                             "utf-8", errors="ignore"
