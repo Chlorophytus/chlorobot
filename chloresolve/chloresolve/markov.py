@@ -37,7 +37,7 @@ class Chainer:
             word = mixed_word.lower()
 
             chars = [ch for ch in word if ch in SANITIZATION_LETTERS]
-            stripped_word = ''.join(chars)
+            stripped_word = "".join(chars)
 
             if stripped_word == "":
                 # There is nothing in here so don't bother
@@ -92,7 +92,10 @@ class Chainer:
             last_word: str = sentence[-1]
             # Is the last word able to end this chain?
             if last_word in self.ends:
-                if len(sentence) > minimum_hint or last_word not in self.mids[last_word]:
+                if (
+                    len(sentence) > minimum_hint
+                    or last_word not in self.mids[last_word]
+                ):
                     # We can end here because we're over our hint, or we must
                     # end because there's no mids left
                     sentence[-1] += random.choice(tuple(self.ends[last_word]))

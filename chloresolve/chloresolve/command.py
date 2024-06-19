@@ -6,8 +6,7 @@ async def not_found(args: dispatch.Arguments):
     await args.resolver.message(args.channel, args.nickname, "Command not found")
 
 
-COMMAND_NOT_FOUND: dispatch.Command = dispatch.Command(
-    not_found, "command not found")
+COMMAND_NOT_FOUND: dispatch.Command = dispatch.Command(not_found, "command not found")
 
 
 async def ping(args: dispatch.Arguments):
@@ -18,18 +17,31 @@ async def help(args: dispatch.Arguments):
     match len(args.chanargs):
         case 1:
             available = ", ".join([*args.resolver.commands])
-            await args.resolver.message(args.channel, args.nickname, f"Commands available are '{available}'")
+            await args.resolver.message(
+                args.channel, args.nickname, f"Commands available are '{available}'"
+            )
         case 2:
             dispatch_cmd = args.resolver.commands.get(
-                args.chanargs[1], COMMAND_NOT_FOUND)
-            await args.resolver.message(args.channel, args.nickname, f"{args.chanargs[1]} - {dispatch_cmd.help_str}")
+                args.chanargs[1], COMMAND_NOT_FOUND
+            )
+            await args.resolver.message(
+                args.channel,
+                args.nickname,
+                f"{args.chanargs[1]} - {dispatch_cmd.help_str}",
+            )
         case _:
-            await args.resolver.message(args.channel, args.nickname, "This command takes 0 or 1 arguments")
+            await args.resolver.message(
+                args.channel, args.nickname, "This command takes 0 or 1 arguments"
+            )
 
 
 async def version(args: dispatch.Arguments):
     version = await args.resolver.version_string()
-    await args.resolver.message(args.channel, args.nickname, f"Using core v{version} and resolver v{__version__}")
+    await args.resolver.message(
+        args.channel,
+        args.nickname,
+        f"Using core v{version} and resolver v{__version__}",
+    )
 
 
 async def join(args: dispatch.Arguments):
@@ -55,33 +67,61 @@ async def chain(args: dispatch.Arguments):
             match chanarg_determine:
                 case "clear":
                     CHAINER_OBJECT = markov.Chainer()
-                    await args.resolver.message(args.channel, args.nickname, "Cleared the Markov chainer")
+                    await args.resolver.message(
+                        args.channel, args.nickname, "Cleared the Markov chainer"
+                    )
                 case "parse":
                     if chanarg_len > 2:
                         path = " ".join(args.chanargs[2:])
                         try:
                             with open(path, "r") as f:
                                 CHAINER_OBJECT.parse(f)
-                                await args.resolver.message(args.channel, args.nickname, f"Parsed '{path}'")
+                                await args.resolver.message(
+                                    args.channel, args.nickname, f"Parsed '{path}'"
+                                )
                         except FileNotFoundError:
-                            await args.resolver.message(args.channel, args.nickname, "File does not exist")
+                            await args.resolver.message(
+                                args.channel, args.nickname, "File does not exist"
+                            )
                     else:
-                        await args.resolver.message(args.channel, args.nickname, "Parser takes 2 or more arguments")
+                        await args.resolver.message(
+                            args.channel,
+                            args.nickname,
+                            "Parser takes 2 or more arguments",
+                        )
                 case "run":
                     if chanarg_len == 4:
                         try:
                             min: int = int(args.chanargs[2])
                             max: int = int(args.chanargs[3])
 
-                            await args.resolver.message(args.channel, args.nickname, CHAINER_OBJECT.run(min, max))
+                            await args.resolver.message(
+                                args.channel,
+                                args.nickname,
+                                CHAINER_OBJECT.run(min, max),
+                            )
                         except ValueError:
-                            await args.resolver.message(args.channel, args.nickname, "Minimum and maximum sentence word lengths must be integers")
+                            await args.resolver.message(
+                                args.channel,
+                                args.nickname,
+                                "Minimum and maximum sentence word lengths must be integers",
+                            )
                     else:
-                        await args.resolver.message(args.channel, args.nickname, "Minimum and maximum sentence word lengths must be specified")
+                        await args.resolver.message(
+                            args.channel,
+                            args.nickname,
+                            "Minimum and maximum sentence word lengths must be specified",
+                        )
                 case _:
-                    await args.resolver.message(args.channel, args.nickname, "Use subcommand 'clear', 'parse', or 'run'")
+                    await args.resolver.message(
+                        args.channel,
+                        args.nickname,
+                        "Use subcommand 'clear', 'parse', or 'run'",
+                    )
         else:
-            await args.resolver.message(args.channel, args.nickname, "Use subcommand 'clear', 'parse', or 'run'")
+            await args.resolver.message(
+                args.channel, args.nickname, "Use subcommand 'clear', 'parse', or 'run'"
+            )
     else:
         await args.resolver.message(args.channel, args.nickname, "Not authorized")
 
@@ -89,12 +129,15 @@ async def chain(args: dispatch.Arguments):
 async def wiki(args: dispatch.Arguments):
     if len(args.chanargs) > 1:
         article: str = " ".join(args.chanargs[1:])
-        wiki_lookup = mediawiki.PageLookup(
-            "https://en.wikipedia.org/w/api.php")
+        wiki_lookup = mediawiki.PageLookup("https://en.wikipedia.org/w/api.php")
         try:
             description: str = wiki_lookup.query(article)
             await args.resolver.message(args.channel, args.nickname, description)
         except:
-            await args.resolver.message(args.channel, args.nickname, f"Article synopsis lookup failed")
+            await args.resolver.message(
+                args.channel, args.nickname, f"Article synopsis lookup failed"
+            )
     else:
-        await args.resolver.message(args.channel, args.nickname, "Please give an article that can be looked up")
+        await args.resolver.message(
+            args.channel, args.nickname, "Please give an article that can be looked up"
+        )

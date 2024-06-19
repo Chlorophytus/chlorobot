@@ -1,5 +1,13 @@
 class Arguments:
-    def __init__(self, resolver, channel: str, nickname: str, ident: str, cloak: str, chanargs: list[str]):
+    def __init__(
+        self,
+        resolver,
+        channel: str,
+        nickname: str,
+        ident: str,
+        cloak: str,
+        chanargs: list[str],
+    ):
         self.channel = channel
         self.nickname = nickname
         self.ident = ident
