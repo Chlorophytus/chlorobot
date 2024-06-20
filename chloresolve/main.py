@@ -129,7 +129,9 @@ class Chloresolver:
                     # Decode them all
                     nickname: str = b_nickname.decode("utf-8")
                     channel: str = b_channel.decode("utf-8")
-                    reason: str = trailing_parameter.decode("utf-8", errors="ignore")
+                    reason: str = message.trailing_parameter.decode(
+                        "utf-8", errors="ignore"
+                    )
 
                     self.logger.info(f"[{channel}] {nickname} parts ({reason})")
                 case b"QUIT":
@@ -141,7 +143,9 @@ class Chloresolver:
                     # Decode them all
                     nickname: str = b_nickname.decode("utf-8")
                     channel: str = b_channel.decode("utf-8")
-                    reason: str = trailing_parameter.decode("utf-8", errors="ignore")
+                    reason: str = message.trailing_parameter.decode(
+                        "utf-8", errors="ignore"
+                    )
 
                     self.logger.info(f"[{channel}] {nickname} quits ({reason})")
                 case b"KICK":
@@ -154,7 +158,9 @@ class Chloresolver:
                     # Decode them all
                     nickname: str = b_nickname.decode("utf-8")
                     channel: str = b_channel.decode("utf-8")
-                    reason: str = trailing_parameter.decode("utf-8", errors="ignore")
+                    reason: str = message.trailing_parameter.decode(
+                        "utf-8", errors="ignore"
+                    )
                     victim: str = b_victim.decode("utf-8")
 
                     self.logger.info(
@@ -169,7 +175,9 @@ class Chloresolver:
                     # Decode them all
                     nickname: str = b_nickname.decode("utf-8")
                     channel: str = b_channel.decode("utf-8")
-                    topic: str = trailing_parameter.decode("utf-8", errors="ignore")
+                    topic: str = message.trailing_parameter.decode(
+                        "utf-8", errors="ignore"
+                    )
 
                     self.logger.info(f"[{channel}] {nickname} sets topic '{topic}'")
 
