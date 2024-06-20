@@ -138,16 +138,14 @@ class Chloresolver:
                     # gRPC endpoint does bytes
                     [b_nickname, b_ident_cloak] = message.prefix.split(b"!", 1)
                     [b_ident, b_cloak] = b_ident_cloak.split(b"@", 1)
-                    b_channel = message.parameters[0]
 
                     # Decode them all
                     nickname: str = b_nickname.decode("utf-8")
-                    channel: str = b_channel.decode("utf-8")
                     reason: str = message.trailing_parameter.decode(
                         "utf-8", errors="ignore"
                     )
 
-                    self.logger.info(f"[{channel}] {nickname} quits ({reason})")
+                    self.logger.info(f"{nickname} quits ({reason})")
                 case b"KICK":
                     # gRPC endpoint does bytes
                     [b_nickname, b_ident_cloak] = message.prefix.split(b"!", 1)
