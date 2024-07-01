@@ -98,27 +98,29 @@ class Chloresolver:
                             )
                 case b"MODE":
                     # gRPC endpoint does bytes
-                    [b_nickname, b_ident_cloak] = message.prefix.split(b"!", 1)
-                    [b_ident, b_cloak] = b_ident_cloak.split(b"@", 1)
+                    b_prefix = message.prefix.split(b"!", 1)
 
-                    b_channel = message.parameters[0]
 
-                    if b_channel.startswith(b"#") or b_channel.startswith(b"&"):
+                    if len(b_prefix) == 1:
                         b_modes = b" ".join(message.parameters[1:])
 
                         # Decode them all
+                        nickname: str = message.parameters[0].decode("utf-8")
+                        modes: str = b_modes.decode("utf-8")
+
+                        self.logger.info(f"{nickname} sets modes '{modes}'")
+                    else:
+                        [b_nickname, b_ident_cloak] = message.prefix.split(b"!", 1)
+                        [b_ident, b_cloak] = b_ident_cloak.split(b"@", 1)
+
+                        b_channel = message.parameters[0]
+                        b_modes = b" ".join(message.parameters[1:])
+
                         nickname: str = b_nickname.decode("utf-8")
                         channel: str = b_channel.decode("utf-8")
                         modes: str = b_modes.decode("utf-8")
 
                         self.logger.info(f"[{channel}] {nickname} sets modes '{modes}'")
-                    else:
-                        b_modes = b" ".join(message.parameters)
-
-                        nickname: str = b_nickname.decode("utf-8")
-                        modes: str = b_modes.decode("utf-8")
-
-                        self.logger.info(f"{nickname} sets modes '{modes}'")
                 case b"JOIN":
                     # gRPC endpoint does bytes
                     [b_nickname, b_ident_cloak] = message.prefix.split(b"!", 1)
