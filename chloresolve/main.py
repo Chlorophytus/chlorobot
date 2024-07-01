@@ -102,11 +102,9 @@ class Chloresolver:
 
 
                     if len(b_prefix) == 1:
-                        b_modes = b" ".join(message.parameters[1:])
-
                         # Decode them all
                         nickname: str = message.parameters[0].decode("utf-8")
-                        modes: str = b_modes.decode("utf-8")
+                        modes: str = message.trailing_parameter.decode("utf-8")
 
                         self.logger.info(f"{nickname} sets modes '{modes}'")
                     else:
