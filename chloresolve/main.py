@@ -40,11 +40,12 @@ class Chloresolver:
 
         # Infinitely loop
         while True:
-            message = await self.listener.read()
-            if self.listener.done():
-                break
-            else:
+            try:
+                message = await asyncio.wait_for(self.listener.read(), 0.01)
                 await self.handle(message)
+            finally:
+                if self.listener.done():
+                    break
 
     async def handle(self, message: chlorobot_rpc_pb2.ChlorobotPacket) -> None:
         command = None
@@ -299,16 +300,14 @@ async def main() -> None:
             },
         )
 
-        try:
-            ping = chlorobot_rpc_pb2.ChlorobotRequest(
-                auth=resolver.authentication,
-                command_type=chlorobot_rpc_pb2.ChlorobotCommandEnum.SEND_NOTHING,
-            )
-            await stub.Send(ping, timeout=20)
-            logging.info("gRPC socket seems to be connectable, listening")
-            await resolver.listen()
-        finally:
-            logging.info("gRPC socket has disconnected us, goodbye")
+        ping = chlorobot_rpc_pb2.ChlorobotRequest(
+            auth=resolver.authentication,
+            command_type=chlorobot_rpc_pb2.ChlorobotCommandEnum.SEND_NOTHING,
+        )
+        await stub.Send(ping, timeout=20)
+        logging.info("gRPC socket seems to be connectable, listening")
+        await resolver.listen()
+        logging.info("gRPC socket has disconnected us, goodbye")
 
 
 if __name__ == "__main__":
