@@ -41,7 +41,7 @@ class Chloresolver:
         # Infinitely loop
         while True:
             message = await self.listener.read()
-            if message == grpc.aio.EOF:
+            if self.listener.done():
                 break
             else:
                 await self.handle(message)
