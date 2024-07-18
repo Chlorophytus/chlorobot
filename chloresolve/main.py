@@ -40,15 +40,11 @@ class Chloresolver:
 
         # Infinitely loop
         while True:
-            try:
-                async with asyncio.timeout(0.01):
-                    message = await self.listener.read()
-                    if message == grpc.aio.EOF:
-                        return
-                    else:
-                        await self.handle(message)
-            except TimeoutError:
-                pass
+            message = await self.listener.read()
+            if message == grpc.aio.EOF:
+                break
+            else:
+                await self.handle(message)
 
     async def handle(self, message: chlorobot_rpc_pb2.ChlorobotPacket) -> None:
         command = None
