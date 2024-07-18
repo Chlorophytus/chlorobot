@@ -298,15 +298,16 @@ async def main() -> None:
             },
         )
 
-        ping = chlorobot_rpc_pb2.ChlorobotRequest(
-            auth=resolver.authentication,
-            command_type=chlorobot_rpc_pb2.ChlorobotCommandEnum.SEND_NOTHING,
-        )
-        result = await stub.Send(ping, timeout=20)
-
-        logging.info("Connected to gRPC socket")
-        await resolver.listen()
-        logging.info("Disconnected from gRPC socket")
+        try:
+            ping = chlorobot_rpc_pb2.ChlorobotRequest(
+                auth=resolver.authentication,
+                command_type=chlorobot_rpc_pb2.ChlorobotCommandEnum.SEND_NOTHING,
+            )
+            await stub.Send(ping, timeout=20)
+            logging.info("gRPC socket seems to be connectable, listening")
+            await resolver.listen()
+        finally:
+            logging.info("gRPC socket has disconnected us, goodbye")
 
 
 if __name__ == "__main__":
@@ -314,4 +315,4 @@ if __name__ == "__main__":
         level=logging.INFO,
         format="[%(asctime)s] [%(name)s - %(levelname)s] %(message)s",
     )
-    asyncio.run_until_complete(main())
+    asyncio.run(main())
