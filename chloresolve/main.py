@@ -40,7 +40,7 @@ class Chloresolver:
 
         # Infinitely loop
         while True:
-            message: chlorobot_rpc_pb2.ChlorobotPacket
+            message = None
             try:
                 message = await asyncio.wait_for(self.listener.read(), 0.01)
                 await self.handle(message)
