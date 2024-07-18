@@ -295,6 +295,9 @@ async def main() -> None:
                     chloresolve.command.wiki,
                     "gets a Wikipedia article's short description",
                 ),
+                "exit": chloresolve.dispatch.Command(
+                    chloresolve.command.exit, "causes the bot to exit"
+                ),
             },
         )
 
