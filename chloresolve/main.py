@@ -37,17 +37,10 @@ class Chloresolver:
 
     async def listen(self) -> None:
         self.listener = self.stub.Listen(self.authentication)
+        self.listener.add_callback(runloop_terminate)
 
-        # Infinitely loop
-        while True:
-            try:
-                message = await asyncio.wait_for(self.listener.read(), 1)
-                if message == grpc.aio.EOF:
-                    break
-                else:
-                    await self.handle(message)
-            except (asyncio.exceptions.CancelledError, TimeoutError):
-                pass 
+        async for message in self.listener:
+            await self.handle(message)
 
     async def handle(self, message: chlorobot_rpc_pb2.ChlorobotPacket) -> None:
         command = None
@@ -309,7 +302,11 @@ async def main() -> None:
         await stub.Send(ping, timeout=20)
         logging.info("gRPC socket seems to be connectable, listening")
         await resolver.listen()
-        logging.info("gRPC socket has disconnected us, goodbye")
+
+
+def runloop_terminate():
+    logging.info("gRPC socket has disconnected us")
+    exit(0)
 
 
 if __name__ == "__main__":
