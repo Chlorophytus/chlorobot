@@ -41,12 +41,12 @@ class Chloresolver:
         # Infinitely loop
         while True:
             try:
-                message = await asyncio.wait_for(self.listener.read(), 0.01)
-
-                if message == grpc.aio.EOF:
-                    return
-                else:
-                    await self.handle(message)
+                async with asyncio.timeout(0.01):
+                    message = self.listener.read()
+                    if message == grpc.aio.EOF:
+                        return
+                    else:
+                        await self.handle(message)
             except TimeoutError:
                 pass
 
