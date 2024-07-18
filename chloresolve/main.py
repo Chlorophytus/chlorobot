@@ -100,7 +100,6 @@ class Chloresolver:
                     # gRPC endpoint does bytes
                     b_prefix = message.prefix.split(b"!", 1)
 
-
                     if len(b_prefix) == 1:
                         # Decode them all
                         nickname: str = message.parameters[0].decode("utf-8")
@@ -307,6 +306,7 @@ async def main() -> None:
 
         logging.info("Connected to gRPC socket")
         await resolver.listen()
+        logging.info("Disconnected from gRPC socket")
 
 
 if __name__ == "__main__":
@@ -314,4 +314,4 @@ if __name__ == "__main__":
         level=logging.INFO,
         format="[%(asctime)s] [%(name)s - %(levelname)s] %(message)s",
     )
-    asyncio.run(main())
+    asyncio.run_until_complete(main())
