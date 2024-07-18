@@ -44,7 +44,7 @@ class Chloresolver:
             try:
                 message = await asyncio.wait_for(self.listener.read(), 0.01)
                 await self.handle(message)
-            finally:
+            except asyncio.CancelledError:
                 if message == grpc.aio.EOF:
                     break
 
