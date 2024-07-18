@@ -57,6 +57,12 @@ async def part(args: dispatch.Arguments):
     else:
         await args.resolver.message(args.channel, args.nickname, "Not authorized")
 
+async def exit(args: dispatch.Arguments):
+    if args.cloak.lower() == os.environ["CHLOROBOT_OWNER"]:
+        await args.resolver.send(None, b"QUIT", [], b"Manually exited")
+    else:
+        await args.resolver.message(args.channel, args.nickname, "Not authorized")
+
 
 async def chain(args: dispatch.Arguments):
     global CHAINER_OBJECT
