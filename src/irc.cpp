@@ -173,6 +173,11 @@ void irc::authentication::proceed() {
   }
 }
 
+void irc::authentication::cancel() {
+  std::cerr << "Requesting cancel on listener: " << this << std::endl;
+  _responder.Finish(grpc::Status::CANCELLED, this);
+}
+
 U32 irc::authentication::get_encode_version() const { return _encode_version; }
 
 void irc::authentication::broadcast(const ChlorobotPacket packet) {
@@ -202,7 +207,8 @@ void irc::authentication::broadcast(const ChlorobotPacket packet) {
       break;
     }
     default: {
-      throw std::runtime_error{"Unimplemented gRPC legacy convert command case"};
+      throw std::runtime_error{
+          "Unimplemented gRPC legacy convert command case"};
       break;
     }
     }
@@ -466,7 +472,13 @@ void irc::connect(std::string &&host, std::string &&port,
       }
     }
   }
-  std::cerr << "Runloop halted, disconnecting socket" << std::endl;
+  std::cerr << "Runloop halted, cancelling listeners and disconnecting socket"
+            << std::endl;
+
+  for (auto listener : *listener_tags) {
+    listener->cancel();
+  }
+
   tls_socket::send(irc_data::packet{.command = "QUIT",
                                     .trailing_param = "Run loop has halted"}
                        .serialize());

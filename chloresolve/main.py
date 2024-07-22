@@ -37,157 +37,166 @@ class Chloresolver:
 
     async def listen(self) -> None:
         self.listener = self.stub.Listen(self.authentication)
-        async for message in self.listener:
-            message: chlorobot_rpc_pb2.ChlorobotPacket
-            command = None
+        try:
+            async for message in self.listener:
+                message: chlorobot_rpc_pb2.ChlorobotPacket
+                command = None
 
-            # Log the message
-            if message.non_numeric:
-                self.logger.debug(
-                    f"[RECV] p:{message.prefix} | cs:{message.non_numeric} | a:{
-                    message.parameters} | t:{message.trailing_parameter}"
-                )
-                command = message.non_numeric
-            elif message.numeric:
-                self.logger.debug(
-                    f"[RECV] p:{message.prefix} | c#:{message.numeric} | a:{
-                    message.parameters} | t:{message.trailing_parameter}"
-                )
-                command = message.numeric
-
-            match command:
-                case b"PRIVMSG":
-                    # gRPC endpoint does bytes
-                    [b_nickname, b_ident_cloak] = message.prefix.split(b"!", 1)
-                    [b_ident, b_cloak] = b_ident_cloak.split(b"@", 1)
-                    b_channel = message.parameters[0]
-
-                    # Decode them all
-                    nickname: str = b_nickname.decode("utf-8")
-                    ident: str = b_ident.decode("utf-8")
-                    cloak: str = b_cloak.decode("utf-8")
-                    channel: str = b_channel.decode("utf-8")
-
-                    message_stripped: bytes = chloresolve.strip.strip_irc_attributes(
-                        message.trailing_parameter
+                # Log the message
+                if message.non_numeric:
+                    self.logger.debug(
+                        f"[RECV] p:{message.prefix} | cs:{message.non_numeric} | a:{
+                        message.parameters} | t:{message.trailing_parameter}"
                     )
+                    command = message.non_numeric
+                elif message.numeric:
+                    self.logger.debug(
+                        f"[RECV] p:{message.prefix} | c#:{message.numeric} | a:{
+                        message.parameters} | t:{message.trailing_parameter}"
+                    )
+                    command = message.numeric
 
-                    if chloresolve.strip.is_action(message_stripped):
-                        message_stripped = chloresolve.strip.strip_action(
-                            message_stripped
-                        )
-                        s_message: str = message_stripped.decode(
-                            "utf-8", errors="ignore"
-                        )
-                        self.logger.info(f"[{channel}] * {nickname}{s_message}")
-                    else:
-                        s_message: str = message_stripped.decode(
-                            "utf-8", errors="ignore"
-                        )
-                        self.logger.info(f"[{channel}] <{nickname}> {s_message}")
-                        if s_message.startswith(self.trigger):
-                            chanargs = s_message.removeprefix(self.trigger).split(" ")
-                            self.logger.debug(
-                                f"[RCMD] n:{nickname} i:{ident} c:{
-                                             cloak} | h:{channel} | a:{chanargs}"
-                            )
-                            await self.dispatch(
-                                chloresolve.dispatch.Arguments(
-                                    self, channel, nickname, ident, cloak, chanargs
-                                )
-                            )
-                case b"MODE":
-                    # gRPC endpoint does bytes
-                    b_prefix = message.prefix.split(b"!", 1)
+                match command:
+                    case b"PRIVMSG":
+                        # gRPC endpoint does bytes
+                        [b_nickname, b_ident_cloak] = message.prefix.split(b"!", 1)
+                        [b_ident, b_cloak] = b_ident_cloak.split(b"@", 1)
+                        b_channel = message.parameters[0]
 
-
-                    if len(b_prefix) == 1:
                         # Decode them all
-                        nickname: str = message.parameters[0].decode("utf-8")
-                        modes: str = message.trailing_parameter.decode("utf-8")
+                        nickname: str = b_nickname.decode("utf-8")
+                        ident: str = b_ident.decode("utf-8")
+                        cloak: str = b_cloak.decode("utf-8")
+                        channel: str = b_channel.decode("utf-8")
 
-                        self.logger.info(f"{nickname} sets modes '{modes}'")
-                    else:
+                        message_stripped: bytes = (
+                            chloresolve.strip.strip_irc_attributes(
+                                message.trailing_parameter
+                            )
+                        )
+
+                        if chloresolve.strip.is_action(message_stripped):
+                            message_stripped = chloresolve.strip.strip_action(
+                                message_stripped
+                            )
+                            s_message: str = message_stripped.decode(
+                                "utf-8", errors="ignore"
+                            )
+                            self.logger.info(f"[{channel}] * {nickname}{s_message}")
+                        else:
+                            s_message: str = message_stripped.decode(
+                                "utf-8", errors="ignore"
+                            )
+                            self.logger.info(f"[{channel}] <{nickname}> {s_message}")
+                            if s_message.startswith(self.trigger):
+                                chanargs = s_message.removeprefix(self.trigger).split(
+                                    " "
+                                )
+                                self.logger.debug(
+                                    f"[RCMD] n:{nickname} i:{ident} c:{
+                                                 cloak} | h:{channel} | a:{chanargs}"
+                                )
+                                await self.dispatch(
+                                    chloresolve.dispatch.Arguments(
+                                        self, channel, nickname, ident, cloak, chanargs
+                                    )
+                                )
+                    case b"MODE":
+                        # gRPC endpoint does bytes
+                        b_prefix = message.prefix.split(b"!", 1)
+
+                        if len(b_prefix) == 1:
+                            # Decode them all
+                            nickname: str = message.parameters[0].decode("utf-8")
+                            modes: str = message.trailing_parameter.decode("utf-8")
+
+                            self.logger.info(f"{nickname} sets modes '{modes}'")
+                        else:
+                            [b_nickname, b_ident_cloak] = message.prefix.split(b"!", 1)
+                            [b_ident, b_cloak] = b_ident_cloak.split(b"@", 1)
+
+                            b_channel = message.parameters[0]
+                            b_modes = b" ".join(message.parameters[1:])
+
+                            nickname: str = b_nickname.decode("utf-8")
+                            channel: str = b_channel.decode("utf-8")
+                            modes: str = b_modes.decode("utf-8")
+
+                            self.logger.info(
+                                f"[{channel}] {nickname} sets modes '{modes}'"
+                            )
+                    case b"JOIN":
+                        # gRPC endpoint does bytes
+                        [b_nickname, b_ident_cloak] = message.prefix.split(b"!", 1)
+                        [b_ident, b_cloak] = b_ident_cloak.split(b"@", 1)
+                        b_channel = message.parameters[0]
+
+                        # Decode them all
+                        nickname: str = b_nickname.decode("utf-8")
+                        channel: str = b_channel.decode("utf-8")
+
+                        self.logger.info(f"[{channel}] {nickname} joins")
+                    case b"PART":
+                        # gRPC endpoint does bytes
+                        [b_nickname, b_ident_cloak] = message.prefix.split(b"!", 1)
+                        [b_ident, b_cloak] = b_ident_cloak.split(b"@", 1)
+                        b_channel = message.parameters[0]
+
+                        # Decode them all
+                        nickname: str = b_nickname.decode("utf-8")
+                        channel: str = b_channel.decode("utf-8")
+                        reason: str = message.trailing_parameter.decode(
+                            "utf-8", errors="ignore"
+                        )
+
+                        self.logger.info(f"[{channel}] {nickname} parts ({reason})")
+                    case b"QUIT":
+                        # gRPC endpoint does bytes
                         [b_nickname, b_ident_cloak] = message.prefix.split(b"!", 1)
                         [b_ident, b_cloak] = b_ident_cloak.split(b"@", 1)
 
-                        b_channel = message.parameters[0]
-                        b_modes = b" ".join(message.parameters[1:])
+                        # Decode them all
+                        nickname: str = b_nickname.decode("utf-8")
+                        reason: str = message.trailing_parameter.decode(
+                            "utf-8", errors="ignore"
+                        )
 
+                        self.logger.info(f"{nickname} quits ({reason})")
+                    case b"KICK":
+                        # gRPC endpoint does bytes
+                        [b_nickname, b_ident_cloak] = message.prefix.split(b"!", 1)
+                        [b_ident, b_cloak] = b_ident_cloak.split(b"@", 1)
+                        b_channel = message.parameters[0]
+                        b_victim = message.parameters[1]
+
+                        # Decode them all
                         nickname: str = b_nickname.decode("utf-8")
                         channel: str = b_channel.decode("utf-8")
-                        modes: str = b_modes.decode("utf-8")
+                        reason: str = message.trailing_parameter.decode(
+                            "utf-8", errors="ignore"
+                        )
+                        victim: str = b_victim.decode("utf-8")
 
-                        self.logger.info(f"[{channel}] {nickname} sets modes '{modes}'")
-                case b"JOIN":
-                    # gRPC endpoint does bytes
-                    [b_nickname, b_ident_cloak] = message.prefix.split(b"!", 1)
-                    [b_ident, b_cloak] = b_ident_cloak.split(b"@", 1)
-                    b_channel = message.parameters[0]
+                        self.logger.info(
+                            f"[{channel}] {nickname} kicks {victim} ({reason})"
+                        )
+                    case b"TOPIC":
+                        # gRPC endpoint does bytes
+                        [b_nickname, b_ident_cloak] = message.prefix.split(b"!", 1)
+                        [b_ident, b_cloak] = b_ident_cloak.split(b"@", 1)
+                        b_channel = message.parameters[0]
 
-                    # Decode them all
-                    nickname: str = b_nickname.decode("utf-8")
-                    channel: str = b_channel.decode("utf-8")
+                        # Decode them all
+                        nickname: str = b_nickname.decode("utf-8")
+                        channel: str = b_channel.decode("utf-8")
+                        topic: str = message.trailing_parameter.decode(
+                            "utf-8", errors="ignore"
+                        )
 
-                    self.logger.info(f"[{channel}] {nickname} joins")
-                case b"PART":
-                    # gRPC endpoint does bytes
-                    [b_nickname, b_ident_cloak] = message.prefix.split(b"!", 1)
-                    [b_ident, b_cloak] = b_ident_cloak.split(b"@", 1)
-                    b_channel = message.parameters[0]
-
-                    # Decode them all
-                    nickname: str = b_nickname.decode("utf-8")
-                    channel: str = b_channel.decode("utf-8")
-                    reason: str = message.trailing_parameter.decode(
-                        "utf-8", errors="ignore"
-                    )
-
-                    self.logger.info(f"[{channel}] {nickname} parts ({reason})")
-                case b"QUIT":
-                    # gRPC endpoint does bytes
-                    [b_nickname, b_ident_cloak] = message.prefix.split(b"!", 1)
-                    [b_ident, b_cloak] = b_ident_cloak.split(b"@", 1)
-
-                    # Decode them all
-                    nickname: str = b_nickname.decode("utf-8")
-                    reason: str = message.trailing_parameter.decode(
-                        "utf-8", errors="ignore"
-                    )
-
-                    self.logger.info(f"{nickname} quits ({reason})")
-                case b"KICK":
-                    # gRPC endpoint does bytes
-                    [b_nickname, b_ident_cloak] = message.prefix.split(b"!", 1)
-                    [b_ident, b_cloak] = b_ident_cloak.split(b"@", 1)
-                    b_channel = message.parameters[0]
-                    b_victim = message.parameters[1]
-
-                    # Decode them all
-                    nickname: str = b_nickname.decode("utf-8")
-                    channel: str = b_channel.decode("utf-8")
-                    reason: str = message.trailing_parameter.decode(
-                        "utf-8", errors="ignore"
-                    )
-                    victim: str = b_victim.decode("utf-8")
-
-                    self.logger.info(
-                        f"[{channel}] {nickname} kicks {victim} ({reason})"
-                    )
-                case b"TOPIC":
-                    # gRPC endpoint does bytes
-                    [b_nickname, b_ident_cloak] = message.prefix.split(b"!", 1)
-                    [b_ident, b_cloak] = b_ident_cloak.split(b"@", 1)
-                    b_channel = message.parameters[0]
-
-                    # Decode them all
-                    nickname: str = b_nickname.decode("utf-8")
-                    channel: str = b_channel.decode("utf-8")
-                    topic: str = message.trailing_parameter.decode(
-                        "utf-8", errors="ignore"
-                    )
-
-                    self.logger.info(f"[{channel}] {nickname} sets topic '{topic}'")
+                        self.logger.info(f"[{channel}] {nickname} sets topic '{topic}'")
+        finally:
+            self.logger.info("Chlorobot context cancelled somehow")
+            return
 
     async def dispatch(self, dispatch_info: chloresolve.dispatch.Arguments) -> None:
         dispatch = dispatch_info.chanargs[0].lower()
@@ -270,7 +279,7 @@ async def main() -> None:
         resolver = Chloresolver(
             stub,
             os.environ["CHLOROBOT_RPC_TOKEN"],
-            "c|",
+            os.environ["CHLOROBOT_TRIGGER"],
             {
                 "ping": chloresolve.dispatch.Command(
                     chloresolve.command.ping,
@@ -296,6 +305,9 @@ async def main() -> None:
                     chloresolve.command.wiki,
                     "gets a Wikipedia article's short description",
                 ),
+                "exit": chloresolve.dispatch.Command(
+                    chloresolve.command.exit, "makes the bot quit"
+                ),
             },
         )
 
@@ -306,6 +318,7 @@ async def main() -> None:
         result = await stub.Send(ping, timeout=20)
 
         logging.info("Connected to gRPC socket")
+
         await resolver.listen()
 
 

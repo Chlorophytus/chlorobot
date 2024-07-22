@@ -40,6 +40,7 @@ class authentication {
 public:
   void proceed();
   void broadcast(const ChlorobotPacket);
+  void cancel();
   authentication(ChlorobotRPC::AsyncService *, grpc::ServerCompletionQueue *);
   U32 get_encode_version() const;
 };

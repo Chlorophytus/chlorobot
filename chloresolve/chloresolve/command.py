@@ -148,3 +148,9 @@ async def wiki(args: dispatch.Arguments):
         await args.resolver.message(
             args.channel, args.nickname, "Please give an article that can be looked up"
         )
+
+async def exit(args: dispatch.Arguments):
+    if args.cloak.lower() == os.environ["CHLOROBOT_OWNER"]:
+        await args.resolver.send(None, b"QUIT", [], b"Manually quit")
+    else:
+        await args.resolver.message(args.channel, args.nickname, "Not authorized")

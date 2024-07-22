@@ -105,6 +105,7 @@ CPack*
 build
 .env
 env.lua
+./protos/*
 
 # Test result files
 *.csv

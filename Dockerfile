@@ -1,7 +1,7 @@
 # =============================================================================
 # Builder
 # =============================================================================
-FROM ubuntu:24.04 as build
+FROM ubuntu:24.04 AS build
 
 # Do not allow apt to be interactive
 ENV DEBIAN_FRONTEND=noninteractive
