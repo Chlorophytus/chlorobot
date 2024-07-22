@@ -17,6 +17,7 @@ CHLOROBOT_NETWORK_PORT=6697
 CHLOROBOT_OWNER=owner-irc-cloak-here
 CHLOROBOT_RPC_TOKEN=random_value_for_rpc_token
 CHLOROBOT_RPC_SERVER=chlorobot-rpc
+CHLOROBOT_TRIGGER=example|
 ```
 
 You can load that in Docker Compose, `CHLOROBOT_RPC_SERVER` should be
