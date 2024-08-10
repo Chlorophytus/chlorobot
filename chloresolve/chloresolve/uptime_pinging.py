@@ -13,14 +13,14 @@ class UptimeTimer:
         self.task = asyncio.ensure_future(self.heartbeat())
         self.logger = logging.getLogger(__class__.__name__)
 
-    async def ping(self):
+    async def heartbeat(self):
         """
         Heartbeats to an UptimeRobot/etc. URL
         """
         requests.get(self.uri)
         self.logger.info("Sending heartbeat")
         await asyncio.sleep(self.interval_seconds)
-        await self.ping()
+        await self.heartbeat()
 
     def cancel(self):
         """
