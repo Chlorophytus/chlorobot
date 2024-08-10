@@ -7,7 +7,7 @@ import logging
 import asyncio
 import os
 import chloresolve
-from chloresolve import command, dispatch, strip
+from chloresolve import command, dispatch, strip, uptime_pinging
 
 
 class Chloresolver:
@@ -319,7 +319,12 @@ async def main() -> None:
 
         logging.info("Connected to gRPC socket")
 
+        heartbeat = chloresolve.uptime_pinging.UptimeTimer(
+            int(os.environ["CHLOROBOT_HEALTHCHECK_INTERVAL"]),
+            os.environ["CHLOROBOT_HEALTHCHECK_URL"],
+        )
         await resolver.listen()
+        heartbeat.cancel()
 
 
 if __name__ == "__main__":
