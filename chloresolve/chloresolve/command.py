@@ -1,5 +1,5 @@
 import os
-from . import dispatch, markov, mediawiki, __version__
+from . import dispatch, markov, mediawiki, __version__, tables
 
 
 async def not_found(args: dispatch.Arguments):
@@ -35,6 +35,48 @@ async def help(args: dispatch.Arguments):
             )
 
 
+async def perms(args: dispatch.Arguments):
+    match len(args.chanargs):
+        case 1:
+            with tables.PermissionsTable(args.cloak) as t:
+                await args.resolver.message(
+                    args.channel,
+                    args.nickname,
+                    f"You have permissions '{', '.join(t.perms)}'",
+                )
+        case 2:
+            can_use = False
+            with tables.PermissionsTable(args.cloak) as t:
+                can_use = t.perm_get("perms_get")
+
+            if can_use:
+                with tables.PermissionsTable(args.chanargs[1]) as t:
+                    await args.resolver.message(
+                        args.channel,
+                        args.nickname,
+                        f"User with cloak '{args.chanargs[1]}' has permissions '{', '.join(t.perms)}'",
+                    )
+        case _:
+            can_modify = False
+            with tables.PermissionsTable(args.cloak) as t:
+                can_modify = t.perm_get("perms_mut")
+
+            if can_modify:
+                with tables.PermissionsTable(args.chanargs[1]) as t:
+                    for pflag in args.chanargs[2:]:
+                        match pflag[0]:
+                            case "+":
+                                t.perm_set(pflag[1:], True)
+                            case "-":
+                                t.perm_set(pflag[1:], False)
+
+                    await args.resolver.message(
+                        args.channel,
+                        args.nickname,
+                        f"User with cloak '{args.chanargs[1]}' now has permissions '{', '.join(t.perms)}'",
+                    )
+
+
 async def version(args: dispatch.Arguments):
     version = await args.resolver.version_string()
     await args.resolver.message(
@@ -45,29 +87,39 @@ async def version(args: dispatch.Arguments):
 
 
 async def join(args: dispatch.Arguments):
-    if args.cloak.lower() == os.environ["CHLOROBOT_OWNER"]:
+    can_use = False
+    with tables.PermissionsTable(args.cloak) as t:
+        can_use = t.perm_get("channels_mut")
+
+    if can_use:
         await args.resolver.send(None, b"JOIN", [args.chanargs[1].encode()], None)
-    else:
-        await args.resolver.message(args.channel, args.nickname, "Not authorized")
 
 
 async def part(args: dispatch.Arguments):
-    if args.cloak.lower() == os.environ["CHLOROBOT_OWNER"]:
+    can_use = False
+    with tables.PermissionsTable(args.cloak) as t:
+        can_use = t.perm_get("channels_mut")
+
+    if can_use:
         await args.resolver.send(None, b"PART", [args.chanargs[1].encode()], None)
-    else:
-        await args.resolver.message(args.channel, args.nickname, "Not authorized")
 
 
 async def exit(args: dispatch.Arguments):
-    if args.cloak.lower() == os.environ["CHLOROBOT_OWNER"]:
+    can_use = False
+    with tables.PermissionsTable(args.cloak) as t:
+        can_use = t.perm_get("exit")
+
+    if can_use:
         await args.resolver.send(None, b"QUIT", [], b"Manually exited")
-    else:
-        await args.resolver.message(args.channel, args.nickname, "Not authorized")
 
 
 async def chain(args: dispatch.Arguments):
+    can_use = False
+    with tables.PermissionsTable(args.cloak) as t:
+        can_use = t.perm_get("markov")
+
     global CHAINER_OBJECT
-    if args.cloak.lower() == os.environ["CHLOROBOT_OWNER"]:
+    if can_use:
         chanarg_len = len(args.chanargs)
         if chanarg_len > 1:
             chanarg_determine = args.chanargs[1].lower()
@@ -129,28 +181,27 @@ async def chain(args: dispatch.Arguments):
             await args.resolver.message(
                 args.channel, args.nickname, "Use subcommand 'clear', 'parse', or 'run'"
             )
-    else:
-        await args.resolver.message(args.channel, args.nickname, "Not authorized")
 
 
 async def wiki(args: dispatch.Arguments):
-    if len(args.chanargs) > 1:
-        article: str = " ".join(args.chanargs[1:])
-        wiki_lookup = mediawiki.PageLookup("https://en.wikipedia.org/w/api.php")
-        try:
-            description: str = wiki_lookup.query(article)
-            await args.resolver.message(args.channel, args.nickname, description)
-        except:
-            await args.resolver.message(
-                args.channel, args.nickname, f"Article synopsis lookup failed"
-            )
-    else:
-        await args.resolver.message(
-            args.channel, args.nickname, "Please give an article that can be looked up"
-        )
+    can_use = False
+    with tables.PermissionsTable(args.cloak) as t:
+        can_use = t.perm_get("wiki")
 
-async def exit(args: dispatch.Arguments):
-    if args.cloak.lower() == os.environ["CHLOROBOT_OWNER"]:
-        await args.resolver.send(None, b"QUIT", [], b"Manually quit")
-    else:
-        await args.resolver.message(args.channel, args.nickname, "Not authorized")
+
+    if can_use:
+        if len(args.chanargs) > 1:
+            article: str = " ".join(args.chanargs[1:])
+            wiki_lookup = mediawiki.PageLookup("https://en.wikipedia.org/w/api.php")
+            try:
+                description: str = wiki_lookup.query(article)
+                await args.resolver.message(args.channel, args.nickname, description)
+            except:
+                await args.resolver.message(
+                    args.channel, args.nickname, f"Article synopsis lookup failed"
+                )
+        else:
+            await args.resolver.message(
+                args.channel, args.nickname, "Please give an article that can be looked up"
+            )
+

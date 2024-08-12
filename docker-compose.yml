@@ -12,3 +12,9 @@ services:
       - "chlorobot:chlorobot-rpc"
     env_file:
       - .env
+    volumes:
+      - type: bind
+        source: ./chloresolve/tables/
+        target: /home/chloresolve/tables/
+volumes:
+  db-tables:

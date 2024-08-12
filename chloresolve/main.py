@@ -308,6 +308,9 @@ async def main() -> None:
                 "exit": chloresolve.dispatch.Command(
                     chloresolve.command.exit, "makes the bot quit"
                 ),
+                "perms": chloresolve.dispatch.Command(
+                    chloresolve.command.perms, "handles the bot's permissions"
+                ),
             },
         )
 
@@ -319,12 +322,18 @@ async def main() -> None:
 
         logging.info("Connected to gRPC socket")
 
-        heartbeat = chloresolve.uptime_pinging.UptimeTimer(
-            int(os.environ["CHLOROBOT_HEALTHCHECK_INTERVAL"]),
-            os.environ["CHLOROBOT_HEALTHCHECK_URL"],
-        )
-        await resolver.listen()
-        heartbeat.cancel()
+        interval = int(os.environ["CHLOROBOT_HEALTHCHECK_INTERVAL"])
+
+        if interval > 0:
+            heartbeat = chloresolve.uptime_pinging.UptimeTimer(
+                interval,
+                os.environ["CHLOROBOT_HEALTHCHECK_URL"],
+            )
+            await resolver.listen()
+            heartbeat.cancel()
+        else:
+            logging.info("Heartbeats have been disabled")
+            await resolver.listen()
 
 
 if __name__ == "__main__":
