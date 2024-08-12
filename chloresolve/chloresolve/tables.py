@@ -2,6 +2,11 @@ import logging
 import os
 import sqlite3
 
+# These are valid characters useful in permissions
+GOOD_PERMS_CHARS = frozenset(
+    ch for ch in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
+)
+
 
 class PermissionsVisitor:
     def __init__(self, cloak: str, perms: list[str]):
@@ -17,7 +22,16 @@ class PermissionsVisitor:
 
         Returns if user is sticky permissioned _ALL or has that permission.
         """
-        return "_ALL" in self.perms or perm in self.perms
+        if "_ALL" in self.perms:
+            return True
+
+        all_chs: list[str] = [*perm]
+        for ch in all_chs:
+            if ch not in GOOD_PERMS_CHARS:
+                self.logger.info(f"Getting '{perm}' isn't a valid permission")
+                return False
+
+        return perm.lower() in self.perms
 
     def perm_set(self, perm: str, flag: bool) -> bool:
         """
@@ -26,21 +40,29 @@ class PermissionsVisitor:
         Returns if successful.
         """
         if len(perm) > 0 and perm[0] == "_":
-            self.logger.info("Please do not begin permissions with underscores.")
+            self.logger.info(f"'{perm}' begins with an underscore")
             return False
 
-        if flag and perm not in self.perms:
+        all_chs: list[str] = [*perm]
+        for ch in all_chs:
+            if ch not in GOOD_PERMS_CHARS:
+                self.logger.info(f"Setting '{perm}' isn't a valid permission")
+                return False
+
+        lperm: str = perm.lower()
+
+        if flag and lperm not in self.perms:
             self.do_write = True
-            self.perms.append(perm)
+            self.perms.append(lperm)
             self.logger.info(f"{self.cloak} -> '{",".join(self.perms)}' READ-WRITE")
             return True
-        elif not flag and perm in self.perms:
+        elif not flag and lperm in self.perms:
             self.do_write = True
-            self.perms.remove(perm)
+            self.perms.remove(lperm)
             self.logger.info(f"{self.cloak} -> '{",".join(self.perms)}' READ-WRITE")
             return True
         else:
-            self.logger.info(f"Redundant perm write '{perm}' -> {flag}")
+            self.logger.info(f"Redundant perm write '{lperm}' -> {flag}")
             return False
 
 
@@ -52,7 +74,7 @@ class PermissionsTable:
         self.logger = logging.getLogger(__class__.__name__)
         self.logger.info("Connecting SQLite ptab")
         self.con = sqlite3.connect("/home/chloresolve/tables/ptab.db")
- 
+
         existance = self.con.execute(
             "select name from sqlite_master where type='table' and name='ptab';"
         ).fetchone()
@@ -61,7 +83,10 @@ class PermissionsTable:
             self.con.execute("create table ptab(cloak unique, perms);")
             self.con.execute(
                 "insert into ptab values(?, ?);",
-                (os.environ["CHLOROBOT_OWNER"].lower(), "_ALL", )
+                (
+                    os.environ["CHLOROBOT_OWNER"].lower(),
+                    "_ALL",
+                ),
             )
             self.con.commit()
 
@@ -94,7 +119,10 @@ class PermissionsTable:
 
             self.con.execute(
                 "insert or replace into ptab(cloak, perms) values(?, ?);",
-                (self.visitor.cloak.lower(), ",".join(self.visitor.perms), )
+                (
+                    self.visitor.cloak.lower(),
+                    ",".join(self.visitor.perms),
+                ),
             )
             self.con.commit()
         else:
