@@ -17,8 +17,14 @@ class UptimeTimer:
         """
         Heartbeats to an UptimeRobot/etc. URL
         """
-        requests.get(self.uri)
-        self.logger.info("Sending heartbeat")
+        for i in range(3):
+            try:
+                self.logger.info(f"Sending heartbeat try {i + 1}")
+                requests.get(self.uri, timeout=5)
+                break
+            except requests.exceptions.Timeout:
+                self.logger.info(f"Heartbeat try {i + 1} timed out")
+        self.logger.info("Done trying heartbeat")
         await asyncio.sleep(self.interval_seconds)
         await self.heartbeat()
 

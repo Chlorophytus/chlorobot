@@ -97,7 +97,6 @@ class PermissionsTable:
         if raw_perms is None:
             self.visitor = PermissionsVisitor(clower, [])
         else:
-            self.logger.info(raw_perms)
             (perms,) = raw_perms
             self.visitor = PermissionsVisitor(clower, perms.split(","))
 
