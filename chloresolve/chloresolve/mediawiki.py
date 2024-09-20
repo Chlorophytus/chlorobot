@@ -1,5 +1,5 @@
 import asyncio
-import requests
+import aiohttp
 from html.parser import HTMLParser
 
 
@@ -23,37 +23,40 @@ class PageLookup:
 
     def __init__(self, endpoint: str):
         """
-        Initializes a page lookup given a MediaWiki endpoint URL and its query. 
+        Initializes a page lookup given a MediaWiki endpoint URL and its query.
         """
         self.endpoint: str = endpoint
 
-    def query(self, title: str) -> str:
+    async def query(self, title: str) -> str:
         """
         Queries the endpoint API and then returns a future description result.
 
         The HTML will be stripped.
         """
         # Query your wiki's JSON description
-        r: requests.Response = requests.get(self.endpoint, params={
-                                            'action': 'query',
-                                            'format': 'json',
-                                            'prop': 'description',
-                                            'titles': title,
-                                            'redirects': 1,
-                                            'formatversion': 2})
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                self.endpoint,
+                params={
+                    "action": "query",
+                    "format": "json",
+                    "prop": "description",
+                    "titles": title,
+                    "redirects": 1,
+                    "formatversion": 2,
+                },
+            ) as r:
+                # Get the result
+                result = await r.json()
+                query: dict = result["query"]["pages"][0]
 
-        # Get the result
-        result = r.json()
-        print(result)
-        query: dict = result['query']['pages'][0]
+                if "description" in query.keys():
+                    # Strip the HTML
+                    stripper: HTMLStripper = HTMLStripper()
+                    stripper.feed(query["description"])
+                    stripper.close()
 
-        if 'description' in query.keys():
-            # Strip the HTML
-            stripper: HTMLStripper = HTMLStripper()
-            stripper.feed(query['description'])
-            stripper.close()
+                    # Return the retrieved and stripped description
+                    return f"{query['title']} - {stripper.stripped_text}"
 
-            # Return the retrieved and stripped description
-            return f'{query['title']} - {stripper.stripped_text}'
-        else:
-            return f'{query['title']} - No synopsis available'
+        return f"{query['title']} - Could not get synopsis"

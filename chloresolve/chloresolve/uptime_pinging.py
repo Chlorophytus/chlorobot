@@ -1,6 +1,6 @@
 import asyncio
+import aiohttp
 import logging
-import requests
 
 
 class UptimeTimer:
@@ -15,16 +15,32 @@ class UptimeTimer:
 
     async def heartbeat(self):
         """
-        Heartbeats to an UptimeRobot/etc. URL
+        Sends multiple heartbeats to an UptimeRobot/etc. URL
         """
-        for i in range(3):
-            try:
-                self.logger.info(f"Sending heartbeat try {i + 1}")
-                requests.get(self.uri, timeout=5)
-                break
-            except requests.exceptions.Timeout:
-                self.logger.info(f"Heartbeat try {i + 1} timed out")
-        self.logger.info("Done trying heartbeat")
+        successful = False
+        async with aiohttp.ClientSession() as session:
+            for i in range(3):
+                # That's it, we're done with heartbeating
+                if successful:
+                    break
+
+                # Otherwise try a few times to heartbeat
+                try:
+                    self.logger.info(f"Sending heartbeat try {i + 1}")
+                    future = await asyncio.wait_for(session.get(self.uri), 5)
+                    if future.done():
+                        resp = future.result()
+                        if resp.status < 300:
+                            self.logger.info(f"Heartbeat try {i + 1} success")
+                            successful = True
+                        else:
+                            # Do not flood the heartbeat endpoint, wait 5 seconds
+                            self.logger.info(f"Heartbeat try {i + 1} failed")
+                            await asyncio.sleep(5)
+                except TimeoutError:
+                    self.logger.info(f"Heartbeat try {i + 1} timed out")
+
+        self.logger.info("Waiting for next heartbeat trigger")
         await asyncio.sleep(self.interval_seconds)
         await self.heartbeat()
 
