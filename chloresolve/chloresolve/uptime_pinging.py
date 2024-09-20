@@ -27,16 +27,14 @@ class UptimeTimer:
                 # Otherwise try a few times to heartbeat
                 try:
                     self.logger.info(f"Sending heartbeat try {i + 1}")
-                    future = await asyncio.wait_for(session.get(self.uri), 5)
-                    if future.done():
-                        resp = future.result()
-                        if resp.status < 300:
-                            self.logger.info(f"Heartbeat try {i + 1} success")
-                            successful = True
-                        else:
-                            # Do not flood the heartbeat endpoint, wait 5 seconds
-                            self.logger.info(f"Heartbeat try {i + 1} failed")
-                            await asyncio.sleep(5)
+                    resp = await asyncio.wait_for(session.get(self.uri), 5)
+                    if resp.status < 300:
+                        self.logger.info(f"Heartbeat try {i + 1} success")
+                        successful = True
+                    else:
+                        # Do not flood the heartbeat endpoint, wait 5 seconds
+                        self.logger.info(f"Heartbeat try {i + 1} failed")
+                        await asyncio.sleep(5)
                 except TimeoutError:
                     self.logger.info(f"Heartbeat try {i + 1} timed out")
 
