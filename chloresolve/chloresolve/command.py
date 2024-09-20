@@ -192,9 +192,9 @@ async def wiki(args: dispatch.Arguments):
     if can_use:
         if len(args.chanargs) > 1:
             article: str = " ".join(args.chanargs[1:])
-            wiki_lookup = await mediawiki.PageLookup("https://en.wikipedia.org/w/api.php")
+            wiki_lookup = mediawiki.PageLookup("https://en.wikipedia.org/w/api.php")
             try:
-                description: str = wiki_lookup.query(article)
+                description: str = await wiki_lookup.query(article)
                 await args.resolver.message(args.channel, args.nickname, description)
             except:
                 await args.resolver.message(
