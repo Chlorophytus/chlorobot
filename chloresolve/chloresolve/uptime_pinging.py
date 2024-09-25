@@ -19,7 +19,7 @@ class UptimeTimer:
         """
         successful = False
         async with aiohttp.ClientSession() as session:
-            for i in range(3):
+            for i in range(5):
                 # That's it, we're done with heartbeating
                 if successful:
                     break
@@ -28,15 +28,14 @@ class UptimeTimer:
                 try:
                     self.logger.info(f"Sending heartbeat try {i + 1}")
                     resp = await asyncio.wait_for(session.get(self.uri), 5)
-                    if resp.status < 300:
-                        self.logger.info(f"Heartbeat try {i + 1} success")
-                        successful = True
-                    else:
-                        # Do not flood the heartbeat endpoint, wait 5 seconds
-                        self.logger.info(f"Heartbeat try {i + 1} failed")
-                        await asyncio.sleep(5)
-                except TimeoutError:
-                    self.logger.info(f"Heartbeat try {i + 1} timed out")
+                    self.logger.info(f"Heartbeat try {i + 1} success")
+                    successful = True
+                except:
+                    # Do not flood the heartbeat endpoint, wait 5 seconds
+                    self.logger.info(
+                        f"Heartbeat try {i + 1} failed, retrying after a delay"
+                    )
+                    await asyncio.sleep(5)
 
         self.logger.info("Waiting for next heartbeat trigger")
         await asyncio.sleep(self.interval_seconds)
