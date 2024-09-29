@@ -18,24 +18,27 @@ class UptimeTimer:
         Sends multiple heartbeats to an UptimeRobot/etc. URL
         """
         successful = False
-        async with aiohttp.ClientSession() as session:
-            for i in range(5):
-                # That's it, we're done with heartbeating
-                if successful:
-                    break
+        for i in range(5):
+            # That's it, we're done with heartbeating
+            if successful:
+                break
 
-                # Otherwise try a few times to heartbeat
-                try:
+            # Otherwise try a few times to heartbeat
+            try:
+                async with aiohttp.ClientSession() as session:
                     self.logger.info(f"Sending heartbeat try {i + 1}")
                     resp = await asyncio.wait_for(session.get(self.uri), 5)
                     self.logger.info(f"Heartbeat try {i + 1} success")
                     successful = True
-                except:
-                    # Do not flood the heartbeat endpoint, wait 5 seconds
-                    self.logger.info(
-                        f"Heartbeat try {i + 1} failed, retrying after a delay"
-                    )
-                    await asyncio.sleep(5)
+            except Exception as exc:
+                # Do not flood the heartbeat endpoint, wait 5 seconds
+                self.logger.info(
+                    f"Heartbeat try {i + 1} failed, retrying after a delay"
+                )
+                self.logger.info(
+                    f"Exception was {type(exc).__name__} with args '{exc.args}'"
+                )
+                await asyncio.sleep(5)
 
         self.logger.info("Waiting for next heartbeat trigger")
         await asyncio.sleep(self.interval_seconds)
