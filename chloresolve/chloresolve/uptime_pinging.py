@@ -11,7 +11,7 @@ class UptimeTimer:
         self.interval_seconds = interval_seconds
         self.uri = uri
         self.loop = asyncio.get_event_loop()
-        self.task = self.loop.create_task(self.heartbeat)
+        self.task = self.loop.create_task(self.heartbeat())
         self.logger = logging.getLogger(__class__.__name__)
 
     async def heartbeat(self):
