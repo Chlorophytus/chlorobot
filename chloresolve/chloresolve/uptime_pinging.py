@@ -11,8 +11,8 @@ class UptimeTimer:
         self.interval_seconds = interval_seconds
         self.uri = uri
         self.loop = asyncio.get_event_loop()
-        self.timer = self.loop.call_soon(self.heartbeat)
         self.logger = logging.getLogger(__class__.__name__)
+        await self.heartbeat()
 
     async def heartbeat(self):
         """
@@ -42,7 +42,7 @@ class UptimeTimer:
                 await asyncio.sleep(5)
 
         self.logger.info("Waiting for next heartbeat trigger")
-        self.loop.call_later(self.interval_seconds, self.heartbeat)
+        self.timer = self.loop.call_later(self.interval_seconds, self.heartbeat)
 
 
     def cancel(self):
