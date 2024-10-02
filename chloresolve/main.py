@@ -29,7 +29,7 @@ class Chloresolver:
         if uptime_interval_seconds > 0:
             self.heartbeat = chloresolve.uptime_pinging.UptimeTimer(
                 uptime_interval_seconds,
-                os.environ["CHLOROBOT_HEALTHCHECK_URL"],
+                os.environ["CHLOROBOT_HEALTHCHECK_URL"]
             )
         else:
             self.heartbeat = None

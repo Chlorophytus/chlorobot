@@ -47,7 +47,7 @@ class UptimeTimer:
             self.logger.info("Waiting for next heartbeat trigger")
             await asyncio.sleep(self.interval_seconds)
 
-    async def start():
+    async def start(self):
         """
         Starts the heartbeat loop
         """
@@ -60,7 +60,7 @@ class UptimeTimer:
                 f"Exception was {type(exc).__name__} with args '{exc.args}'"
             )
 
-    def cancel():
+    def cancel(self):
         """
         Cancels the heartbeat loop
         """
