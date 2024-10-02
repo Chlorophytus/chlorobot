@@ -17,6 +17,7 @@ class Chloresolver:
         token: str,
         trigger: str,
         commands: dict[str, chloresolve.dispatch.Command],
+        uptime_interval_seconds: int,
     ) -> None:
         self.stub = stub
         self.authentication = chlorobot_rpc_pb2.ChlorobotAuthentication(
@@ -25,6 +26,13 @@ class Chloresolver:
         self.logger = logging.getLogger(__class__.__name__)
         self.trigger = trigger
         self.commands = commands
+        if uptime_interval_seconds > 0:
+            self.heartbeat = chloresolve.uptime_pinging.UptimeTimer(
+                uptime_interval_seconds,
+                os.environ["CHLOROBOT_HEALTHCHECK_URL"],
+            )
+        else:
+            self.heartbeat = None
 
     async def version_string(self) -> str:
         version_got: chlorobot_rpc_pb2.ChlorobotAcknowledgement = await self.stub.Send(
@@ -36,6 +44,7 @@ class Chloresolver:
         return version_got.version.pretty
 
     async def listen(self) -> None:
+        await self.heartbeat.start()
         self.listener = self.stub.Listen(self.authentication)
         try:
             async for message in self.listener:
@@ -194,8 +203,11 @@ class Chloresolver:
                         )
 
                         self.logger.info(f"[{channel}] {nickname} sets topic '{topic}'")
-        finally:
-            self.logger.info("Chlorobot context cancelled somehow")
+        except Exception as exc:
+            self.logger.info(f"Chlorobot context cancelled somehow")
+            self.logger.info(
+                f"Exception was {type(exc).__name__} with args '{exc.args}'"
+            )
             return
 
     async def dispatch(self, dispatch_info: chloresolve.dispatch.Arguments) -> None:
@@ -267,6 +279,7 @@ class Chloresolver:
     async def cancel(self) -> None:
         logging.info("Disconnecting from gRPC socket")
         self.listener.cancel()
+        self.heartbeat.cancel()
 
 
 async def main() -> None:
@@ -312,6 +325,7 @@ async def main() -> None:
                     chloresolve.command.perms, "handles the bot's permissions"
                 ),
             },
+            int(os.environ["CHLOROBOT_HEALTHCHECK_INTERVAL"]),
         )
 
         ping = chlorobot_rpc_pb2.ChlorobotRequest(
@@ -321,20 +335,7 @@ async def main() -> None:
         result = await stub.Send(ping, timeout=20)
 
         logging.info("Connected to gRPC socket")
-
-        interval = int(os.environ["CHLOROBOT_HEALTHCHECK_INTERVAL"])
-
-        if interval > 0:
-            heartbeat = chloresolve.uptime_pinging.UptimeTimer(
-                interval,
-                os.environ["CHLOROBOT_HEALTHCHECK_URL"],
-            )
-            await heartbeat.heartbeat()
-            await resolver.listen()
-            heartbeat.cancel()
-        else:
-            logging.info("Heartbeats have been disabled")
-            await resolver.listen()
+        await resolver.listen()
 
 
 if __name__ == "__main__":
