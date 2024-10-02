@@ -329,6 +329,7 @@ async def main() -> None:
                 interval,
                 os.environ["CHLOROBOT_HEALTHCHECK_URL"],
             )
+            await heartbeat.heartbeat()
             await resolver.listen()
             heartbeat.cancel()
         else:
