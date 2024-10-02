@@ -12,7 +12,7 @@ class UptimeTimer:
         self.uri = uri
         self.loop = asyncio.get_event_loop()
         self.logger = logging.getLogger(__class__.__name__)
-        await self.heartbeat()
+        self.loop.call_soon(await self.heartbeat())
 
     async def heartbeat(self):
         """
