@@ -279,7 +279,8 @@ class Chloresolver:
     async def cancel(self) -> None:
         logging.info("Disconnecting from gRPC socket")
         self.listener.cancel()
-        self.heartbeat.cancel()
+        if self.heartbeat is not None:
+            self.heartbeat.cancel()
 
 
 async def main() -> None:
