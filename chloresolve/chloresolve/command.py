@@ -93,7 +93,7 @@ async def join(args: dispatch.Arguments):
         can_use = t.perm_get("channels_mut")
 
     if can_use:
-        await args.resolver.send(None, b"JOIN", [args.chanargs[1].encode()], None)
+        await args.resolver.send(None, b"JOIN", args.chanargs[1].encode().split(b','), None)
 
 
 async def part(args: dispatch.Arguments):
@@ -102,7 +102,7 @@ async def part(args: dispatch.Arguments):
         can_use = t.perm_get("channels_mut")
 
     if can_use:
-        await args.resolver.send(None, b"PART", [args.chanargs[1].encode()], None)
+        await args.resolver.send(None, b"PART", args.chanargs[1].encode().split(b','), None)
 
 
 async def exit(args: dispatch.Arguments):
