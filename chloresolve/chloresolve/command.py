@@ -93,7 +93,7 @@ async def join(args: dispatch.Arguments):
         can_use = t.perm_get("channels_mut")
 
     if can_use:
-        await args.resolver.send(None, b"JOIN", args.chanargs[1].encode().split(b','), None)
+        await args.resolver.send(None, b"JOIN", [args.chanargs[1].encode()], None)
 
 
 async def part(args: dispatch.Arguments):
@@ -102,7 +102,7 @@ async def part(args: dispatch.Arguments):
         can_use = t.perm_get("channels_mut")
 
     if can_use:
-        await args.resolver.send(None, b"PART", args.chanargs[1].encode().split(b','), None)
+        await args.resolver.send(None, b"PART", [args.chanargs[1].encode()], None)
 
 
 async def exit(args: dispatch.Arguments):
@@ -209,12 +209,13 @@ async def wiki(args: dispatch.Arguments):
 
 async def botsnack(args: dispatch.Arguments):
     # Random greens
-    pick = random.choice([
-        "spirulina",
-        "lettuce",
-        "cilantro",
-        "celery",
-        "broccoli"
-    ])
+    if args.channel != args.nickname:
+        pick = random.choice([
+            "spirulina",
+            "lettuce",
+            "cilantro",
+            "celery",
+            "broccoli"
+        ])
 
-    await args.resolver.action(args.channel, args.nickname, f"eats some {pick}") 
+        await args.resolver.action(args.channel, f"eats some {pick}") 

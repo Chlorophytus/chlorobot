@@ -253,13 +253,6 @@ class Chloresolver:
                 )
             except UnicodeEncodeError:
                 self.logger.warning("Could not encode the last action into bytes!")
-        else:
-            # user
-            self.logger.info(f"[{nickname}] *** {myself} {message}")
-            try:
-                await self.send(None, b"NOTICE", [nickname.encode()], f"\x01ACTION {message}\x01".encode())
-            except UnicodeEncodeError:
-                self.logger.warning("Could not encode the last action into bytes!")
 
 
     async def send(
