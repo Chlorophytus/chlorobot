@@ -217,4 +217,4 @@ async def botsnack(args: dispatch.Arguments):
         "broccoli"
     ])
 
-    await args.resolver.action(args.channel, f"eats some {pick}") 
+    await args.resolver.action(args.channel, args.nickname, f"eats some {pick}") 

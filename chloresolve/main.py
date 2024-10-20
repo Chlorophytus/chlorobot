@@ -239,7 +239,7 @@ class Chloresolver:
                 self.logger.warning("Could not encode the last message into bytes!")
 
 
-    async def action(self, channel: str, action: str) -> None:
+    async def action(self, channel: str, nickname: str, action: str) -> None:
         myself: str = os.environ["CHLOROBOT_NICKNAME"]
         if channel.startswith("#") or channel.startswith("&"):
             # channel
