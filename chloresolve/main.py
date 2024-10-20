@@ -215,6 +215,7 @@ class Chloresolver:
         dispatch_cmd = self.commands.get(dispatch, command.COMMAND_NOT_FOUND)
         await dispatch_cmd(dispatch_info)
 
+
     async def message(self, channel: str, nickname: str, message: str) -> None:
         myself: str = os.environ["CHLOROBOT_NICKNAME"]
         if channel.startswith("#") or channel.startswith("&"):
@@ -236,6 +237,30 @@ class Chloresolver:
                 await self.send(None, b"NOTICE", [nickname.encode()], message.encode())
             except UnicodeEncodeError:
                 self.logger.warning("Could not encode the last message into bytes!")
+
+
+    async def action(self, channel: str, action: str) -> None:
+        myself: str = os.environ["CHLOROBOT_NICKNAME"]
+        if channel.startswith("#") or channel.startswith("&"):
+            # channel
+            self.logger.info(f"[{channel}] *** {myself} {message}")
+            try:
+                await self.send(
+                    None,
+                    b"PRIVMSG",
+                    [channel.encode()],
+                    f"\x01ACTION {message}\x01".encode(),
+                )
+            except UnicodeEncodeError:
+                self.logger.warning("Could not encode the last action into bytes!")
+        else:
+            # user
+            self.logger.info(f"[{nickname}] *** {myself} {message}")
+            try:
+                await self.send(None, b"NOTICE", [nickname.encode()], f"\x01ACTION {message}\x01".encode())
+            except UnicodeEncodeError:
+                self.logger.warning("Could not encode the last action into bytes!")
+
 
     async def send(
         self,
@@ -324,6 +349,9 @@ async def main() -> None:
                 ),
                 "perms": chloresolve.dispatch.Command(
                     chloresolve.command.perms, "handles the bot's permissions"
+                ),
+                "botsnack": chloresolve.dispatch.Command(
+                    chloresolve.command.botsnack, "makes the bot eat something...?"
                 ),
             },
             int(os.environ["CHLOROBOT_HEALTHCHECK_INTERVAL"]),

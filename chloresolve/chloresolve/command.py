@@ -1,4 +1,5 @@
 import os
+import random
 from . import dispatch, markov, mediawiki, __version__, tables
 
 
@@ -205,3 +206,15 @@ async def wiki(args: dispatch.Arguments):
                 args.channel, args.nickname, "Please give an article that can be looked up"
             )
 
+
+async def botsnack(args: dispatch.Arguments):
+    # Random greens
+    pick = random.choice([
+        "spirulina",
+        "lettuce",
+        "cilantro",
+        "celery",
+        "broccoli"
+    ])
+
+    await args.resolver.action(args.channel, f"eats some {pick}") 
