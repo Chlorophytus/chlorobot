@@ -66,6 +66,11 @@ class Chloresolver:
                     command = message.numeric
 
                 match command:
+                    case 5:
+                        if os.environ["CHLOROBOT_AUTOJOINS"] is not None:
+                            self.logger.debug("Autojoining channels")
+                            await self.send(None, b"JOIN", os.environ["CHLOROBOT_AUTOJOINS"].encode(), None)
+                            
                     case b"PRIVMSG":
                         # gRPC endpoint does bytes
                         [b_nickname, b_ident_cloak] = message.prefix.split(b"!", 1)
