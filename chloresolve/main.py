@@ -52,13 +52,14 @@ class Chloresolver:
                 command = None
 
                 # Log the message
-                if message.non_numeric is not None:
+                # gRPC-based core does not properly handle nulls...
+                if len(message.non_numeric) != 0:
                     self.logger.debug(
                         f"[RECV] p:{message.prefix} | cs:{message.non_numeric} | a:{
                         message.parameters} | t:{message.trailing_parameter}"
                     )
                     command = message.non_numeric
-                elif message.numeric is not None:
+                elif message.numeric != 0:
                     self.logger.debug(
                         f"[RECV] p:{message.prefix} | c#:{message.numeric} | a:{
                         message.parameters} | t:{message.trailing_parameter}"
