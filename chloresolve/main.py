@@ -52,18 +52,20 @@ class Chloresolver:
                 command = None
 
                 # Log the message
-                if message.non_numeric:
+                if message.non_numeric is not None:
                     self.logger.debug(
                         f"[RECV] p:{message.prefix} | cs:{message.non_numeric} | a:{
                         message.parameters} | t:{message.trailing_parameter}"
                     )
                     command = message.non_numeric
-                elif message.numeric:
+                elif message.numeric is not None:
                     self.logger.debug(
                         f"[RECV] p:{message.prefix} | c#:{message.numeric} | a:{
                         message.parameters} | t:{message.trailing_parameter}"
                     )
                     command = message.numeric
+                else:
+                    raise RuntimeError("There is no command, this breaks IRC specifications!")
 
                 match command:
                     case 5:
