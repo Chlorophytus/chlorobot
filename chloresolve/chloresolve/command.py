@@ -226,5 +226,5 @@ async def calculator(args: dispatch.Arguments):
     calculator.run()
     if calculator.get_result() is None:
         await args.resolver.message(args.channel, args.nickname, calculator.get_error())
-    else
+    else:
         await args.resolver.message(args.channel, args.nickname, f"= {calculator.get_result()}")
