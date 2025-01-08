@@ -1,6 +1,6 @@
 import os
 import random
-from . import dispatch, markov, mediawiki, __version__, tables
+from . import dispatch, markov, mediawiki, __version__, tables, calc
 
 
 async def not_found(args: dispatch.Arguments):
@@ -218,4 +218,13 @@ async def botsnack(args: dispatch.Arguments):
             "broccoli"
         ])
 
-        await args.resolver.action(args.channel, f"eats some {pick}") 
+        await args.resolver.action(args.channel, f"eats some {pick}")
+
+
+async def calculator(args: dispatch.Arguments):
+    calculator = calc.Calculator(args.chanargs[1:])
+    calculator.run()
+    if calculator.get_result() is None:
+        await args.resolver.message(args.channel, args.nickname, calculator.get_error())
+    else
+        await args.resolver.message(args.channel, args.nickname, f"= {calculator.get_result()}")

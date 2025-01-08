@@ -354,6 +354,9 @@ async def main() -> None:
                 "botsnack": chloresolve.dispatch.Command(
                     chloresolve.command.botsnack, "makes the bot eat something...?"
                 ),
+                "calc": chloresolve.dispatch.Command(
+                    chloresolve.command.calc, "simple RPN calculator"
+                ),
             },
             int(os.environ["CHLOROBOT_HEALTHCHECK_INTERVAL"]),
         )
