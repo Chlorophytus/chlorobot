@@ -37,7 +37,7 @@ class Calculator:
         """
         Lazy method to run the calculator.
         """
-        stack = []
+        stack: float = []
 
         for token in self.calculate:
             if len(stack) > STACK_SIZE_MAXIMUM:
