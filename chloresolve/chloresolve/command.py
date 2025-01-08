@@ -221,10 +221,11 @@ async def botsnack(args: dispatch.Arguments):
         await args.resolver.action(args.channel, f"eats some {pick}")
 
 
-async def calculator(args: dispatch.Arguments):
-    calculation = calc.Calculator.Calculator(args.chanargs[1:])
+async def calculate(args: dispatch.Arguments):
+    calculation = calc.Calculator(args.chanargs[1:])
     calculation.run()
-    if calculation.get_result() is None:
+    result = calculation.get_result()
+    if result is None:
         await args.resolver.message(args.channel, args.nickname, calculation.get_error())
     else:
-        await args.resolver.message(args.channel, args.nickname, f"= {calculation.get_result()}")
+        await args.resolver.message(args.channel, args.nickname, f"= {result}")
