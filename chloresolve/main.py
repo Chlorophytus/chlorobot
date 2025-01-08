@@ -354,7 +354,7 @@ async def main() -> None:
                 "botsnack": chloresolve.dispatch.Command(
                     chloresolve.command.botsnack, "makes the bot eat something...?"
                 ),
-                "calculate": chloresolve.dispatch.Command(
+                "calc": chloresolve.dispatch.Command(
                     chloresolve.command.calculate, "simple RPN calculator"
                 ),
             },
