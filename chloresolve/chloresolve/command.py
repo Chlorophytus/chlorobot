@@ -222,9 +222,9 @@ async def botsnack(args: dispatch.Arguments):
 
 
 async def calculator(args: dispatch.Arguments):
-    calculator = calc.Calculator.Calculator(args.chanargs[1:])
-    calculator.run()
-    if calculator.get_result() is None:
-        await args.resolver.message(args.channel, args.nickname, calculator.get_error())
+    calculation = calc.Calculator(args.chanargs[1:])
+    calculation.run()
+    if calculation.get_result() is None:
+        await args.resolver.message(args.channel, args.nickname, calculation.get_error())
     else:
-        await args.resolver.message(args.channel, args.nickname, f"= {calculator.get_result()}")
+        await args.resolver.message(args.channel, args.nickname, f"= {calculation.get_result()}")
