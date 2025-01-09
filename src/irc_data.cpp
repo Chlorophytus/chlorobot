@@ -222,7 +222,9 @@ const std::string irc_data::packet::serialize() const {
     message += ":" + *prefix + " ";
   }
   if (command.index() == 0) {
-    message += std::to_string(std::get<U32>(command));
+    std::stringstream padder;
+    padder << std::setw(3) << std::setfill('0') << std::get<U32>(command);
+    message += padder.str();
   } else {
     message += std::get<std::string>(command);
   }

@@ -64,6 +64,7 @@ message ChlorobotAuthentication {
 enum ChlorobotCommandEnum {
 	SEND_NOTHING = 0;
 	SEND_VERSION = 1;
+  SEND_QUIT = 2;
 }
 
 // SemVer compliant version response

@@ -10,8 +10,10 @@ class ChlorobotCommandEnum(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
     SEND_NOTHING: _ClassVar[ChlorobotCommandEnum]
     SEND_VERSION: _ClassVar[ChlorobotCommandEnum]
+    SEND_QUIT: _ClassVar[ChlorobotCommandEnum]
 SEND_NOTHING: ChlorobotCommandEnum
 SEND_VERSION: ChlorobotCommandEnum
+SEND_QUIT: ChlorobotCommandEnum
 
 class ChlorobotPacket(_message.Message):
     __slots__ = ("prefix_0", "prefix", "non_numeric", "non_numeric_0", "numeric", "parameters", "parameters_0", "trailing_parameter", "trailing_parameter_0")

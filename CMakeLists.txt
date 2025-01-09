@@ -51,12 +51,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${LibTLS_INCLUDE_DIRS}
     ${Protobuf_INCLUDE_DIRS}
 )
-
-protobuf_generate_cpp(TARGET ${PROJECT_NAME}
-    IMPORT_DIRS ${PROJECT_SOURCE_DIR}/
-    PROTOS ${PROJECT_SOURCE_DIR}/chlorobot_rpc.proto
-    PROTOC_OUT_DIR ${PROJECT_SOURCE_DIR}/protos
-)
 # Finally link
 target_link_libraries(${PROJECT_NAME}
     ${LibTLS_LIBRARIES}

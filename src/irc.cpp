@@ -45,7 +45,10 @@ void irc::request::proceed() {
           version_set->set_pretty(chlorobot_VSTRING_FULL);
           break;
         }
-
+        case ChlorobotCommandEnum::SEND_QUIT: {
+          running = false;
+          break;
+        }
         default: {
           break;
         }
