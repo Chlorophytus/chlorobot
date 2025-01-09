@@ -223,12 +223,14 @@ class Chloresolver:
         dispatch_cmd = self.commands.get(dispatch, command.COMMAND_NOT_FOUND)
         await dispatch_cmd(dispatch_info)
 
+
     async def quit(self):
         quit_packet = chlorobot_rpc_pb2.ChlorobotRequest(
             auth=self.authentication,
             command_type=chlorobot_rpc_pb2.ChlorobotCommandEnum.SEND_QUIT,
         )
         await self.stub.Send(quit_packet)
+
 
     async def message(self, channel: str, nickname: str, message: str) -> None:
         myself: str = os.environ["CHLOROBOT_NICKNAME"]

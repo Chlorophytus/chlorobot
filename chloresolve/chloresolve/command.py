@@ -111,7 +111,7 @@ async def exit(args: dispatch.Arguments):
         can_use = t.perm_get("exit")
 
     if can_use:
-        await args.resolver.send(None, b"QUIT", [], b"Manually exited")
+        await args.resolver.quit()
 
 
 async def chain(args: dispatch.Arguments):
