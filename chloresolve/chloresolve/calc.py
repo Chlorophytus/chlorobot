@@ -55,7 +55,7 @@ class Calculator:
                     match token:
                         case "+":
                             stack.append(lhs + rhs)
-                        case "+":
+                        case "-":
                             stack.append(lhs - rhs)
                         case "*":
                             stack.append(lhs * rhs)
