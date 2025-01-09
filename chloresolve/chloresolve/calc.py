@@ -1,8 +1,8 @@
 from enum import Enum
 from typing import Optional
 
-VALID_OPERATIONS = frozenset(ch for ch in "+-*/^")
-STACK_SIZE_MAXIMUM = 8
+VALID_OPERATIONS = frozenset(ch for ch in "+-*/^%")
+STACK_SIZE_MAXIMUM = 12
 
 
 class CalculatorStatus(Enum):
@@ -63,6 +63,8 @@ class Calculator:
                             stack.append(lhs / rhs)
                         case "^":
                             stack.append(lhs ** rhs)
+                        case "%":
+                            stack.append(lhs % rhs)
 
 
                 except ZeroDivisionError as e:
