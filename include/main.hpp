@@ -5,17 +5,23 @@
 // All of the C++ standard library is included
 #include <bits/stdc++.h>
 
-// libtls is included
-#include "tls.h"
+// OpenSSL SSL framework is included
+#include <openssl/bio.h>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 
 // OpenSSL Base64 is included
-#include "openssl/evp.h"
+#include <openssl/evp.h>
 
-// gRPC is included
-#include <grpcpp/ext/proto_server_reflection_plugin.h>
-#include <grpcpp/grpcpp.h>
-#include <grpcpp/health_check_service_interface.h>
-#include "../protos/chlorobot_rpc.grpc.pb.h"
+// Use sockets
+#include <fcntl.h>
+#include <netdb.h>
+#include <sys/socket.h>
+#include <sys/select.h>
+#include <sys/poll.h>
+
+// Use LuaJIT
+#include <luajit-5_1-2.1/lua.hpp>
 
 // Unsigned 8-bit integer scalar
 using U8 = std::uint8_t;

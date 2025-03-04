@@ -10,8 +10,6 @@ struct user {
 
   std::string sasl_account;  // SASL account username
   std::string sasl_password; // SASL password
-
-  std::string owner; // Bot owner username
 };
 
 /// @brief Parsed IRC packet data

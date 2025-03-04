@@ -1,177 +1,264 @@
 #include "../include/tls_socket.hpp"
-#include <fcntl.h>
-#include <netdb.h>
-#include <sys/poll.h>
 using namespace chlorobot;
 
-struct tls_config *config = nullptr;
-struct tls *client = nullptr;
-int client_fd;
-constexpr auto max_buffer_size = 4096;
-constexpr auto io_timeout_milliseconds = 50;
+using SSL_CTX_sptr = std::unique_ptr<SSL_CTX, std::function<void(SSL_CTX *)>>;
+static SSL_CTX_sptr ctx;
+
+using SSL_sptr = std::unique_ptr<SSL, std::function<void(SSL *)>>;
+static SSL_sptr ssl;
+
+using BIO_sptr = std::unique_ptr<BIO, std::function<void(BIO *)>>;
+static BIO_sptr bio;
+
+using SSLCHAR_sptr = std::unique_ptr<char, std::function<void(char *)>>;
+constexpr static auto max_buffer_size = 4096;
+constexpr static auto io_timeout_microseconds = 50'000;
+static bool eof = false;
+
+void initialize_bio(const std::string host, const std::string port) {
+  BIO_ADDRINFO *resources = nullptr;
+  const BIO_ADDRINFO *ai;
+  bio = BIO_sptr{nullptr, [](BIO *p) {}};
+  int sock = -1;
+
+  if (!BIO_lookup_ex(host.c_str(), port.c_str(), BIO_LOOKUP_CLIENT, AF_INET,
+                     SOCK_STREAM, 0, &resources)) {
+    throw std::runtime_error{"failed to look up IP address info of IRC server"};
+  }
+
+  for (ai = resources; ai != nullptr; ai = BIO_ADDRINFO_next(ai)) {
+    sock = BIO_socket(BIO_ADDRINFO_family(ai), SOCK_STREAM, 0, 0);
+    auto info = SSLCHAR_sptr{
+        BIO_ADDR_hostname_string(BIO_ADDRINFO_address(ai), AF_INET),
+        [](char *p) { OPENSSL_free(p); }};
+    if (sock < 0) {
+      std::cerr << "'" << info.get()
+                << "' socket setup failed, on to the next one" << std::endl;
+      continue;
+    }
+
+    if (!BIO_connect(sock, BIO_ADDRINFO_address(ai), BIO_SOCK_NODELAY)) {
+      std::cerr << "'" << info.get()
+                << "' socket connect failed, on to the next one" << std::endl;
+      BIO_closesocket(sock);
+      sock = -1;
+      continue;
+    }
+
+    if (!BIO_socket_nbio(sock, 1)) {
+      std::cerr << "'" << info.get()
+                << "' socket make non-blocking failed, on to the next one"
+                << std::endl;
+      sock = -1;
+      continue;
+    }
+
+    std::cerr << "'" << info.get() << "' socket initialization successful"
+              << std::endl;
+    break;
+  }
+
+  BIO_ADDRINFO_free(resources);
+
+  if (sock < 0) {
+    throw std::runtime_error{"failed to set up IRC client BIO's socket"};
+  }
+
+  bio.reset(BIO_new(BIO_s_socket()));
+  if (!bio) {
+    BIO_closesocket(sock);
+    throw std::runtime_error{"failed to set up IRC client BIO"};
+  }
+  BIO_set_fd(bio.get(), sock, BIO_CLOSE);
+}
+
+tls_socket::poll_state handle_data(int res) {
+  fd_set fds;
+  int width, sock;
+  sock = SSL_get_fd(ssl.get());
+  FD_ZERO(&fds);
+  FD_SET(sock, &fds);
+  width = sock + 1;
+
+  struct timeval ts {
+    .tv_sec = 0, .tv_usec = io_timeout_microseconds,
+  };
+
+  switch (SSL_get_error(ssl.get(), res)) {
+  case SSL_ERROR_WANT_WRITE: {
+    select(width, 0, &fds, 0, &ts);
+    return tls_socket::poll_state::retry;
+  }
+  case SSL_ERROR_WANT_READ: {
+    select(width, &fds, 0, 0, &ts);
+    return tls_socket::poll_state::retry;
+  }
+  case SSL_ERROR_NONE: {
+    return tls_socket::poll_state::ok;
+  }
+  case SSL_ERROR_ZERO_RETURN: // EOF
+    return tls_socket::poll_state::end_of_stream;
+  default:
+    return tls_socket::poll_state::error;
+  }
+}
 
 void tls_socket::connect(const std::string host, const std::string port) {
-  if (config == nullptr) {
-    std::cerr << "TLS: Configure new object" << std::endl;
-    config = tls_config_new();
-    if (tls_config_error(config) != nullptr) {
-      throw std::runtime_error{tls_config_error(config)};
+  if (!ctx) {
+    eof = false;
+    std::cerr << "TLS: Create new context" << std::endl;
+    ctx = SSL_CTX_sptr{SSL_CTX_new(TLS_client_method()),
+                       [](SSL_CTX *p) { SSL_CTX_free(p); }};
+    if (!ctx) {
+      ERR_print_errors_fp(stderr);
+      throw std::runtime_error{"failed to create TLS context"};
     }
 
-    std::cerr << "TLS: Set protocol" << std::endl;
-    tls_config_set_protocols(config, TLS_PROTOCOL_TLSv1_3);
-    if (tls_config_error(config) != nullptr) {
-      throw std::runtime_error{tls_config_error(config)};
+    SSL_CTX_set_verify(ctx.get(), SSL_VERIFY_PEER, 0);
+    // SSL_CTX_clear_mode(ctx.get(), SSL_MODE_AUTO_RETRY);
+
+    if (!SSL_CTX_set_default_verify_paths(ctx.get())) {
+      ERR_print_errors_fp(stderr);
+      throw std::runtime_error{
+          "failed to set default trusted certificate store"};
     }
 
-    if (client == nullptr) {
-      std::cerr << "TLS: Initialize client" << std::endl;
-      client = tls_client();
+    if (!SSL_CTX_set_min_proto_version(ctx.get(), TLS1_2_VERSION)) {
+      ERR_print_errors_fp(stderr);
+      throw std::runtime_error{"failed to set minimum TLS protocol version"};
+    }
 
-      if (client == nullptr) {
-        throw std::runtime_error{tls_error(client)};
+    ssl = SSL_sptr{SSL_new(ctx.get()), [](SSL *p) { SSL_free(p); }};
+    if (!ssl) {
+      ERR_print_errors_fp(stderr);
+      throw std::runtime_error{"failed to create SSL object"};
+    }
+    initialize_bio(host, port);
+    if (!bio) {
+      ERR_print_errors_fp(stderr);
+      throw std::runtime_error{"failed to create BIO object"};
+    }
+    SSL_set_bio(ssl.get(), bio.get(), bio.get());
+
+    if (!SSL_set_tlsext_host_name(ssl.get(), host.c_str())) {
+      ERR_print_errors_fp(stderr);
+      throw std::runtime_error{"failed to set SNI hostname"};
+    }
+
+    if (!SSL_set1_host(ssl.get(), host.c_str())) {
+      ERR_print_errors_fp(stderr);
+      throw std::runtime_error{
+          "failed to set certificate verification hostname"};
+    }
+    int ret = 0;
+    while ((ret = SSL_connect(ssl.get())) != 1) {
+      if (handle_data(ret) == tls_socket::poll_state::retry) {
+        continue;
       }
 
-      std::cerr << "TLS: Configure client" << std::endl;
-      auto error = tls_configure(client, config);
-      if (error != 0) {
-        throw std::runtime_error{tls_error(client)};
-      }
-
-      std::cerr << "TLS: Resolve " << host << std::endl;
-      struct addrinfo hints;
-      memset(&hints, 0, sizeof(hints));
-      hints.ai_family = AF_UNSPEC;
-      hints.ai_socktype = SOCK_STREAM;
-      hints.ai_flags = 0;
-      hints.ai_protocol = 0;
-      struct addrinfo *result;
-
-      error = getaddrinfo(host.c_str(), port.c_str(), &hints, &result);
-      if (error != 0) {
-        throw std::runtime_error{gai_strerror(error)};
-      }
-
-      std::cerr << "TLS: Make TCP socket file descriptor" << std::endl;
-      client_fd = socket(PF_INET, SOCK_STREAM, 0);
-      if(client_fd == -1) {
-        throw std::runtime_error{strerror(errno)};
-      }
-
-      std::cerr << "TLS: Connect TCP socket" << std::endl;
-      error = connect(client_fd, result->ai_addr, result->ai_addrlen);
-
-      if (error == -1) {
-        throw std::runtime_error{strerror(errno)};
-      }
-
-      std::cerr << "TLS: Upgrading..." << std::endl;
-      error = tls_connect_socket(client, client_fd, host.c_str());
-      if (error != 0) {
-        throw std::runtime_error{tls_error(client)};
-      }
-
-      std::cerr << "TLS: Successfully connected, making non-blocking..."
-                << std::endl;
-      int flags = fcntl(client_fd, F_GETFL, 0);
-      if (flags < 0) {
-        throw std::runtime_error{"Can't get socket file descriptor flags"};
-      }
-      flags |= O_NONBLOCK;
-      flags = fcntl(client_fd, F_SETFL, flags);
-      if (flags < 0) {
-        throw std::runtime_error{"Can't set socket file descriptor flags"};
-      }
-      std::cerr << "TLS: Now non-blocking!" << std::endl;
-
-      freeaddrinfo(result);
-    } else {
-      throw std::runtime_error{"TLS client singleton already in use"};
+      ERR_print_errors_fp(stderr);
+      throw std::runtime_error{"failed to connect"};
     }
   } else {
-    throw std::runtime_error{"TLS configuration singleton already in use"};
+    throw std::runtime_error{"TLS singleton(s) already in use"};
   }
 }
 std::optional<std::string> tls_socket::recv() {
-  struct pollfd pfd[1];
-  pfd[0].fd = client_fd;
-  pfd[0].events = POLLIN | POLLOUT;
-  pfd[0].revents = 0;
-
-  auto poller = 0;
+  if (is_eof()) {
+    throw std::runtime_error{"Can't receive after EOF"};
+  }
   char buffer[max_buffer_size]{0};
+  size_t readbytes = 0;
 
-  do {
-    poller = poll(pfd, 1, io_timeout_milliseconds);
-    if (poller == -1) {
-      throw std::runtime_error{"Receiver poll"};
-    } else if (pfd[0].revents & (POLLERR | POLLNVAL)) {
-      throw std::runtime_error{"Receiver poll file descriptor"};
-    } else if (pfd[0].revents & (POLLIN | POLLOUT | POLLHUP)) {
-      auto reader = tls_read(client, buffer, max_buffer_size - 1);
+  while (!SSL_read_ex(ssl.get(), buffer, sizeof(buffer), &readbytes)) {
+    const auto status = handle_data(0);
 
-      if (reader == TLS_WANT_POLLIN) {
-        pfd[0].events = POLLIN;
-      } else if (reader == TLS_WANT_POLLOUT) {
-        pfd[0].events = POLLOUT;
-      } else if (reader == -1) {
-        throw std::runtime_error{tls_error(client)};
-      } else {
-        if (reader > 0) {
-          return std::string{buffer, static_cast<U64>(reader)};
+    switch (status) {
+    case tls_socket::poll_state::end_of_stream: {
+      std::cerr << "EOF occured on read" << std::endl;
+      eof = true;
+      return std::nullopt;
+    }
+    case tls_socket::poll_state::error: {
+      ERR_print_errors_fp(stderr);
+      throw std::runtime_error{"TLS read failure"};
+    }
+    case tls_socket::poll_state::retry: {
+      continue;
+    }
+    case tls_socket::poll_state::ok: {
+      break;
+    }
+    }
+  }
+  if (readbytes > 0) {
+    return std::string{buffer, readbytes};
+  } else {
+    return std::nullopt;
+  }
+}
+void tls_socket::send(const std::string packet) {
+  if (is_eof()) {
+    throw std::runtime_error{"Can't send after EOF"};
+  }
+  char buffer[max_buffer_size]{0};
+  size_t wrotebytes = 0;
+  const size_t n = packet.size();
+
+  packet.copy(buffer, n, 0);
+
+  while (!SSL_write_ex(ssl.get(), buffer, n, &wrotebytes)) {
+    const auto status = handle_data(0);
+
+    switch (status) {
+    case tls_socket::poll_state::end_of_stream: {
+      std::cerr << "EOF occured on write" << std::endl;
+      eof = true;
+      return;
+    }
+    case tls_socket::poll_state::error: {
+      ERR_print_errors_fp(stderr);
+      throw std::runtime_error{"TLS write failure"};
+    }
+    case tls_socket::poll_state::retry: {
+      continue;
+    }
+    case tls_socket::poll_state::ok: {
+      return;
+    }
+    }
+  }
+}
+void tls_socket::disconnect() {
+  if (ssl) {
+    std::cerr << "Close SSL" << std::endl;
+    int ret;
+    while ((ret = SSL_shutdown(ssl.get())) != 1) {
+      const auto status = handle_data(ret);
+      if (ret < 0) {
+        switch (status) {
+        case tls_socket::poll_state::ok: {
+          break;
+        }
+        case tls_socket::poll_state::retry: {
+          continue;
+        }
+        case tls_socket::poll_state::end_of_stream: {
+          break;
+        }
+        case tls_socket::poll_state::error: {
+          break;
+        }
         }
       }
+      ERR_print_errors_fp(stderr);
+      throw std::runtime_error{"Could not gracefully shutdown"};
     }
-  } while (poller > 0);
-
-  return std::nullopt;
-}
-
-void tls_socket::send(const std::string message) {
-  struct pollfd pfd[1];
-  pfd[0].fd = client_fd;
-  pfd[0].events = POLLIN | POLLOUT;
-  pfd[0].revents = 0;
-
-  auto poller = 0;
-  char buffer[max_buffer_size]{0};
-  const auto n = message.size();
-  if (n >= max_buffer_size) {
-    throw std::runtime_error{"Transmit buffer overrun"};
+    ssl = nullptr;
   }
-  message.copy(buffer, n, 0);
-
-  do {
-    poller = poll(pfd, 1, io_timeout_milliseconds);
-    if (poller == -1) {
-      throw std::runtime_error{"Transmitter poll"};
-    } else if (pfd[0].revents & (POLLERR | POLLNVAL)) {
-      throw std::runtime_error{"Transmitter poll file descriptor"};
-    } else if (pfd[0].revents & (POLLIN | POLLOUT | POLLHUP)) {
-      auto writer = tls_write(client, buffer, n);
-
-      if (writer == TLS_WANT_POLLIN) {
-        pfd[0].events = POLLIN;
-      } else if (writer == TLS_WANT_POLLOUT) {
-        pfd[0].events = POLLOUT;
-      } else if (writer == -1) {
-        throw std::runtime_error{tls_error(client)};
-      } else {
-        return;
-      }
-    }
-  } while (poller > 0);
-}
-
-void tls_socket::disconnect() {
-  if (client != nullptr) {
-    std::cerr << "TLS: Close client" << std::endl;
-    tls_close(client);
-    client = nullptr;
-  }
-  if (config != nullptr) {
-    std::cerr << "TLS: Free config" << std::endl;
-    tls_config_free(config);
-    config = nullptr;
+  if (ctx) {
+    std::cerr << "Free SSL context" << std::endl;
+    ctx = nullptr;
   }
 }
+bool tls_socket::is_eof() { return eof; }
