@@ -2,7 +2,7 @@ local joining = true
 local trigger = os.getenv("CHLOROBOT_TRIGGER")
 
 function chlorobot.parse_hostmask(hostmask)
-  local _, _, nickname, ident, cloak = string.find(hostmask,"(.+)!(.+)@(.+)")
+  local nickname, ident, cloak = string.match(hostmask,"(.+)!(.+)@(.+)")
 
   return {
     nickname = nickname,
