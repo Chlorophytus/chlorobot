@@ -18,10 +18,9 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <sys/select.h>
-#include <sys/poll.h>
 
 // Use LuaJIT
-#include <luajit-5_1-2.1/lua.hpp>
+#include <lua.hpp>
 
 // Unsigned 8-bit integer scalar
 using U8 = std::uint8_t;
