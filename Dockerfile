@@ -16,15 +16,16 @@ COPY CMakeLists.txt .
 COPY src/ ./src
 COPY include/ ./include
 
-# CMake build then regular build
-RUN cmake -DCMAKE_BUILD_TYPE=Release -Bbuild && \
-    make -C build/ -j 
-
 # luarocks deps install globally
 RUN luarocks-5.1 --global config variables.LUA_INCDIR /usr/include/luajit-2.1 && \
     luarocks-5.1 --global install luv && \
     luarocks-5.1 --global install sqlite && \
+    luarocks-5.1 --global install luasec && \
     luarocks-5.1 --global install luasocket 
+
+# CMake build then regular build
+RUN cmake -DCMAKE_BUILD_TYPE=Release -Bbuild && \
+    make -C build/ -j 
 # =============================================================================
 # Runner
 # =============================================================================

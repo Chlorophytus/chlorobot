@@ -2,15 +2,14 @@ local sqlite = require('sqlite')
 
 permissions = { db = sqlite{ uri = "tables/ptab.db" } }
 
-function permissions.is_legal(perm)
+function permissions.is_legal(check_permission)
   local legality = 0
-  local check_char = function(checking)
-    -- Lua purges ok_chars every time so we have to respecify it
-    local ok_chars = string.gmatch("_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", ".")
-
+  local function check_char(check_character)
     -- check for legal chars one by one, Lua doesn't give us a frozenset type
-    for checker in ok_chars do
-      if checker == checking then return true end
+    for checker in string.gmatch("_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", ".") do
+      if checker == check_character then
+        return true
+      end
     end
 
     -- illegal char, so return
@@ -18,25 +17,39 @@ function permissions.is_legal(perm)
   end
 
   -- loop through all chars and give a count of how many legal chars there are
-  for i = 1, #perm do
-    if check_char(perm[i]) then
+  for char in string.gmatch(check_permission, ".") do
+    if check_char(char) then
       legality = legality + 1
     end
   end
 
   -- returns true if legal char count is equal to the permission's char count
-  return legality == #perm
+  return legality == #check_permission
+end
+
+function permissions.bulk_get_raw(raw_cloak)
+  local cloak = string.lower(raw_cloak)
+
+  permissions.db:open()
+  local entry = permissions.db:select("ptab", { where = { cloak = cloak } })
+  permissions.db:close()
+
+  local entry_perms = ""
+  if #entry == 1 then
+    entry_perms = entry[1].perms
+  end
+
+  return entry_perms
 end
 
 function permissions.bulk_get(raw_cloak)
   local cloak = string.lower(raw_cloak)
-  permissions.db:open()
-  local entry = permissions.db:select("ptab", { where = { cloak = cloak } })
-  permissions.db:close()
-  print("permissions bulk_get (" .. cloak .. ") -> " .. entry)
+  local entry_perms = permissions.bulk_get_raw(cloak)
+
+  chlorobot.log("permissions bulk_get (" .. cloak .. ") -> " .. entry_perms)
   local split = {}
 
-  for perm in string.gmatch(entry.perms, "([^,]+)") do
+  for perm in string.gmatch(entry_perms, "([^,]+)") do
     table.insert(split, perm)
   end
 
@@ -51,36 +64,36 @@ function permissions.get(raw_cloak, perm)
     for i = 1, #bulk do
       local this_perm = bulk[i]
       if this_perm == perm then
-        print("permissions get (" .. cloak .. "): " .. perm .. " -> has permission")
+        chlorobot.log("permissions get (" .. cloak .. "): " .. perm .. " -> has permission")
         return true
       elseif this_perm == "_ALL" then
-        print("permissions get (" .. cloak .. "): " .. perm .. " -> has _ALL")
+        chlorobot.log("permissions get (" .. cloak .. "): " .. perm .. " -> has _ALL")
         return true
       end
     end
 
-    print("permissions get (" .. cloak .. "): " .. perm .. " -> does not have permission")
+    chlorobot.log("permissions get (" .. cloak .. "): " .. perm .. " -> does not have permission")
     return false
   else
-    print("permissions get (" .. cloak .. "): " .. perm .. " -> illegal permission specified")
+    chlorobot.log("permissions get (" .. cloak .. "): " .. perm .. " -> illegal permission specified")
     return false
   end
 end
 
 function permissions.put(raw_cloak, perm, state)
   local cloak = string.lower(raw_cloak)
-  if perm[1] ~= "_" and permissions.is_legal(perm) then
+  if string.sub(perm,1, 1) ~= "_" and permissions.is_legal(perm) then
     local bulk = permissions.bulk_get(cloak)
     local perm_at = nil
 
     for i = 1, #bulk do
       local this_perm = bulk[i]
-      if this_perm[1] == "_" then
-        print("permissions put (" .. cloak .. "): " .. perm .. " -> user has '_' sticky permission prefix")
+      if string.sub(this_perm, 1, 1) == "_" then
+        chlorobot.log("permissions put (" .. cloak .. "): " .. perm .. " -> user has '_' sticky permission prefix")
         return
       elseif this_perm == perm then
         if state then
-          print("permissions put (" .. cloak .. "): " .. perm .. " SET -> user already has permission")
+          chlorobot.log("permissions put (" .. cloak .. "): " .. perm .. " SET -> user already has permission")
           return
         elseif perm_at == nil then
           perm_at = i
@@ -90,12 +103,12 @@ function permissions.put(raw_cloak, perm, state)
 
     if state then
       table.insert(bulk, perm)
-      print("permissions put (" .. cloak .. "): SET" .. perm .. " -> OK")
+      chlorobot.log("permissions put (" .. cloak .. "): SET " .. perm .. " -> OK")
     elseif perm_at ~= nil then
       table.remove(bulk, perm_at)
-      print("permissions put (" .. cloak .. "): CLEAR" .. perm .. " -> OK")
+      chlorobot.log("permissions put (" .. cloak .. "): CLEAR " .. perm .. " -> OK")
     else
-      print("permissions put (" .. cloak .. "): CLEAR" .. perm .. " -> user doesn't have permission")
+      chlorobot.log("permissions put (" .. cloak .. "): CLEAR " .. perm .. " -> user doesn't have permission")
       return
     end
 
@@ -112,7 +125,7 @@ function permissions.put(raw_cloak, perm, state)
     permissions.db:update("ptab", { where = { cloak = cloak }, set = { perms = perms_string } })
     permissions.db:close()
   else
-    print("permissions put (" .. cloak .. "): " .. perm .. " -> illegal or sticky permission specified")
+    chlorobot.log("permissions put (" .. cloak .. "): " .. perm .. " -> illegal or sticky permission specified")
   end
 end
 
@@ -126,10 +139,10 @@ function permissions.initialize(force)
     local owner = os.getenv("CHLOROBOT_OWNER")
     if owner ~= nil then
       local cloak = string.lower(owner)
-      print("permissions CLEARING into owner ".. cloak)
+      chlorobot.log("permissions CLEARING into owner ".. cloak)
       permissions.db:create("ptab", { cloak = {"unique"}, perms = ""})
       permissions.db:insert("ptab", { cloak = cloak, perms = "_ALL" })
-      print("permissions SUCCESSFULLY CLEARED into owner ".. cloak)
+      chlorobot.log("permissions SUCCESSFULLY CLEARED into owner ".. cloak)
       permissions.db:close()
     else
       permissions.db:close()

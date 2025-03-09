@@ -21,6 +21,8 @@ void scripting::start(std::filesystem::path &&r) {
     lua_setfield(L.get(), 1, "core_version");
     lua_pushcfunction(L.get(), scripting::calls::send);
     lua_setfield(L.get(), 1, "send");
+    lua_pushcfunction(L.get(), scripting::calls::stop);
+    lua_setfield(L.get(), 1, "stop");
     lua_setglobal(L.get(), "chlorobot");
 
     scripting::load_startup();

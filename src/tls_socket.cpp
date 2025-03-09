@@ -251,8 +251,11 @@ void tls_socket::disconnect() {
         }
         }
       }
-      ERR_print_errors_fp(stderr);
-      throw std::runtime_error{"Could not gracefully shutdown"};
+
+      if(ret < 0) {
+        ERR_print_errors_fp(stderr);
+        throw std::runtime_error{"Could not gracefully shutdown"};
+      }
     }
     ssl = nullptr;
   }
