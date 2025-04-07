@@ -2,13 +2,22 @@
 // Auto-generated configuration is included
 #include "configuration.hpp"
 
-// All of the C++ standard library is included
-#include <bits/stdc++.h>
+#include <chrono>
+#include <exception>
+#include <filesystem>
+#include <functional>
+#include <iostream>
+#include <optional>
+#include <ranges>
+#include <stdexcept>
+#include <string>
+#include <thread>
+#include <variant>
 
 // OpenSSL SSL framework is included
 #include <openssl/bio.h>
-#include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <openssl/ssl.h>
 
 // OpenSSL Base64 is included
 #include <openssl/evp.h>
@@ -16,8 +25,8 @@
 // Use sockets
 #include <fcntl.h>
 #include <netdb.h>
-#include <sys/socket.h>
 #include <sys/select.h>
+#include <sys/socket.h>
 
 // Use LuaJIT
 #include <lua.hpp>
