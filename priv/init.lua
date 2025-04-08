@@ -1,7 +1,3 @@
-dofile("priv/permissions.lua")
-
-permissions.initialize(false)
-
 local joining = true
 local trigger = os.getenv("CHLOROBOT_TRIGGER")
 local myself = os.getenv("CHLOROBOT_NICKNAME")
@@ -67,10 +63,10 @@ end
 
 dofile("priv/dispatch.lua")
 dofile("priv/health_check.lua")
+dofile("priv/permissions.lua")
+permissions.initialize(false)
 
 function chlorobot.tick(packet)
-
-
   if heartbeat_interval > 0 then
     local this_time = os.time()
 
