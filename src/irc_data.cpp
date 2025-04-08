@@ -153,7 +153,7 @@ irc_data::packet::parse(const std::string message) {
 
   std::vector<irc_data::packet> rets{};
 
-  for (std::string line; std::getline(msgs, '\n');) {
+  for (std::string line; std::getline(msgs, line, '\n');) {
     auto msg = line;
 
     if (msg.back() == '\r') {
@@ -224,66 +224,6 @@ irc_data::packet::parse(const std::string message) {
       return rets;
     }
   }
-#if 0
-  for (auto &&msg_raw : std::views::split(msgs, '\n')) {
-    auto msg = std::string{msg_raw.begin(), msg_raw.end()};
-    if (msg.back() == '\r') {
-      msg.pop_back();
-    }
-    if (msg.empty()) {
-      continue;
-    }
-    U64 i = 0;
-
-    decltype(irc_data::packet::prefix) prefix = std::nullopt;
-    decltype(irc_data::packet::command) command{};
-    decltype(irc_data::packet::params) params{};
-    decltype(irc_data::packet::trailing_param) trailing_param = std::nullopt;
-
-    for (auto &&split : std::views::split(msg, ' ')) {
-      if (trailing_param) {
-        *trailing_param += ' ';
-        *trailing_param += std::string{split.begin(), split.end()};
-      } else {
-        switch (i) {
-        case 0: {
-          if (split[0] == ':') {
-            prefix.emplace(std::string{split.begin(), split.end()}.substr(1));
-          } else {
-            command =
-                parse_command_variant(std::string{split.begin(), split.end()});
-          }
-          break;
-        }
-        case 1: {
-          if (prefix) {
-            command =
-                parse_command_variant(std::string{split.begin(), split.end()});
-          } else if (split[0] == ':') {
-            // Suffix now
-            trailing_param = std::string{split.begin(), split.end()}.substr(1);
-          } else {
-            // Space-separated parameters now
-            params.emplace_back(std::string{split.begin(), split.end()});
-          }
-          break;
-        }
-        default: {
-          if (split[0] == ':') {
-            // Suffix now
-            trailing_param = std::string{split.begin(), split.end()}.substr(1);
-          } else {
-            // Space-separated parameters now
-            params.emplace_back(std::string{split.begin(), split.end()});
-          }
-          break;
-        }
-        }
-        i++;
-      }
-    }
-#endif
-}
 }
 
 const std::string irc_data::packet::serialize() const {
