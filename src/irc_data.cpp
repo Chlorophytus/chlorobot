@@ -186,14 +186,18 @@ irc_data::packet::parse(const std::string message) {
           // Commands are always our first parameter
           const auto command_separator = msg.find(' ', offset);
           if (command_separator == std::string::npos) {
-            command = msg.substr(offset);
+            command = parse_command_variant(msg.substr(offset));
 
             looping = false;
           } else {
-            command = msg.substr(offset, command_separator);
+            command = parse_command_variant(msg.substr(offset, command_separator));
             offset = command_separator + 1;
           }
-          std::cerr << "command: '" << command << "'" << std::endl;
+          if(command.index() == 0) {
+            std::cerr << "command (U32): '" << std::get<U32>(command) << "'" << std::endl;
+          } else {
+            std::cerr << "command (string): '" << std::get<std::string>(command) << "'" << std::endl;
+          }
           break;
         }
         default: {
