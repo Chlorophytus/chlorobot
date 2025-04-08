@@ -148,9 +148,83 @@ std::variant<U32, std::string> parse_command_variant(const std::string str) {
 
 std::vector<irc_data::packet>
 irc_data::packet::parse(const std::string message) {
-  auto msgs = message;
+  std::istringstream msgs;
+  msgs.str(message);
+
   std::vector<irc_data::packet> rets{};
 
+  for (std::string line; std::getline(msgs, '\n');) {
+    auto msg = line;
+
+    if (msg.back() == '\r') {
+      msg.pop_back();
+    }
+
+    if (!msg.empty()) {
+      decltype(irc_data::packet::prefix) prefix = std::nullopt;
+      decltype(irc_data::packet::command) command{};
+      decltype(irc_data::packet::params) params{};
+      decltype(irc_data::packet::trailing_param) trailing_param = std::nullopt;
+
+      auto offset = 0;
+
+      if (msg.front() == ':') {
+        // Has prefix
+        const auto prefix_separator = msg.find(' ');
+        prefix = msg.substr(1, prefix_separator);
+        offset += prefix_separator + 1;
+      }
+
+      auto placement = 0;
+      auto looping = true;
+
+      do {
+        switch (placement) {
+        case 0: {
+          // Commands are always our first parameter
+          const auto command_separator = msg.find(' ', offset);
+          if (command_separator == std::string::npos) {
+            command = msg.substr(offset);
+
+            looping = false;
+          } else {
+            command = msg.substr(offset, command_separator);
+            offset += command_separator + 1;
+          }
+          break;
+        }
+        default: {
+          if (msg.at(offset) == ':') {
+            // Has trailing parameter
+            trailing_param = msg.substr(offset + 1);
+            looping = false;
+          } else {
+            // Not a trailing parameter, space-separated
+            const auto param_separator = msg.find(' ', offset);
+            if (param_separator != std::string::npos) {
+              params.emplace_back(msg.substr(offset, param_separator));
+              offset += param_separator + 1;
+            } else {
+              params.emplace_back(msg.substr(offset));
+              looping = false;
+            }
+          }
+          break;
+        }
+        }
+
+        placement++;
+      } while (looping);
+
+      rets.emplace_back(irc_data::packet{.prefix = prefix,
+                                         .command = command,
+                                         .params = params,
+                                         .trailing_param = trailing_param});
+    } else {
+      return rets;
+    }
+  }
+#if 0
   for (auto &&msg_raw : std::views::split(msgs, '\n')) {
     auto msg = std::string{msg_raw.begin(), msg_raw.end()};
     if (msg.back() == '\r') {
@@ -208,12 +282,8 @@ irc_data::packet::parse(const std::string message) {
         i++;
       }
     }
-    rets.emplace_back(irc_data::packet{.prefix = prefix,
-                                       .command = command,
-                                       .params = params,
-                                       .trailing_param = trailing_param});
-  }
-  return rets;
+#endif
+}
 }
 
 const std::string irc_data::packet::serialize() const {

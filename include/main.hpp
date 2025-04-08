@@ -9,10 +9,12 @@
 #include <iostream>
 #include <optional>
 #include <ranges>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <thread>
 #include <variant>
+#include <vector>
 
 // OpenSSL SSL framework is included
 #include <openssl/bio.h>
