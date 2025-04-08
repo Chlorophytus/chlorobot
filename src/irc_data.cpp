@@ -173,7 +173,6 @@ irc_data::packet::parse(const std::string message) {
         const auto prefix_separator = msg.find(' ');
         prefix = msg.substr(1, prefix_separator - 1);
         offset = prefix_separator + 1;
-        std::cerr << "prefix: '" << *prefix << "'" << std::endl;
       }
 
       auto placement = 0;
@@ -190,13 +189,9 @@ irc_data::packet::parse(const std::string message) {
 
             looping = false;
           } else {
-            command = parse_command_variant(msg.substr(offset, command_separator - offset));
+            command = parse_command_variant(
+                msg.substr(offset, command_separator - offset));
             offset = command_separator + 1;
-          }
-          if(command.index() == 0) {
-            std::cerr << "command (U32): '" << std::get<U32>(command) << "'" << std::endl;
-          } else {
-            std::cerr << "command (string): '" << std::get<std::string>(command) << "'" << std::endl;
           }
           break;
         }
@@ -204,7 +199,6 @@ irc_data::packet::parse(const std::string message) {
           if (msg.at(offset) == ':') {
             // Has trailing parameter
             trailing_param = msg.substr(offset + 1);
-            std::cerr << "trailing: '" << *trailing_param << "'" << std::endl;
 
             looping = false;
           } else {
@@ -218,13 +212,12 @@ irc_data::packet::parse(const std::string message) {
 
               looping = false;
             }
-            std::cerr << "param: '" << params.back() << "'" << std::endl;
           }
           break;
         }
         }
 
-        if(offset >= msg_size) {
+        if (offset >= msg_size) {
           looping = false;
         }
 
