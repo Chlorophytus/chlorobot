@@ -173,6 +173,7 @@ irc_data::packet::parse(const std::string message) {
         const auto prefix_separator = msg.find(' ');
         prefix = msg.substr(1, prefix_separator - 1);
         offset = prefix_separator + 1;
+        std::cerr << "prefix: '" << *prefix << "'" << std::endl;
       }
 
       auto placement = 0;
@@ -192,12 +193,14 @@ irc_data::packet::parse(const std::string message) {
             command = msg.substr(offset, command_separator);
             offset = command_separator + 1;
           }
+          std::cerr << "command: '" << command << "'" << std::endl;
           break;
         }
         default: {
           if (msg.at(offset) == ':') {
             // Has trailing parameter
             trailing_param = msg.substr(offset + 1);
+            std::cerr << "trailing: '" << *trailing_param << "'" << std::endl;
 
             looping = false;
           } else {
@@ -211,6 +214,7 @@ irc_data::packet::parse(const std::string message) {
 
               looping = false;
             }
+            std::cerr << "param: '" << params.back() << "'" << std::endl;
           }
           break;
         }
