@@ -190,7 +190,7 @@ irc_data::packet::parse(const std::string message) {
 
             looping = false;
           } else {
-            command = parse_command_variant(msg.substr(offset, command_separator));
+            command = parse_command_variant(msg.substr(offset, command_separator - offset));
             offset = command_separator + 1;
           }
           if(command.index() == 0) {
@@ -211,7 +211,7 @@ irc_data::packet::parse(const std::string message) {
             // Not a trailing parameter, space-separated
             const auto param_separator = msg.find(' ', offset);
             if (param_separator != std::string::npos) {
-              params.emplace_back(msg.substr(offset, param_separator));
+              params.emplace_back(msg.substr(offset, param_separator - offset));
               offset = param_separator + 1;
             } else {
               params.emplace_back(msg.substr(offset));
