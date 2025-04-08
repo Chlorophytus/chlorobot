@@ -35,8 +35,7 @@ function commands.eval(hostinfo, destination, arguments)
     local fun, error = load(command)
 
     if fun ~= nil then
-      chlorobot.respond(destination, hostinfo.nickname .. ": Evaluating")
-      fun()
+      chlorobot.respond(destination, hostinfo.nickname .. ": Evaluated - " .. fun())
     else
       chlorobot.respond(destination, hostinfo.nickname .. ": " .. error)
     end
