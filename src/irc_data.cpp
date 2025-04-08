@@ -172,7 +172,7 @@ irc_data::packet::parse(const std::string message) {
         // Has prefix
         const auto prefix_separator = msg.find(' ');
         prefix = msg.substr(1, prefix_separator - 1);
-        offset = prefix_separator;
+        offset = prefix_separator + 1;
         std::cerr << "prefix: '" << *prefix << "'" << std::endl;
       }
 
@@ -190,8 +190,8 @@ irc_data::packet::parse(const std::string message) {
 
             looping = false;
           } else {
-            command = parse_command_variant(msg.substr(offset, command_separator - 1));
-            offset += command_separator;
+            command = parse_command_variant(msg.substr(offset, command_separator));
+            offset = command_separator;
           }
           if(command.index() == 0) {
             std::cerr << "command (U32): '" << std::get<U32>(command) << "'" << std::endl;
@@ -211,8 +211,8 @@ irc_data::packet::parse(const std::string message) {
             // Not a trailing parameter, space-separated
             const auto param_separator = msg.find(' ', offset);
             if (param_separator != std::string::npos) {
-              params.emplace_back(msg.substr(offset, param_separator - 1));
-              offset += param_separator;
+              params.emplace_back(msg.substr(offset, param_separator));
+              offset = param_separator;
             } else {
               params.emplace_back(msg.substr(offset));
 
