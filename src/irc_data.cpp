@@ -177,6 +177,7 @@ irc_data::packet::parse(const std::string message) {
 
       auto placement = 0;
       auto looping = true;
+      const auto msg_size = msg.size();
 
       do {
         switch (placement) {
@@ -213,6 +214,10 @@ irc_data::packet::parse(const std::string message) {
           }
           break;
         }
+        }
+
+        if(offset >= msg_size) {
+          looping = false;
         }
 
         placement++;
