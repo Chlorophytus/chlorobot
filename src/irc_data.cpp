@@ -220,10 +220,9 @@ irc_data::packet::parse(const std::string message) {
                                          .command = command,
                                          .params = params,
                                          .trailing_param = trailing_param});
-    } else {
-      return rets;
     }
   }
+  return rets;
 }
 
 const std::string irc_data::packet::serialize() const {
