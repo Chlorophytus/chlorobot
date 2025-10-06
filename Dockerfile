@@ -42,9 +42,7 @@ RUN ln -s /usr/lib/libsqlite3.so.0 /usr/lib/libsqlite3.so
 
 # set up chlorobot serving
 WORKDIR /srv/chlorobot
-RUN chown nobody /srv/chlorobot 
-COPY --from=build --chown=nobody:root /opt/chlorobot/build/chlorobot ./
+COPY --from=build /opt/chlorobot/build/chlorobot ./
 
 # we are good now
-USER nobody
 ENTRYPOINT [ "/srv/chlorobot/chlorobot" ]
