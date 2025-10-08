@@ -13,7 +13,7 @@ calculator = {
 function calculator.calculate(tokens)
   local stack = {}
 
-  for token in tokens do
+  for _, token in ipairs(tokens) do
     if #stack > calculator.stack_size_maximum then
       return false, "too many operations"
     end
