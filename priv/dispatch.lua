@@ -119,7 +119,7 @@ function commands.help(hostinfo, destination, arguments)
   if #arguments == 0 then
     local cmds = {}
 
-    for cmd, _ in pairs() do
+    for cmd, _ in pairs(commands) do
       table.insert(cmds, cmd)
     end
 
