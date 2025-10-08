@@ -116,13 +116,13 @@ function commands.perms(hostinfo, destination, arguments)
 
 function commands.help(hostinfo, destination, arguments) end
   if #arguments == 0 then
-      local cmds = {}
+    local cmds = {}
 
-      for cmd, _ in pairs() do
-        table.insert(cmds, cmd)
-      end
+    for cmd, _ in pairs() do
+      table.insert(cmds, cmd)
+    end
 
-      chlorobot.respond(destination, hostinfo.nickname .. ": Commands are '" .. table.concat(cmds, ", ") .. "'")
+    chlorobot.respond(destination, hostinfo.nickname .. ": Commands are '" .. table.concat(cmds, ", ") .. "'")
   elseif #arguments == 1 then
     if help[arguments[1]] ~= nil then
       chlorobot.respond(destination, hostinfo.nickname .. ": " .. help[arguments[1]])
