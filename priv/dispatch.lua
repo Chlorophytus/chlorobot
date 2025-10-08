@@ -1,4 +1,5 @@
 dofile('priv/version.lua')
+dofile('priv/calculator.lua')
 
 commands = {}
 
@@ -118,6 +119,17 @@ function commands.perms(hostinfo, destination, arguments)
     end
   end
 end
+
+function commands.calc(hostinfo, destination, arguments)
+  local ok, result = calculator.calculate(arguments)
+
+  if ok then
+    chlorobot.respond(destination, hostinfo.nickname .. ": Calculation result is " .. tostring(result))
+  else
+    chlorobot.respond(destination, hostinfo.nickname .. ": Calculation error - " .. result)
+  end
+end
+
 
 function commands.help(hostinfo, destination, arguments)
   if #arguments == 0 then
