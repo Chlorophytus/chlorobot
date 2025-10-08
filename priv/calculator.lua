@@ -7,7 +7,8 @@ calculator = {
     ["/"] = function(lhs, rhs) return lhs / rhs end,
     ["%"] = function(lhs, rhs) return lhs % rhs end,
     ["^"] = function(lhs, rhs) return math.pow(lhs, rhs) end,
-  }
+  },
+}
 
 function calculator.calculate(tokens)
   local stack = {}
