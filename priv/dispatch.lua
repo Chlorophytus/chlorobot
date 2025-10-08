@@ -113,6 +113,7 @@ function commands.perms(hostinfo, destination, arguments)
       chlorobot.respond(destination, hostinfo.nickname .. ": ".. user .. " now has permissions '" .. perms .. "'")     
     end
   end
+end
 
 function commands.help(hostinfo, destination, arguments)
   if #arguments == 0 then
