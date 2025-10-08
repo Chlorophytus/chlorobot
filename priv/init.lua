@@ -10,7 +10,7 @@ end
 function chlorobot.log(message)
   local date = os.date("%x %X")
 
-  io.stdout:write(string.format("(%s) %s\n", date, message))
+  io.stdout:write(string.format("(%s) %s\r\n", date, message))
 end
 
 function chlorobot.parse_hostmask(hostmask)

@@ -49,12 +49,12 @@ function commands.eval(hostinfo, destination, arguments)
     if fun ~= nil then
       local ok, inner = pcall(fun)
       if ok then
-        chlorobot.respond(destination, hostinfo.nickname .. ": " .. tostring(inner()))
+        chlorobot.respond(destination, hostinfo.nickname .. " - " .. tostring(inner()))
       else
-        chlorobot.respond(destination, hostinfo.nickname .. "Execution error: " .. inner)
+        chlorobot.respond(destination, hostinfo.nickname .. " - execution error: " .. inner)
       end
     else
-      chlorobot.respond(destination, hostinfo.nickname .. "Compile error: " .. error)
+      chlorobot.respond(destination, hostinfo.nickname .. " - compile error: " .. error)
     end
   end
 end
@@ -114,7 +114,7 @@ function commands.perms(hostinfo, destination, arguments)
     end
   end
 
-function commands.help(hostinfo, destination, arguments) end
+function commands.help(hostinfo, destination, arguments)
   if #arguments == 0 then
     local cmds = {}
 
