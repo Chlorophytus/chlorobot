@@ -17,6 +17,7 @@ namespace calls {
   int core_version(lua_State *);
   int send(lua_State *);
   int stop(lua_State *);
+  int log_raw(lua_State *);
 }
 }
 } // namespace chlorobot

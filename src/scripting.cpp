@@ -23,6 +23,8 @@ void scripting::start(std::filesystem::path &&r) {
     lua_setfield(L.get(), 1, "send");
     lua_pushcfunction(L.get(), scripting::calls::stop);
     lua_setfield(L.get(), 1, "stop");
+    lua_pushcfunction(L.get(), scripting::calls::log_raw);
+    lua_setfield(L.get(), 1, "log_raw");
     lua_setglobal(L.get(), "chlorobot");
 
     scripting::load_startup();
@@ -171,6 +173,13 @@ int scripting::calls::stop(lua_State *l) {
   tls_socket::send(
       irc_data::packet{.command = "QUIT", .trailing_param = "Chlorobot"}
           .serialize());
+
+  return 0;
+}
+
+int scripting::calls::log_raw(lua_State *l) {
+  std::cout << lua_tostring(l, -1) << std::endl;
+  lua_pop(l, 1);
 
   return 0;
 }
