@@ -143,7 +143,7 @@ function commands.help(hostinfo, destination, arguments)
     chlorobot.respond(destination, hostinfo.nickname .. ": Commands are '" .. table.concat(cmds, ", ") .. "'")
   elseif #arguments == 1 then
     if help[arguments[1]] ~= nil then
-      chlorobot.respond(destination, hostinfo.nickname .. ": " .. arguments[1]] .. " - " .. help[arguments[1]])
+      chlorobot.respond(destination, hostinfo.nickname .. ": " .. arguments[1] .. " - " .. help[arguments[1]])
     else
       chlorobot.respond(destination, hostinfo.nickname .. ": No help for that command")
     end
