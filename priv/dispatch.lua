@@ -49,12 +49,10 @@ function commands.eval(hostinfo, destination, arguments)
     if fun ~= nil then
       local ok, inner = pcall(fun)
       if ok then
-        local raw = inner()
-
-        if type(raw) ~= "string" then
-          chlorobot.respond(destination, hostinfo.nickname .. " - result: " .. tostring(raw))
+        if type(inner) ~= "string" then
+          chlorobot.respond(destination, hostinfo.nickname .. " - result: " .. tostring(inner))
         else
-          chlorobot.respond(destination, hostinfo.nickname .. " - result: " .. raw)
+          chlorobot.respond(destination, hostinfo.nickname .. " - result: " .. inner)
         end
       else
         chlorobot.respond(destination, hostinfo.nickname .. " - execution error: " .. inner)
