@@ -2,6 +2,18 @@ dofile('priv/version.lua')
 
 commands = {}
 
+help = {
+  ping = "replies with a message",
+  reload = "reloads the Lua startup script",
+  exit = "makes the bot quit gracefully",
+  eval = "evaluates a Lua expression",
+  version = "shows bot version information",
+  join = "joins an IRC channel",
+  part = "leaves an IRC channel",
+  perms = "handles user permissions for running dangerous commands",
+  help = "shows brief help for a specified command",
+}
+
 function commands.ping(hostinfo, destination, arguments)
   chlorobot.respond(destination, hostinfo.nickname .. ": Pong")
 end
@@ -35,9 +47,14 @@ function commands.eval(hostinfo, destination, arguments)
     local fun, error = load(command)
 
     if fun ~= nil then
-      chlorobot.respond(destination, hostinfo.nickname .. ": " .. tostring(fun()))
+      local ok, inner = pcall(fun)
+      if ok then
+        chlorobot.respond(destination, hostinfo.nickname .. ": " .. tostring(inner()))
+      else
+        chlorobot.respond(destination, hostinfo.nickname .. "Execution error: " .. inner)
+      end
     else
-      chlorobot.respond(destination, hostinfo.nickname .. ": " .. error)
+      chlorobot.respond(destination, hostinfo.nickname .. "Compile error: " .. error)
     end
   end
 end
@@ -95,5 +112,24 @@ function commands.perms(hostinfo, destination, arguments)
       local perms = permissions.bulk_get_raw(user)
       chlorobot.respond(destination, hostinfo.nickname .. ": ".. user .. " now has permissions '" .. perms .. "'")     
     end
+  end
+
+function commands.help(hostinfo, destination, arguments) end
+  if #arguments == 0 then
+      local cmds = {}
+
+      for cmd, _ in pairs() do
+        table.insert(cmds, cmd)
+      end
+
+      chlorobot.respond(destination, hostinfo.nickname .. ": Commands are '" .. table.concat(cmds, ", ") .. "'")
+  elseif #arguments == 1 then
+    if help[arguments[1]] ~= nil then
+      chlorobot.respond(destination, hostinfo.nickname .. ": " .. help[arguments[1]])
+    else
+      chlorobot.respond(destination, hostinfo.nickname .. ": No help for that command")
+    end
+  else
+    chlorobot.respond(destination, hostinfo.nickname .. ": Specify zero or one arguments for help")
   end
 end
