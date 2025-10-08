@@ -13,6 +13,7 @@ help = {
   part = "leaves an IRC channel",
   perms = "handles user permissions for running dangerous commands",
   help = "shows brief help for a specified command",
+  calc = "performs calculations in RPN",
 }
 
 function commands.ping(hostinfo, destination, arguments)
