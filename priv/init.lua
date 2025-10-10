@@ -89,11 +89,12 @@ function chlorobot.tick(packet)
 
     if packet.command == "PRIVMSG" then
       local host = chlorobot.parse_hostmask(packet.prefix)
-      local destination = if string.sub(packet.params[1], 1, 1) ~= "#" then
-        host.nickname
-      else
-        packet.params[1]
+      local destination = packet.params[1]
+      
+      if string.sub(packet.params[1], 1, 1) ~= "#" then
+        destination = host.nickname
       end
+
       local message = packet.trailing_param
       local action = chlorobot.get_action(message)
 
