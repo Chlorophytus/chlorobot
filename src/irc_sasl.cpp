@@ -73,14 +73,12 @@ void irc_sasl::try_auth(const std::string &account,
       .command = "CAP", .params = {"REQ"}, .trailing_param = "sasl"}
                 .serialize());
   std::optional<std::string> raw = std::nullopt;
-  U64 attempts = 0;
   irc_sasl::sasl_state state = irc_sasl::sasl_state::wait_for_ack;
   auto t0 = std::chrono::steady_clock::now();
 
   while (state != irc_sasl::sasl_state::complete) {
     raw = sock.recv();
 
-    attempts++;
     if (raw) {
       std::string message = *raw;
       std::vector<irc_data::packet> packets = irc_data::packet::parse(message);
@@ -140,15 +138,13 @@ void irc_sasl::try_auth(const std::string &account,
           auto &&get_if = std::get_if<U32>(&packet.command);
           if (get_if) {
             if (*get_if == 903) {
+              std::cerr << "Authentication successful!" << std::endl;
               state = irc_sasl::sasl_state::complete;
-              break;
-            } else {
-              continue;
             }
           }
+          break;
         }
         case irc_sasl::sasl_state::complete: {
-          std::cerr << "Authentication successful!" << std::endl;
           break;
         }
         }

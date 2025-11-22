@@ -23,14 +23,14 @@ int main(int argc, char **argv) {
     const std::string port{std::getenv("CHLOROBOT_NETWORK_PORT")};
 
     sock.connect(host, port);
-    chlorobot::irc::send_user_info(nickname, ident, real_name);
-    
     if (chlorobot::irc_sasl::has_sasl_capability()) {
       chlorobot::irc_sasl::try_auth(sasl_username, sasl_password);
+      chlorobot::irc::send_user_info(nickname, ident, real_name);
     } else {
       throw std::runtime_error{"SASL is not present on this server"};
     }
 
+    
     chlorobot::scripting::engine &lua =
         chlorobot::scripting::engine::get_instance();
 
