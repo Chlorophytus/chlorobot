@@ -3,14 +3,6 @@
 #include "lua.h"
 using namespace chlorobot;
 
-void scripting::engine::start() {
-  _L = L_ptr{luaL_newstate(), [](lua_State *ptr) {
-               if (ptr) {
-                 lua_close(ptr);
-               }
-             }};
-}
-
 int scripting::engine::reload_scripts() {
   std::cerr << "Loading startup Lua script" << std::endl;
   auto ret = luaL_dofile(

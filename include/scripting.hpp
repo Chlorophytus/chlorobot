@@ -36,8 +36,6 @@ class engine {
     lua_pushcfunction(_L.get(), scripting::calls::log_raw);
     lua_setfield(_L.get(), 1, "log_raw");
     lua_setglobal(_L.get(), "chlorobot");
-
-    reload_scripts();
   }
   engine(const engine &) = delete;
   engine(engine &&) = delete;

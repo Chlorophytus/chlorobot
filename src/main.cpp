@@ -30,7 +30,6 @@ int main(int argc, char **argv) {
       throw std::runtime_error{"SASL is not present on this server"};
     }
 
-    
     chlorobot::scripting::engine &lua =
         chlorobot::scripting::engine::get_instance();
 
@@ -38,9 +37,9 @@ int main(int argc, char **argv) {
       auto received = sock.recv();
 
       if (received) {
-        const auto packets = chlorobot::irc_data::packet::parse(*received);
+        auto packets = chlorobot::irc_data::packet::parse(*received);
         for (auto packet : packets) {
-          auto &&command = std::get_if<std::string>(&packet.command);
+          auto command = std::get_if<std::string>(&packet.command);
           if (command) {
             if (*command == "ERROR") {
               std::cerr << "Disconnected: "
@@ -55,6 +54,8 @@ int main(int argc, char **argv) {
           }
           lua.maybe_handle_packet(packet);
         }
+      } else {
+        lua.maybe_handle_packet(std::nullopt);
       }
     }
 
