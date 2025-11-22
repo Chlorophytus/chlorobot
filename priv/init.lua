@@ -98,7 +98,6 @@ function chlorobot.tick(packet)
       local message = packet.trailing_param
       local action = chlorobot.get_action(message)
 
-
       if action == nil then
         chlorobot.log_message(destination, host.nickname, message, false)
 

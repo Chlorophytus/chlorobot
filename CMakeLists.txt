@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.25)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Project instantiation
-project(chlorobot VERSION 2.0.0.72)
+project(chlorobot VERSION 3.0.0.73)
 
 # Add OpenSSL
 find_package(OpenSSL REQUIRED) 
@@ -20,6 +20,7 @@ configure_file(include/configuration.txt
 add_executable(${PROJECT_NAME}
     src/scripting.cpp
     src/tls_socket.cpp
+    src/irc_sasl.cpp
     src/irc_data.cpp
     src/irc.cpp
     src/main.cpp

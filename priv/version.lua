@@ -1,5 +1,5 @@
 chlorobot.script_version = {
-  major = 2,
+  major = 3,
   minor = 0,
   patch = 0,
   revision = 17,

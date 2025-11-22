@@ -3,104 +3,81 @@
 #include "lua.h"
 using namespace chlorobot;
 
-using L_sptr = std::unique_ptr<lua_State, std::function<void(lua_State *)>>;
-static L_sptr L;
-static std::filesystem::path root;
-
-void scripting::start(std::filesystem::path &&r) {
-  if (!L) {
-    root = r;
-    L = L_sptr{luaL_newstate(), [](lua_State *l) { lua_close(l); }};
-    luaL_openlibs(L.get());
-
-    // Initialize "Chlorobot" table
-    lua_newtable(L.get());
-    lua_pushcfunction(L.get(), scripting::calls::reload);
-    lua_setfield(L.get(), 1, "reload");
-    lua_pushcfunction(L.get(), scripting::calls::core_version);
-    lua_setfield(L.get(), 1, "core_version");
-    lua_pushcfunction(L.get(), scripting::calls::send);
-    lua_setfield(L.get(), 1, "send");
-    lua_pushcfunction(L.get(), scripting::calls::stop);
-    lua_setfield(L.get(), 1, "stop");
-    lua_pushcfunction(L.get(), scripting::calls::log_raw);
-    lua_setfield(L.get(), 1, "log_raw");
-    lua_setglobal(L.get(), "chlorobot");
-
-    scripting::load_startup();
-  } else {
-    throw std::runtime_error{"Lua state already existed"};
-  }
+void scripting::engine::start() {
+  _L = L_ptr{luaL_newstate(), [](lua_State *ptr) {
+               if (ptr) {
+                 lua_close(ptr);
+               }
+             }};
 }
 
-int scripting::load_startup() {
+int scripting::engine::reload_scripts() {
   std::cerr << "Loading startup Lua script" << std::endl;
-  auto ret = luaL_dofile(L.get(), (root / "priv" / "init.lua").c_str());
+  auto ret = luaL_dofile(
+      _L.get(), (std::filesystem::path{"."} / "priv" / "init.lua").c_str());
 
   if (ret != 0) {
-    std::cerr << "Startup Lua script error: " << lua_tostring(L.get(), -1)
+    std::cerr << "Startup Lua script error: " << lua_tostring(_L.get(), -1)
               << std::endl;
   }
   return ret;
 }
 
-void scripting::maybe_handle_packet(
+void scripting::engine::maybe_handle_packet(
     const std::optional<irc_data::packet> &maybe_packet) {
-  lua_getglobal(L.get(), "chlorobot");
-  lua_getfield(L.get(), 1, "tick");
+  lua_getglobal(_L.get(), "chlorobot");
+  lua_getfield(_L.get(), 1, "tick");
   if (maybe_packet) {
-    lua_newtable(L.get());
+    lua_newtable(_L.get());
     // prefix
     if (maybe_packet->prefix) {
-      lua_pushstring(L.get(), maybe_packet->prefix->c_str());
+      lua_pushstring(_L.get(), maybe_packet->prefix->c_str());
     } else {
-      lua_pushnil(L.get());
+      lua_pushnil(_L.get());
     }
-    lua_setfield(L.get(), -2, "prefix");
+    lua_setfield(_L.get(), -2, "prefix");
 
     // command
     if (maybe_packet->command.index() == 0) {
-      lua_pushinteger(L.get(), std::get<U32>(maybe_packet->command));
+      lua_pushinteger(_L.get(), std::get<U32>(maybe_packet->command));
     } else {
-      lua_pushstring(L.get(),
+      lua_pushstring(_L.get(),
                      std::get<std::string>(maybe_packet->command).c_str());
     }
-    lua_setfield(L.get(), -2, "command");
+    lua_setfield(_L.get(), -2, "command");
 
     // params
     U64 i = 1;
-    lua_newtable(L.get());
+    lua_newtable(_L.get());
     for (auto &&param : maybe_packet->params) {
-      lua_pushnumber(L.get(), i++);
-      lua_pushstring(L.get(), param.c_str());
-      lua_settable(L.get(), -3);
+      lua_pushnumber(_L.get(), i++);
+      lua_pushstring(_L.get(), param.c_str());
+      lua_settable(_L.get(), -3);
     }
-    lua_setfield(L.get(), -2, "params");
+    lua_setfield(_L.get(), -2, "params");
 
     // trailing
     if (maybe_packet->trailing_param) {
-      lua_pushstring(L.get(), maybe_packet->trailing_param->c_str());
+      lua_pushstring(_L.get(), maybe_packet->trailing_param->c_str());
     } else {
-      lua_pushnil(L.get());
+      lua_pushnil(_L.get());
     }
-    lua_setfield(L.get(), -2, "trailing_param");
+    lua_setfield(_L.get(), -2, "trailing_param");
   } else {
-    lua_pushnil(L.get());
+    lua_pushnil(_L.get());
   }
 
-  auto ret = lua_pcall(L.get(), 1, 0, 0);
+  auto ret = lua_pcall(_L.get(), 1, 0, 0);
   if (ret != 0) {
-    std::cerr << "Startup script runloop error: " << lua_tostring(L.get(), -1)
+    std::cerr << "Startup script runloop error: " << lua_tostring(_L.get(), -1)
               << std::endl;
     throw std::runtime_error{"Startup script runloop error"};
   }
 }
 
-void scripting::stop() { L = nullptr; }
-
 int scripting::calls::reload(lua_State *l) {
   std::cerr << "Startup script requested reload" << std::endl;
-  int ret = scripting::load_startup();
+  int ret = scripting::engine::get_instance().reload_scripts();
   lua_pushinteger(l, ret);
   return 1;
 }
@@ -157,12 +134,12 @@ int scripting::calls::send(lua_State *l) {
       }
     }
     lua_pop(l, 1);
-
-    tls_socket::send(irc_data::packet{.prefix = prefix,
-                                      .command = command,
-                                      .params = params,
-                                      .trailing_param = trailing}
-                         .serialize());
+    tls_socket::socket &sock = tls_socket::socket::get_instance();
+    sock.send(irc_data::packet{.prefix = prefix,
+                               .command = command,
+                               .params = params,
+                               .trailing_param = trailing}
+                  .serialize());
   }
 
   return 0;
@@ -170,9 +147,9 @@ int scripting::calls::send(lua_State *l) {
 
 int scripting::calls::stop(lua_State *l) {
   std::cerr << "Startup script requested quit" << std::endl;
-  tls_socket::send(
-      irc_data::packet{.command = "QUIT", .trailing_param = "Chlorobot"}
-          .serialize());
+
+  tls_socket::socket &sock = tls_socket::socket::get_instance();
+  sock.disconnect();
 
   return 0;
 }

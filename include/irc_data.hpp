@@ -2,16 +2,6 @@
 #include "main.hpp"
 namespace chlorobot {
 namespace irc_data {
-/// @brief User identification data sent to the IRC daemon
-struct user {
-  std::string nickname;  // Nickname shown when sending chat messages
-  std::string ident;     // Ident field (will be shown to left of hostmask)
-  std::string real_name; // Real name shown to whoever does a WHOIS on you
-
-  std::string sasl_account;  // SASL account username
-  std::string sasl_password; // SASL password
-};
-
 /// @brief Parsed IRC packet data
 struct packet {
   std::optional<std::string> prefix = std::nullopt; // The first chunk

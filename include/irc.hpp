@@ -4,11 +4,11 @@
 #include "tls_socket.hpp"
 namespace chlorobot {
 namespace irc {
-/// @brief Connects to the IRC server by SSL on the specified port with user
-/// data
-/// @param host The server to connect to
-/// @param port The port that we connect to
-/// @param user_data The user data to use
-void connect(std::string &&, std::string &&, irc_data::user &&);
+/// @brief Sends NICK and USER to IRC
+/// @param nick the IRC nickname
+/// @param user the IRC username
+/// @param gecos the IRC real name
+void send_user_info(const std::string &nick, const std::string &user,
+                    const std::string &gecos);
 } // namespace irc
 } // namespace chlorobot
