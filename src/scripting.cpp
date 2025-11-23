@@ -5,7 +5,8 @@ using namespace chlorobot;
 
 int scripting::engine::reload_scripts() {
   std::cerr << "Loading startup Lua script" << std::endl;
-  auto ret = luaL_dofile(_L.get(), "/srv/chlorobot/priv/init.lua");
+  auto ret = luaL_dofile(
+      _L.get(), (std::filesystem::path{"."} / "priv" / "init.lua").c_str());
 
   if (ret != 0) {
     std::cerr << "Startup Lua script error: " << lua_tostring(_L.get(), -1)
