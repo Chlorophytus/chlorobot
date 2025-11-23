@@ -139,6 +139,8 @@ void irc_sasl::try_auth(const std::string &account,
           if (get_if) {
             if (*get_if == 903) {
               std::cerr << "Authentication successful!" << std::endl;
+              sock.send(irc_data::packet{.command = "CAP", .params = {"END"}}
+                            .serialize());
               state = irc_sasl::sasl_state::complete;
             }
           }

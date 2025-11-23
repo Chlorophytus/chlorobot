@@ -24,14 +24,11 @@ int main(int argc, char **argv) {
 
     sock.connect(host, port);
     if (chlorobot::irc_sasl::has_sasl_capability()) {
+      chlorobot::irc::send_user_info(nickname, ident, real_name);
       chlorobot::irc_sasl::try_auth(sasl_username, sasl_password);
     } else {
       throw std::runtime_error{"SASL is not present on this server"};
     }
-
-    std::cerr << "Warming up to send user info..." << std::endl;
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    chlorobot::irc::send_user_info(nickname, ident, real_name);
 
     chlorobot::scripting::engine &lua =
         chlorobot::scripting::engine::get_instance();

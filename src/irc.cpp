@@ -9,6 +9,6 @@ void irc::send_user_info(const std::string &nick, const std::string &user,
   std::cerr << "Requesting username '" << user << "' and realname '" << gecos
             << "'" << std::endl;
   sock.send(
-      irc_data::packet{.command = "USER", .params = {user, "0", "*", gecos}}
+      irc_data::packet{.command = "USER", .params = {user, "0", "*"}, .trailing_param = gecos}
           .serialize());
 }

@@ -29,7 +29,7 @@ RUN cmake -DCMAKE_BUILD_TYPE=Release -Bbuild && \
 # =============================================================================
 # Runner
 # =============================================================================
-from alpine:3.21
+FROM alpine:3.21
 
 # install runtime deps
 RUN apk -U add --no-cache libstdc++ openssl luajit sqlite-libs 
