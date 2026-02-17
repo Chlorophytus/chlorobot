@@ -122,14 +122,14 @@ void irc_sasl::try_auth(const std::string &account,
             }
 
             const auto base64_length = base64_in.size();
-            constexpr auto CHUNKS_SIZE = 400;
+            constexpr auto CHUNKS_SIZE = 300;
 
-            U8 base64_buf[(CHUNKS_SIZE << 3)]{0};
+            U8 base64_buf[CHUNKS_SIZE]{0};
             size_t encoded_final = 0;
-            for (auto i = 0; i < base64_length; i += (CHUNKS_SIZE << 3)) {
+            for (auto i = 0; i < base64_length; i += CHUNKS_SIZE) {
               auto offset_final = 0;
 
-              for (auto offset = 0; offset < (CHUNKS_SIZE << 3); offset++) {
+              for (auto offset = 0; offset < CHUNKS_SIZE; offset++) {
                 if ((i + offset) < base64_length) {
                   // Final offset is set not to zero here
                   base64_buf[offset] = base64_in.at(i + offset);
@@ -140,13 +140,15 @@ void irc_sasl::try_auth(const std::string &account,
                 }
               }
               if (offset_final > 0) {
-                U8 base64_out[CHUNKS_SIZE + 1]{0};
-                EVP_EncodeBlock(base64_out, base64_buf, offset_final / 8);
+                U8 base64_out[((CHUNKS_SIZE / 3) * 4) + 1]{0};
+                EVP_EncodeBlock(base64_out, base64_buf,
+                                ((CHUNKS_SIZE / 3) * 4));
 
-                sock.send(irc_data::packet{
-                    .command = "AUTHENTICATE",
-                    .params = {std::string{
-                        reinterpret_cast<char *>(base64_out)}}}.serialize());
+                sock.send(
+                    irc_data::packet{.command = "AUTHENTICATE",
+                                     .params = {std::string{
+                                         reinterpret_cast<char *>(base64_out)}}}
+                        .serialize());
               } else {
                 sock.send(
                     irc_data::packet{.command = "AUTHENTICATE", .params = {"+"}}
