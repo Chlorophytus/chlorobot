@@ -1,6 +1,8 @@
 #include "../include/irc_sasl.hpp"
 #include "../include/irc_data.hpp"
 #include "../include/tls_socket.hpp"
+#include <ranges>
+#include <string_view>
 using namespace chlorobot;
 
 bool irc_sasl::has_sasl_capability() {
@@ -46,18 +48,13 @@ bool irc_sasl::has_sasl_capability() {
     }
   }
   if (sasl_capability.size() > 4) {
-    std::string_view sasl_types = sasl_capability.substr(5);
-    std::string_view sasl_type = "";
-    for (auto sasl_index = sasl_types.find(',');
-         sasl_index != std::string_view::npos;
-         sasl_index = sasl_types.find(',')) {
-      sasl_type = sasl_types.substr(0, sasl_index);
-      if (sasl_type.starts_with("PLAIN")) {
+    for (const auto sasl : std::views::split(sasl_capability.substr(5), ',')) {
+      if (std::string_view{sasl} == "PLAIN") {
         std::cerr << "Got SASL capability PLAIN" << std::endl;
         return true;
       }
-      sasl_types.remove_prefix(sasl_index + 1);
     }
+
     return false;
   } else {
     std::cerr << "SASL support specified to be empty, proceeding anyway"
