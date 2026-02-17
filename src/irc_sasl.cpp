@@ -1,6 +1,7 @@
 #include "../include/irc_sasl.hpp"
 #include "../include/irc_data.hpp"
 #include "../include/tls_socket.hpp"
+#include <openssl/evp.h>
 #include <ranges>
 #include <string_view>
 using namespace chlorobot;
@@ -101,32 +102,64 @@ void irc_sasl::try_auth(const std::string &account,
           auto &&get_if = std::get_if<std::string>(&packet.command);
           if (get_if && *get_if == "AUTHENTICATE" &&
               packet.params.at(0) == "+") {
-            U8 base64_in[400]{0};
-            U8 base64_out[50]{0};
+
+            std::vector<char> base64_in{};
             U32 i = 0;
 
             for (char ch : account) {
-              base64_in[i] = ch;
+              base64_in.emplace_back(ch);
               i++;
             }
-            base64_in[i++] = 0;
+            base64_in.emplace_back('\0');
             for (char ch : account) {
-              base64_in[i] = ch;
+              base64_in.emplace_back(ch);
               i++;
             }
-            base64_in[i++] = 0;
+            base64_in.emplace_back('\0');
             for (char ch : password) {
-              base64_in[i] = ch;
+              base64_in.emplace_back(ch);
               i++;
             }
 
-            // 400 / 8 = 50
-            EVP_EncodeBlock(base64_out, base64_in, 50);
-            sock.send(irc_data::packet{
-                .command = "AUTHENTICATE",
-                .params = {std::string{
-                    reinterpret_cast<char *>(base64_out),
-                    50}}}.serialize());
+            const auto base64_length = base64_in.size();
+            const auto base64_end_length = base64_length % 400;
+
+            U8 base64_buf[400]{0};
+            size_t encoded_final = 0;
+            for (auto i = 0; i < base64_length; i += 400) {
+              // Can either be 400 (to continue), 0 (to halt and send +), or
+              // other value (to halt and send incomplete)
+              auto offset_final = 0;
+
+              for (auto offset = 0; offset < 400; offset++) {
+                if ((i + offset) < base64_length) {
+                  // Final offset is set not to zero here
+                  base64_buf[offset] = base64_in.at(i + offset);
+                  offset_final = offset;
+                } else {
+                  // If offset is zero, final offset is zero here as well
+                  base64_buf[offset] = 0;
+                }
+              }
+              U8 base64_out[50]{0};
+              if (offset_final > 0) {
+                // magic formula used to calculate padded offset into bytes
+                encoded_final = (offset_final + 2) / 8;
+
+                EVP_EncodeBlock(base64_out, base64_buf, encoded_final);
+
+                sock.send(irc_data::packet{
+                    .command = "AUTHENTICATE",
+                    .params = {std::string{reinterpret_cast<char *>(base64_out),
+                                           encoded_final}}}
+                              .serialize());
+              } else {
+                sock.send(
+                    irc_data::packet{.command = "AUTHENTICATE", .params = {"+"}}
+                        .serialize());
+              }
+            }
+
             state = irc_sasl::sasl_state::wait_for_response;
           }
           break;

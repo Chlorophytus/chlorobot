@@ -169,9 +169,9 @@ void tls_socket::socket::send(const std::string &packet) {
 
   packet.copy(buffer, n, 0);
 
-#ifdef CHLOROBOT_TRACE
-  std::cerr << "[SEND] " << buffer;
-#endif
+  if (std::getenv("CHLOROBOT_TRACE") != nullptr) {
+    std::cerr << "[SEND] " << buffer;
+  }
 
   while (!SSL_write_ex(_ssl.get(), buffer, n, &wrotebytes)) {
     const auto status = _handle_data(0);
@@ -220,9 +220,9 @@ std::optional<std::string> tls_socket::socket::recv() {
     }
   }
   if (readbytes > 0) {
-#ifdef CHLOROBOT_TRACE
-    std::cerr << "[RECV] " << buffer;
-#endif
+    if (std::getenv("CHLOROBOT_TRACE") != nullptr) {
+      std::cerr << "[RECV] " << buffer;
+    }
     return std::string{buffer, readbytes};
   } else {
     return std::nullopt;
