@@ -122,16 +122,14 @@ void irc_sasl::try_auth(const std::string &account,
             }
 
             const auto base64_length = base64_in.size();
-            const auto base64_end_length = base64_length % 400;
+            constexpr auto CHUNKS_SIZE = 400;
 
-            U8 base64_buf[400]{0};
+            U8 base64_buf[(CHUNKS_SIZE << 3)]{0};
             size_t encoded_final = 0;
-            for (auto i = 0; i < base64_length; i += 400) {
-              // Can either be 400 (to continue), 0 (to halt and send +), or
-              // other value (to halt and send incomplete)
+            for (auto i = 0; i < base64_length; i += (CHUNKS_SIZE << 3)) {
               auto offset_final = 0;
 
-              for (auto offset = 0; offset < 400; offset++) {
+              for (auto offset = 0; offset < (CHUNKS_SIZE << 3); offset++) {
                 if ((i + offset) < base64_length) {
                   // Final offset is set not to zero here
                   base64_buf[offset] = base64_in.at(i + offset);
@@ -141,18 +139,14 @@ void irc_sasl::try_auth(const std::string &account,
                   base64_buf[offset] = 0;
                 }
               }
-              U8 base64_out[50]{0};
               if (offset_final > 0) {
-                // magic formula used to calculate padded offset into bytes
-                encoded_final = (offset_final + 2) / 8;
-
-                EVP_EncodeBlock(base64_out, base64_buf, encoded_final);
+                U8 base64_out[CHUNKS_SIZE + 1]{0};
+                EVP_EncodeBlock(base64_out, base64_buf, offset_final / 8);
 
                 sock.send(irc_data::packet{
                     .command = "AUTHENTICATE",
-                    .params = {std::string{reinterpret_cast<char *>(base64_out),
-                                           encoded_final}}}
-                              .serialize());
+                    .params = {std::string{
+                        reinterpret_cast<char *>(base64_out)}}}.serialize());
               } else {
                 sock.send(
                     irc_data::packet{.command = "AUTHENTICATE", .params = {"+"}}
