@@ -140,9 +140,9 @@ void irc_sasl::try_auth(const std::string &account,
                 }
               }
               if (offset_final > 0) {
-                U8 base64_out[((CHUNKS_SIZE / 3) * 4) + 1]{0};
-                EVP_EncodeBlock(base64_out, base64_buf,
-                                ((CHUNKS_SIZE / 3) * 4));
+                constexpr auto FINAL_SIZE = (CHUNKS_SIZE / 3) * 4;
+                U8 base64_out[FINAL_SIZE + 1]{0};
+                EVP_EncodeBlock(base64_out, base64_buf, offset_final);
 
                 sock.send(
                     irc_data::packet{.command = "AUTHENTICATE",
