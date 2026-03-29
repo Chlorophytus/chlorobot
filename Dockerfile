@@ -5,7 +5,7 @@ FROM alpine:3 AS build
 
 # install buildtime deps
 RUN apk -U add --no-cache build-base cmake openssl-dev luajit-dev sqlite-dev \
-    luarocks5.1 && \
+    luarocks5.1 linux-headers && \
     mkdir -p /opt/chlorobot/build 
 
 # set up build dir
