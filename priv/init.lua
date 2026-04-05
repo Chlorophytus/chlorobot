@@ -64,6 +64,7 @@ end
 dofile("priv/dispatch.lua")
 dofile("priv/health_check.lua")
 dofile("priv/permissions.lua")
+dofile("priv/markov.lua")
 permissions.initialize(false)
 
 function chlorobot.tick(packet)
@@ -90,7 +91,7 @@ function chlorobot.tick(packet)
     if packet.command == "PRIVMSG" then
       local host = chlorobot.parse_hostmask(packet.prefix)
       local destination = packet.params[1]
-      
+
       if string.sub(packet.params[1], 1, 1) ~= "#" then
         destination = host.nickname
       end
@@ -139,7 +140,7 @@ function chlorobot.tick(packet)
         chlorobot.log(string.format("[%s] %s sets channel mode(s) '%s'", packet.params[1], host.nickname, channel_modes))
       else
         chlorobot.log(string.format("%s sets user mode(s) '%s'", packet.params[1], packet.trailing_param))
-      end 
+      end
     end
 
     if packet.command == "JOIN" then

@@ -5,10 +5,10 @@ cmake_minimum_required(VERSION 3.25)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Project instantiation
-project(chlorobot VERSION 3.0.3.87)
+project(chlorobot VERSION 3.1.0.88)
 
 # Add OpenSSL
-find_package(OpenSSL REQUIRED) 
+find_package(OpenSSL REQUIRED)
 # Add LuaJIT
 pkg_check_modules(LuaJIT REQUIRED luajit)
 
