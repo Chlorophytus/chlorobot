@@ -65,10 +65,12 @@ function markov_run(markov, min_words, max_words)
             local possible_ending = markov.ends[current_word]
             string = string .. possible_ending[math.random(#possible_ending)]
             return string
-        else
+        elseif markov.mids[current_word] ~= nil then
             local word_table = markov.mids[current_word]
             current_word = word_table[math.random(#word_table)]
             string = string .. " " .. current_word
+        else
+            return string .. "."
         end
     end
 
