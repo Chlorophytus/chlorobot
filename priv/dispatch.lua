@@ -3,7 +3,7 @@ dofile('priv/calculator.lua')
 
 commands = {}
 local markov_obj = {}
-local markov_max = 25
+local markov_max = 32
 
 help = {
     ping = "replies with a message",
@@ -142,7 +142,7 @@ function commands.markov(hostinfo, destination, arguments)
                 local max = tonumber(arguments[3])
                 local valid = min ~= nil and max ~= nil
                 if valid then
-                    valid = min < max and min > 0 and max < markov_max
+                    valid = min < max and min > 0 and max <= markov_max
                 end
                 if valid then
                     chlorobot.respond(destination, hostinfo.nickname .. ": " .. markov_run(markov_obj, min, max))
