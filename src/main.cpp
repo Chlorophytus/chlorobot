@@ -4,10 +4,16 @@
 #include "../include/irc_sasl.hpp"
 #include "../include/scripting.hpp"
 
+volatile std::sig_atomic_t wants_exit = 0;
+extern "C" void handle_signal(int signal_number) { wants_exit = 1; }
+
 int main(int argc, char **argv) {
   // Fail safe
   try {
     std::cerr << "Chlorobot " << chlorobot_VSTRING_FULL << std::endl;
+
+    std::cerr << "Hooking SIGINT handler..." << std::endl;
+    signal(SIGQUIT, handle_signal);
 
     // This should be stored in a .env file!
     const std::string nickname = std::getenv("CHLOROBOT_NICKNAME");
@@ -57,6 +63,11 @@ int main(int argc, char **argv) {
         }
       } else {
         lua.maybe_handle_packet(std::nullopt);
+      }
+
+      // Our quit signal handler
+      if(wants_exit != 0) {
+        sock.disconnect();
       }
     }
 

@@ -3,6 +3,7 @@
 #include "configuration.hpp"
 
 #include <chrono>
+#include <csignal>
 #include <exception>
 #include <filesystem>
 #include <functional>

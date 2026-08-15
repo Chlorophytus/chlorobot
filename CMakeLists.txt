@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.25)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Project instantiation
-project(chlorobot VERSION 3.1.1.88)
+project(chlorobot VERSION 3.2.0.89)
 
 # Add OpenSSL
 find_package(OpenSSL REQUIRED)
