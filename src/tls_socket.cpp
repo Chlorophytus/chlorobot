@@ -1,6 +1,10 @@
 #include "../include/tls_socket.hpp"
 using namespace chlorobot;
 
+volatile std::sig_atomic_t wants_exit = 0;
+
+extern "C" void handle_signal(int signal) { wants_exit = 1; }
+
 void tls_socket::socket::_initialize_bio(const std::string &host,
                                          const std::string &port) {
   BIO_ADDRINFO *resources = nullptr;
@@ -74,9 +78,8 @@ tls_socket::poll_state tls_socket::socket::_handle_data(int resource) {
       .tv_usec = tls_socket::io_timeout_microseconds,
   };
 
-  if (_wants_exit != 0 && _running) {
+  if (wants_exit != 0 && _running) {
     disconnect();
-    _running = false;
   }
 
   switch (SSL_get_error(_ssl.get(), resource)) {
@@ -162,6 +165,9 @@ void tls_socket::socket::connect(const std::string &host,
     ERR_print_errors_fp(stderr);
     throw std::runtime_error{"failed to connect"};
   }
+
+  std::signal(SIGTERM, handle_signal);
+  _running = true;
 }
 
 void tls_socket::socket::send(const std::string &packet) {
@@ -240,6 +246,8 @@ std::optional<std::string> tls_socket::socket::recv() {
 }
 
 void tls_socket::socket::disconnect() {
+  _running = false;
+
   if (!_context) {
     std::cerr << "Socket already was disconnected" << std::endl;
     return;
