@@ -219,12 +219,10 @@ std::optional<std::string> tls_socket::socket::recv() {
 
     switch (status) {
     case tls_socket::poll_state::end_of_stream: {
-      if (_gracefully_disconnected) {
-        std::cerr << "EOF success after graceful disconnect" << std::endl;
-        return std::nullopt;
-      } else {
-        throw std::runtime_error{"Unexpected EOF encountered while reading"};
-      }
+      std::cerr << "EOF encountered. If this wasn't intended then Chlorobot "
+                   "should restart."
+                << std::endl;
+      return std::nullopt;
     }
     case tls_socket::poll_state::error: {
       ERR_print_errors_fp(stderr);
