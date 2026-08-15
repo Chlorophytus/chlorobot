@@ -1,7 +1,7 @@
+FROM alpine:3 AS build
 # =============================================================================
 # Builder
 # =============================================================================
-FROM alpine:3 AS build
 
 # install buildtime deps
 RUN apk -U add --no-cache build-base cmake openssl-dev luajit-dev sqlite-dev \
@@ -26,10 +26,11 @@ RUN luarocks-5.1 --global config variables.LUA_INCDIR /usr/include/luajit-2.1 &&
 # CMake build then regular build
 RUN cmake -DCMAKE_BUILD_TYPE=Release -Bbuild && \
     make -C build/ -j 
+
+FROM alpine:3
 # =============================================================================
 # Runner
 # =============================================================================
-FROM alpine:3
 
 # install runtime deps
 RUN apk -U add --no-cache libstdc++ openssl luajit sqlite-libs 
