@@ -247,8 +247,6 @@ void tls_socket::socket::disconnect() {
   }
 
   // BIO should be automatically freed. Please let that be true.
-  _ssl.release();
-  _context.release();
   _gracefully_disconnected = true;
 }
 
