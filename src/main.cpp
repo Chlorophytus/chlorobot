@@ -12,8 +12,8 @@ int main(int argc, char **argv) {
   try {
     std::cerr << "Chlorobot " << chlorobot_VSTRING_FULL << std::endl;
 
-    std::cerr << "Hooking SIGINT handler..." << std::endl;
-    signal(SIGQUIT, handle_signal);
+    std::cerr << "Hooking SIGTERM handler..." << std::endl;
+    signal(SIGTERM, handle_signal);
 
     // This should be stored in a .env file!
     const std::string nickname = std::getenv("CHLOROBOT_NICKNAME");
