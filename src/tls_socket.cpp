@@ -74,9 +74,9 @@ tls_socket::poll_state tls_socket::socket::_handle_data(int resource) {
       .tv_usec = tls_socket::io_timeout_microseconds,
   };
 
-  if (_wants_exit != 0) {
+  if (_wants_exit != 0 && _running) {
     disconnect();
-    return;
+    _running = false;
   }
 
   switch (SSL_get_error(_ssl.get(), resource)) {

@@ -19,6 +19,7 @@ constexpr static auto io_timeout_microseconds = 50'000;
 /// @brief Singleton for a SSL socket
 class socket {
   volatile static std::sig_atomic_t _wants_exit;
+  bool _running = true;
 
   static void handle_signal(int signal_number) {
     _wants_exit = 1;
