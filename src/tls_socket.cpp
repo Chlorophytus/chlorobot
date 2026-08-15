@@ -1,4 +1,6 @@
 #include "../include/tls_socket.hpp"
+#include "../include/irc_data.hpp"
+
 using namespace chlorobot;
 
 volatile std::sig_atomic_t wants_exit = 0;
@@ -257,6 +259,10 @@ void tls_socket::socket::disconnect() {
   if (!_ssl) {
     throw std::runtime_error{"SSL does not exist but its context does"};
   }
+
+  send(irc_data::packet{.command = "QUIT",
+                        .trailing_param = "Chlorobot v" chlorobot_VSTRING_FULL}
+           .serialize());
 
   int ret_code = SSL_shutdown(_ssl.get());
   std::cerr << "Trying to shut down and disconnect socket gracefully"
