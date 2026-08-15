@@ -242,13 +242,13 @@ void tls_socket::socket::disconnect() {
   int ret_code = SSL_shutdown(_ssl.get());
   std::cerr << "Trying to shut down and disconnect socket gracefully"
             << std::endl;
-  while (ret_code) {
+  while (ret_code != 0) {
     ret_code = SSL_shutdown(_ssl.get());
   }
 
   // BIO should be automatically freed. Please let that be true.
-  _ssl = nullptr;
-  _context = nullptr;
+  _ssl.release();
+  _context.release();
   _gracefully_disconnected = true;
 }
 
