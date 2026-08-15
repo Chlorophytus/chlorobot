@@ -80,6 +80,7 @@ tls_socket::poll_state tls_socket::socket::_handle_data(int resource) {
 
   if (wants_exit != 0 && _running) {
     disconnect();
+    return tls_socket::poll_state::ok;
   }
 
   switch (SSL_get_error(_ssl.get(), resource)) {
