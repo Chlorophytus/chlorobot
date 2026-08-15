@@ -260,10 +260,6 @@ void tls_socket::socket::disconnect() {
     throw std::runtime_error{"SSL does not exist but its context does"};
   }
 
-  send(irc_data::packet{.command = "QUIT",
-                        .trailing_param = "Chlorobot v" chlorobot_VSTRING_FULL}
-           .serialize());
-
   int ret_code = SSL_shutdown(_ssl.get());
   std::cerr << "Trying to shut down and disconnect socket gracefully"
             << std::endl;

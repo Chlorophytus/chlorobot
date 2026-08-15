@@ -141,7 +141,10 @@ int scripting::calls::stop(lua_State *l) {
   std::cerr << "Startup script requested quit" << std::endl;
 
   tls_socket::socket &sock = tls_socket::socket::get_instance();
-  sock.disconnect();
+
+  sock.send(irc_data::packet{.command = "QUIT",
+                        .trailing_param = "Chlorobot v" chlorobot_VSTRING_FULL}
+           .serialize());
 
   return 0;
 }
