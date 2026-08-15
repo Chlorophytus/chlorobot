@@ -142,9 +142,10 @@ int scripting::calls::stop(lua_State *l) {
 
   tls_socket::socket &sock = tls_socket::socket::get_instance();
 
-  sock.send(irc_data::packet{.command = "QUIT",
-                        .trailing_param = "Chlorobot v" chlorobot_VSTRING_FULL}
-           .serialize());
+  sock.send(irc_data::packet{
+      .command = "QUIT", .trailing_param = "Chlorobot v" chlorobot_VSTRING_FULL}
+                .serialize());
+  sock.disconnect();
 
   return 0;
 }
