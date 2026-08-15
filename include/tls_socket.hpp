@@ -18,7 +18,18 @@ constexpr static auto io_timeout_microseconds = 50'000;
 
 /// @brief Singleton for a SSL socket
 class socket {
-  socket() = default;
+  volatile static std::sig_atomic_t _wants_exit;
+
+  static void handle_signal(int signal_number) {
+    _wants_exit = 1;
+  }
+
+  socket() {
+    _wants_exit = 0;
+    std::cerr << "Hooking SIGTERM handler in socket..." << std::endl;
+    std::signal(SIGTERM, handle_signal);
+  };
+
   socket(const socket &) = delete;
   socket(socket &&) = delete;
   socket &operator=(const socket &) = delete;

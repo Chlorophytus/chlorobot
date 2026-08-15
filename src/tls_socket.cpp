@@ -74,6 +74,11 @@ tls_socket::poll_state tls_socket::socket::_handle_data(int resource) {
       .tv_usec = tls_socket::io_timeout_microseconds,
   };
 
+  if (_wants_exit != 0) {
+    disconnect();
+    return;
+  }
+
   switch (SSL_get_error(_ssl.get(), resource)) {
   case SSL_ERROR_WANT_WRITE: {
     select(width, 0, &fds, 0, &tval);
@@ -205,7 +210,7 @@ std::optional<std::string> tls_socket::socket::recv() {
 
     switch (status) {
     case tls_socket::poll_state::end_of_stream: {
-      if(_gracefully_disconnected) {
+      if (_gracefully_disconnected) {
         std::cerr << "EOF success after graceful disconnect" << std::endl;
         return std::nullopt;
       } else {
