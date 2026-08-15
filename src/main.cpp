@@ -44,6 +44,8 @@ int main(int argc, char **argv) {
             if (*command == "ERROR") {
               std::cerr << "Disconnected: "
                         << packet.trailing_param.value_or("???") << std::endl;
+
+              sock.disconnect();
               break;
             }
             if (*command == "PING") {
