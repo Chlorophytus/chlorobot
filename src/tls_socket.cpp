@@ -205,7 +205,12 @@ std::optional<std::string> tls_socket::socket::recv() {
 
     switch (status) {
     case tls_socket::poll_state::end_of_stream: {
-      throw std::runtime_error{"Unexpected EOF encountered while reading"};
+      if(_gracefully_disconnected) {
+        std::cerr << "EOF success after graceful disconnect" << std::endl;
+        return std::nullopt;
+      } else {
+        throw std::runtime_error{"Unexpected EOF encountered while reading"};
+      }
     }
     case tls_socket::poll_state::error: {
       ERR_print_errors_fp(stderr);
