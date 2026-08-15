@@ -239,33 +239,11 @@ void tls_socket::socket::disconnect() {
     throw std::runtime_error{"SSL does not exist but its context does"};
   }
 
-  int ret_code;
+  int ret_code = SSL_shutdown(_ssl.get());
   std::cerr << "Trying to shut down and disconnect socket gracefully"
             << std::endl;
-  while ((ret_code = SSL_shutdown(_ssl.get()))) {
-    const tls_socket::poll_state status = _handle_data(ret_code);
-
-    if (ret_code < 0) {
-      switch (status) {
-      case tls_socket::poll_state::ok: {
-        break;
-      }
-      case tls_socket::poll_state::retry: {
-        continue;
-      }
-      case tls_socket::poll_state::end_of_stream: {
-        break;
-      }
-      case tls_socket::poll_state::error: {
-        break;
-      }
-      }
-
-      if (ret_code < 0) {
-        ERR_print_errors_fp(stderr);
-        throw std::runtime_error{"Could not gracefully shut down"};
-      }
-    }
+  while (ret_code) {
+    ret_code = SSL_shutdown(_ssl.get());
   }
 
   // BIO should be automatically freed. Please let that be true.
