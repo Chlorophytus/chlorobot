@@ -42,6 +42,11 @@ int main(int argc, char **argv) {
     while (sock) {
       auto received = sock.recv();
 
+      // Our quit signal handler
+      if(wants_exit != 0) {
+        sock.disconnect();
+      }
+
       if (received) {
         auto packets = chlorobot::irc_data::packet::parse(*received);
         for (auto packet : packets) {
@@ -63,11 +68,6 @@ int main(int argc, char **argv) {
         }
       } else {
         lua.maybe_handle_packet(std::nullopt);
-      }
-
-      // Our quit signal handler
-      if(wants_exit != 0) {
-        sock.disconnect();
       }
     }
 
